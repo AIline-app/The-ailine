@@ -1,25 +1,43 @@
+import 'package:yandex_mapkit/yandex_mapkit.dart';
+import '../../data/model_car_wash/model_car_wash.dart';
 
-part of 'map_bloc.dart';
+class CarWashState {
+  final bool isLoading;
+  final List<CarWashModel> allCarWashes;
+  final List<CarWashModel> visibleCarWashes;
+  final int selectedIndex;
+  final Point? currentPosition;
 
-abstract class MapState extends Equatable {
-  const MapState();
+  CarWashState({
+    required this.isLoading,
+    required this.allCarWashes,
+    required this.visibleCarWashes,
+    required this.selectedIndex,
+    required this.currentPosition,
+  });
 
-  @override
-  List<Object> get props => [];
-}
+  factory CarWashState.initial() => CarWashState(
+    isLoading: false,
+    allCarWashes: [],
+    visibleCarWashes: [],
+    selectedIndex: 0,
+    currentPosition: null,
+  );
 
-class MapInitialState extends MapState {}
-class MapLoadingState extends MapState {}
-class MapLoadedState extends MapState {}
-class MapErrorState extends MapState {
-  final String message;
-  const MapErrorState(this.message);
-}
-class LocationUpdatedState extends MapState {
-  final Point position;
-  const LocationUpdatedState(this.position);
-}
-class MarkersUpdatedState extends MapState {
-  final List<Point> markers;
-  const MarkersUpdatedState(this.markers);
+  CarWashState copyWith({
+    bool? isLoading,
+    List<CarWashModel>? allCarWashes,
+    List<CarWashModel>? visibleCarWashes,
+    int? selectedIndex,
+    Point? currentPosition,
+    String ? error,
+  }) {
+    return CarWashState(
+      isLoading: isLoading ?? this.isLoading,
+      allCarWashes: allCarWashes ?? this.allCarWashes,
+      visibleCarWashes: visibleCarWashes ?? this.visibleCarWashes,
+      selectedIndex: selectedIndex ?? this.selectedIndex,
+      currentPosition: currentPosition ?? this.currentPosition,
+    );
+  }
 }

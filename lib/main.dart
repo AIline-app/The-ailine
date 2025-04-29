@@ -1,9 +1,13 @@
+
+
+
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gghgggfsfs/presentation/client/map_home_screen.dart';
 
 void main() {
-  runApp(const AilineApp());
+  runApp(AilineApp());
 }
 
 class AilineApp extends StatelessWidget {
@@ -12,9 +16,8 @@ class AilineApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'Ailine',
-      home: MapHomeScreen(),
+      home: const MapHomeScreen(),
     );
   }
 }

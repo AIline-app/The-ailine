@@ -1,12 +1,15 @@
+import 'package:yandex_mapkit/yandex_mapkit.dart';
 
-part of 'map_bloc.dart';
+abstract class CarWashEvent {}
 
-abstract class MapEvent extends Equatable {
-  const MapEvent();
+class LoadCarWashes extends CarWashEvent {}
 
-  @override
-  List<Object> get props => [];
+class ChangeVisibleArea extends CarWashEvent {
+  final BoundingBox bounds;
+  ChangeVisibleArea(this.bounds);
 }
-class LoadMapEvent extends MapEvent {}
-class RequestLocationEvent extends MapEvent {}
-class AddMarkersEvent extends MapEvent {}
+
+class SelectCarWash extends CarWashEvent {
+  final int selectedIndex;
+  SelectCarWash(this.selectedIndex);
+}
