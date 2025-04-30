@@ -17,7 +17,6 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
   String selectedSortOption = 'Сортировать по';
   bool isExpanded = false;
 
-
   final CarWashRepository carWashRepository = CarWashRepository();
   late Future<List<CarWashModel>> _futureCarWashes;
   List<CarWashModel> carWashes = [];
@@ -29,7 +28,6 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
     super.initState();
     _futureCarWashes = carWashRepository.getAllCarWashes();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +43,7 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
             return Center(child: Text('Нет доступных автомоек'));
           }
 
-           carWashes = snapshot.data!;
+          carWashes = snapshot.data!;
 
           return Stack(
             children: [
@@ -60,6 +58,79 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                 alignment: Alignment.bottomCenter,
                 child: _buildCarWashCards(carWashes),
               ),
+              Center(
+                child: Container(
+                  width: 450,
+                  height: 800,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Вход',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+
+                            fontSize: 32,
+                            color: Color(0xff1F3D59),
+                          ),
+                        ),
+                        SizedBox(height: 30),
+                        TextFormField(
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            labelText: 'Номер телефона',
+                            labelStyle: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        TextFormField(
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 25),
+                        Text(
+                          'Забыли пароль?',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xff228CEE),
+                          ),
+                        ),
+                        SizedBox(height: 25,),
+                        SizedBox(
+                          width: 328,
+                          height: 96,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              backgroundColor: Color(0xff228CEE),
+                              foregroundColor: Colors.white
+                            ),
+                            onPressed: () {},
+                            child: Text('Войти', style: TextStyle(fontSize: 30),),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ],
           );
         },
@@ -69,21 +140,24 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
 
   void _addPlacemarks(List<CarWashModel> carWashes) {
     setState(() {
-      mapObjects = carWashes.map((wash) {
-        final isSelected = carWashes[selectedIndex].id == wash.id;
-        return PlacemarkMapObject(
-          mapId: MapObjectId(wash.id.toString()),
-          point: Point(latitude: wash.latitude, longitude: wash.longitude),
-          icon: PlacemarkIcon.single(
-            PlacemarkIconStyle(
-              image: BitmapDescriptor.fromAssetImage(
-                isSelected ? 'assets/icons/marker_selected.png' : 'assets/icons/marker.png',
+      mapObjects =
+          carWashes.map((wash) {
+            final isSelected = carWashes[selectedIndex].id == wash.id;
+            return PlacemarkMapObject(
+              mapId: MapObjectId(wash.id.toString()),
+              point: Point(latitude: wash.latitude, longitude: wash.longitude),
+              icon: PlacemarkIcon.single(
+                PlacemarkIconStyle(
+                  image: BitmapDescriptor.fromAssetImage(
+                    isSelected
+                        ? 'assets/icons/marker_selected.png'
+                        : 'assets/icons/marker.png',
+                  ),
+                  scale: isSelected ? 1.4 : 1.0,
+                ),
               ),
-              scale: isSelected ? 1.4 : 1.0,
-            ),
-          ),
-        );
-      }).toList();
+            );
+          }).toList();
     });
   }
 
@@ -93,7 +167,9 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
     } else if (selectedSortOption == 'Очередь') {
       carWashes.sort((a, b) => a.queueLength.compareTo(b.queueLength));
     } else if (selectedSortOption == 'Рейтинг') {
-      carWashes.sort((a, b) => b.rating.compareTo(a.rating)); // рейтинг от большего к меньшему
+      carWashes.sort(
+        (a, b) => b.rating.compareTo(a.rating),
+      ); // рейтинг от большего к меньшему
     }
   }
 
@@ -124,10 +200,15 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                 },
                 title: Text(
                   selectedSortOption,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 trailing: Icon(
-                  isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  isExpanded
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
                   color: Colors.black,
                 ),
                 children: [
@@ -184,11 +265,12 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                 );
               },
             ),
-          )
+          ),
         ],
       ),
     );
   }
+
   void _moveToCarWash(CarWashModel wash) {
     mapController.moveCamera(
       CameraUpdate.newCameraPosition(
@@ -197,7 +279,10 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
           zoom: 15,
         ),
       ),
-      animation: const MapAnimation(type: MapAnimationType.smooth, duration: 1.2),
+      animation: const MapAnimation(
+        type: MapAnimationType.smooth,
+        duration: 1.2,
+      ),
     );
   }
 }

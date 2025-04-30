@@ -1,4 +1,5 @@
 import 'package:yandex_mapkit/yandex_mapkit.dart';
+
 import '../../data/model_car_wash/model_car_wash.dart';
 
 class CarWashState {
@@ -30,7 +31,7 @@ class CarWashState {
     List<CarWashModel>? visibleCarWashes,
     int? selectedIndex,
     Point? currentPosition,
-    String ? error,
+    String? error,
   }) {
     return CarWashState(
       isLoading: isLoading ?? this.isLoading,

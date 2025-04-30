@@ -6,10 +6,10 @@ class CarWashCard extends StatelessWidget {
   final bool isSelected;
 
   const CarWashCard({
-    Key? key,
+    super.key,
     required this.carWash,
     this.isSelected = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

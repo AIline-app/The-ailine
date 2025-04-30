@@ -20,43 +20,47 @@ class CarWashBloc extends Bloc<CarWashEvent, CarWashState> {
   }
 
   Future<void> _onLoad(LoadCarWashes event, Emitter<CarWashState> emit) async {
-    emit(state.copyWith(isLoading: true,));
+    emit(state.copyWith(isLoading: true));
 
     try {
       final location = await _getUserLocation();
       final carWashes = await _fetchCarWashes();
 
-      emit(state.copyWith(
-        isLoading: false,
-        visibleCarWashes: carWashes,
-        allCarWashes: carWashes,
-        currentPosition: location,
-      ));
+      emit(
+        state.copyWith(
+          isLoading: false,
+          visibleCarWashes: carWashes,
+          allCarWashes: carWashes,
+          currentPosition: location,
+        ),
+      );
     } on LocationPermissionDeniedException catch (e) {
-      emit(state.copyWith(
-        isLoading: false,
-        error: e.message,
-      ));
+      emit(state.copyWith(isLoading: false, error: e.message));
     } on LocationServiceException catch (e) {
-      emit(state.copyWith(
-        isLoading: false,
-        error: e.message,
-      ));
+      emit(state.copyWith(isLoading: false, error: e.message));
     } catch (e, stackTrace) {
       log('Failed to load car washes', error: e, stackTrace: stackTrace);
-      emit(state.copyWith(
-        isLoading: false,
-        error: 'Не удалось загрузить список автомоек',
-      ));
+      emit(
+        state.copyWith(
+          isLoading: false,
+          error: 'Не удалось загрузить список автомоек',
+        ),
+      );
     }
   }
 
-  Future<void> _onAreaChanged(ChangeVisibleArea event, Emitter<CarWashState> emit) async {
+  Future<void> _onAreaChanged(
+    ChangeVisibleArea event,
+    Emitter<CarWashState> emit,
+  ) async {
     // Пока пустая обработка события изменения области видимости
     // Можно потом добавить фильтрацию автомоек по видимой области
   }
 
-  Future<void> _onSelect(SelectCarWash event, Emitter<CarWashState> emit) async {
+  Future<void> _onSelect(
+    SelectCarWash event,
+    Emitter<CarWashState> emit,
+  ) async {
     emit(state.copyWith(selectedIndex: event.selectedIndex));
   }
 
@@ -72,13 +76,11 @@ class CarWashBloc extends Bloc<CarWashEvent, CarWashState> {
       }
 
       final position = await Geolocator.getCurrentPosition(
+        // ignore: deprecated_member_use
         desiredAccuracy: LocationAccuracy.high,
       ).timeout(const Duration(seconds: 10));
 
-      return Point(
-        latitude: position.latitude,
-        longitude: position.longitude,
-      );
+      return Point(latitude: position.latitude, longitude: position.longitude);
     } on PlatformException catch (e) {
       throw LocationServiceException('Ошибка сервиса геолокации: ${e.message}');
     } on TimeoutException {
@@ -94,7 +96,8 @@ class CarWashBloc extends Bloc<CarWashEvent, CarWashState> {
     }
 
     return LocationPermissionStatus(
-      isGranted: permission == LocationPermission.always ||
+      isGranted:
+          permission == LocationPermission.always ||
           permission == LocationPermission.whileInUse,
       isPermanentlyDenied: permission == LocationPermission.deniedForever,
     );
@@ -102,8 +105,9 @@ class CarWashBloc extends Bloc<CarWashEvent, CarWashState> {
 
   Future<List<CarWashModel>> _fetchCarWashes() async {
     try {
-      return await repository.getAllCarWashes()
-          .timeout(const Duration(seconds: 15));
+      return await repository.getAllCarWashes().timeout(
+        const Duration(seconds: 15),
+      );
     } on TimeoutException {
       throw DataFetchingException('Таймаут загрузки данных');
     } on SocketException {
