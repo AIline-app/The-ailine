@@ -26,53 +26,79 @@ class CarWashCard extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            offset: Offset(0, 3),
-          ),
+          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '${carWash.distance.toInt()} метров от вас',
-            style: TextStyle(fontSize: 12, color: Colors.grey),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            carWash.name,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Перед вами: ${carWash.queueLength} машин',
-                style: const TextStyle(color: Colors.blue, fontSize: 14),
-              ),
-              Text(
-                '${carWash.boxCount} бокса',
-                style: const TextStyle(color: Colors.blue, fontSize: 14),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: List.generate(
-              5,
-                  (index) => Icon(
-                index < carWash.rating.round()
-                    ? Icons.star
-                    : Icons.star_border,
-                color: Colors.orange,
-                size: 18,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Stack(
+          children: [
+            // 👇 Background image
+            Positioned.fill(
+              child: Image.asset(
+                'assets/images/card_car.jpg',
+
+
+                color: Colors.black.withOpacity(0.4),
+                colorBlendMode: BlendMode.darken,
               ),
             ),
-          ),
-        ],
+
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${carWash.distance.toInt()} метров от вас',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    carWash.name,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Перед вами: ${carWash.queueLength} машин',
+                        style: const TextStyle(
+                          color: Colors.blue,
+                          fontSize: 14,
+                        ),
+                      ),
+                      Text(
+                        '${carWash.boxCount} бокса',
+                        style: const TextStyle(
+                          color: Colors.blue,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: List.generate(
+                      5,
+                      (index) => Icon(
+                        index < carWash.rating.round()
+                            ? Icons.star
+                            : Icons.star_border,
+                        color: Colors.orange,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
