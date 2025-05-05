@@ -37,7 +37,7 @@ class CarWashCard extends StatelessWidget {
             Positioned.fill(
               child: Image.asset(
                 'assets/images/card_car.jpg',
-
+                fit: BoxFit.cover,
 
                 color: Colors.black.withOpacity(0.4),
                 colorBlendMode: BlendMode.darken,
