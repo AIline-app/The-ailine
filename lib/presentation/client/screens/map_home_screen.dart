@@ -5,6 +5,7 @@ import 'package:gghgggfsfs/presentation/client/widgets/custom_textformfield.dart
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import '../../../data/model_car_wash/model_car_wash.dart';
 import '../../../core/widgets/car_wash_card.dart';
+import '../themes/main_colors.dart';
 
 class MapHomeScreen extends StatefulWidget {
   const MapHomeScreen({super.key});
@@ -56,6 +57,7 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                 },
                 mapObjects: mapObjects,
               ),
+
               Positioned(
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque, // обязательно
@@ -68,6 +70,7 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                 alignment: Alignment.bottomCenter,
                 child: _buildCarWashCards(carWashes),
               ),
+              SizedBox(height: 20),
             ],
           );
         },
@@ -80,77 +83,106 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
   void _showLoginDialog(BuildContext context) {
     showDialog(
       context: context,
-      barrierDismissible: true,
+
       builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.transparent,
-          contentPadding: EdgeInsets.zero,
-          content: Center(
-            child: Container(
-              width: 800,
-              height: 830,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: (){Navigator.pop(context);},
-                        child: Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: Colors.blue,
-
-                            borderRadius: BorderRadius.circular(8),
-
-                          ),
-                          child: Icon(Icons.close, color: Colors.white, size: 52),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 120,
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+        return SingleChildScrollView(
+          child: Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: EdgeInsets.all(30),
+            child: Center(
+              child: Container(
+                width: double.infinity,
+                height: 800,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Text(
-                          'Вход',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 32,
-                            color: Color(0xff1F3D59),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: Container(
+                            width: 56,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 52,
+                            ),
                           ),
                         ),
-                        SizedBox(height: 30),
-                        CustomTextformfield(text_in_button: 'Номер телефона'),
-                        SizedBox(height: 20),
-                        CustomTextformfield(text_in_button: 'Пароль'),
-                        SizedBox(height: 25),
-                        Text(
-                          'Забыли пароль?',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xff228CEE),
-                          ),
-                        ),
-                        SizedBox(height: 25),
-                        CustomButton(text_of_button: 'Войти'),
-                        SizedBox(height: 20),
-
                       ],
                     ),
-                  ),
-                ],
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 120,
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Вход',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 32,
+                              color: MainColors.mainBlue,
+                            ),
+                          ),
+                          SizedBox(height: 30),
+                          CustomTextformfield(text_in_button: 'Номер телефона'),
+                          SizedBox(height: 20),
+                          CustomTextformfield(text_in_button: 'Пароль'),
+                          SizedBox(height: 25),
+                          Text(
+                            'Забыли пароль?',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: MainColors.mainBlue,
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 2,
+                            child: Container(
+                              width: 95,
+                              height: 1,
+                              color: Colors.blue,
+                            ),
+                          ),
+                          SizedBox(height: 25),
+                          CustomButton(text_of_button: 'Войти'),
+                          SizedBox(height: 20),
+                          Text(
+                            'Регистрация',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600,
+                              color: MainColors.mainBlue,
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 2,
+                            child: Container(
+                              width: 150,
+                              height: 1,
+                              color: MainColors.mainBlue,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
