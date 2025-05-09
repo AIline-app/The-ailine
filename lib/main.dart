@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gghgggfsfs/presentation/client/screens/map_home_screen.dart';
+import 'package:gghgggfsfs/routes.dart';
 
 void main() {
   runApp(AilineApp());
@@ -13,6 +14,8 @@ class AilineApp extends StatelessWidget {
     return MaterialApp(
       title: 'Ailine',
       home: const MapHomeScreen(),
+      initialRoute: AppRoutes.home,
+      onGenerateRoute: AppRoutes.generateRoute,
     );
   }
 }

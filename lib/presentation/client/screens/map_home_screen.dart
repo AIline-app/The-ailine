@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gghgggfsfs/data/repository/car_wash_repository.dart';
 import 'package:gghgggfsfs/presentation/client/widgets/custom_button.dart';
 import 'package:gghgggfsfs/presentation/client/widgets/custom_textformfield.dart';
+import 'package:gghgggfsfs/routes.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import '../../../data/model_car_wash/model_car_wash.dart';
 import '../../../core/widgets/car_wash_card.dart';
@@ -123,9 +124,10 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                       ],
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 120,
+                      padding: const EdgeInsets.only(
+                        right: 30,
+                        left: 30,
+                        top: 120,
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -135,7 +137,7 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 32,
-                              color: MainColors.mainBlue,
+                              color: MainColors.mainDeepBlue,
                             ),
                           ),
                           SizedBox(height: 30),
@@ -143,39 +145,74 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                           SizedBox(height: 20),
                           CustomTextformfield(text_in_button: 'Пароль'),
                           SizedBox(height: 25),
-                          Text(
-                            'Забыли пароль?',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: MainColors.mainBlue,
+                          TextButton(
+                            onPressed: () {},
+                            style: TextButton.styleFrom(
+                              overlayColor: Colors.transparent,
+                            ),
+                            child: Text(
+                              'Забыли пароль?',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: MainColors.mainBlue,
+                              ),
                             ),
                           ),
                           Positioned(
                             bottom: 2,
                             child: Container(
-                              width: 95,
-                              height: 1,
+                              width: 120,
+                              height: 2,
                               color: Colors.blue,
                             ),
                           ),
                           SizedBox(height: 25),
                           CustomButton(text_of_button: 'Войти'),
                           SizedBox(height: 20),
-                          Text(
-                            'Регистрация',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w600,
-                              color: MainColors.mainBlue,
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, AppRoutes.reg);
+                            },
+
+                            child: Text(
+                              'Регистрация',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w600,
+                                color: MainColors.mainBlue,
+                              ),
                             ),
                           ),
                           Positioned(
                             bottom: 2,
                             child: Container(
                               width: 150,
-                              height: 1,
+                              height: 2,
                               color: MainColors.mainBlue,
+                            ),
+                          ),
+                          SizedBox(height: 130),
+                          TextButton(
+                            onPressed: () {},
+                            style: TextButton.styleFrom(
+                              overlayColor: Colors.transparent,
+                            ),
+                            child: Text(
+                              'Стать партнером',
+                              style: TextStyle(
+                                fontSize: 27,
+                                fontWeight: FontWeight.w600,
+                                color: MainColors.mainOrrange,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 2,
+                            child: Container(
+                              width: 220,
+                              height: 2,
+                              color: MainColors.mainOrrange,
                             ),
                           ),
                         ],
