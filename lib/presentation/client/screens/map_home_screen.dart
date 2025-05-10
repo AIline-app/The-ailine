@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gghgggfsfs/core/api_client/api_client.dart';
 import 'package:gghgggfsfs/data/repository/car_wash_repository.dart';
 import 'package:gghgggfsfs/presentation/client/widgets/custom_button.dart';
 import 'package:gghgggfsfs/presentation/client/widgets/custom_textformfield.dart';
@@ -19,7 +20,7 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
   String selectedSortOption = 'Сортировать по';
   bool isExpanded = false;
 
-  final CarWashRepository carWashRepository = CarWashRepository();
+  final CarWashRepository carWashRepository = CarWashRepository(apiClient: ApiClient());
   late Future<List<CarWashModel>> _futureCarWashes;
   List<CarWashModel> carWashes = [];
 
@@ -58,10 +59,11 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
               ),
               Positioned(
                 child: GestureDetector(
-                  behavior: HitTestBehavior.opaque, // обязательно
+                  behavior: HitTestBehavior.opaque,
                   onTap: () {
                     _showLoginDialog(context);
                   },
+                  child: Container(),
                 ),
               ),
               Align(
@@ -75,128 +77,9 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
     );
   }
 
-  // Alert Dialog for sign in
-
-  void _showLoginDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.transparent,
-          contentPadding: EdgeInsets.zero,
-          content: Center(
-            child: Container(
-              width: 800,
-              height: 830,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: (){Navigator.pop(context);},
-                        child: Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: Colors.blue,
-
-                            borderRadius: BorderRadius.circular(8),
-
-                          ),
-                          child: Icon(Icons.close, color: Colors.white, size: 52),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 120,
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Вход',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 32,
-                            color: Color(0xff1F3D59),
-                          ),
-                        ),
-                        SizedBox(height: 30),
-                        CustomTextformfield(text_in_button: 'Номер телефона'),
-                        SizedBox(height: 20),
-                        CustomTextformfield(text_in_button: 'Пароль'),
-                        SizedBox(height: 25),
-                        Text(
-                          'Забыли пароль?',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xff228CEE),
-                          ),
-                        ),
-                        SizedBox(height: 25),
-                        CustomButton(text_of_button: 'Войти'),
-                        SizedBox(height: 20),
-
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _addPlacemarks(List<CarWashModel> carWashes) {
-    setState(() {
-      mapObjects =
-          carWashes.map((wash) {
-            final isSelected = carWashes[selectedIndex].id == wash.id;
-            return PlacemarkMapObject(
-              mapId: MapObjectId(wash.id.toString()),
-              point: Point(latitude: wash.latitude, longitude: wash.longitude),
-              icon: PlacemarkIcon.single(
-                PlacemarkIconStyle(
-                  image: BitmapDescriptor.fromAssetImage(
-                    isSelected
-                        ? 'assets/icons/marker_selected.png'
-                        : 'assets/icons/marker.png',
-                  ),
-                  scale: isSelected ? 1.4 : 1.0,
-                ),
-              ),
-            );
-          }).toList();
-    });
-  }
-
-  void _sortCarWashes() {
-    if (selectedSortOption == 'Расстояние') {
-      carWashes.sort((a, b) => a.distance.compareTo(b.distance));
-    } else if (selectedSortOption == 'Очередь') {
-      carWashes.sort((a, b) => a.queueLength.compareTo(b.queueLength));
-    } else if (selectedSortOption == 'Рейтинг') {
-      carWashes.sort(
-        (a, b) => b.rating.compareTo(a.rating),
-      ); // рейтинг от большего к меньшему
-    }
-  }
-
   Widget _buildCarWashCards(List<CarWashModel> carWashes) {
     return Container(
-      height: 240,
+      height: 300,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -292,11 +175,47 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
     );
   }
 
+  void _addPlacemarks(List<CarWashModel> carWashes) {
+    final hasCoordinates = carWashes.any((wash) => wash.latitude != null && wash.longitude != null);
+
+    if (!hasCoordinates) {
+      setState(() => mapObjects = []);
+      return;
+    }
+
+    setState(() {
+      mapObjects = carWashes.where((wash) => wash.latitude != null && wash.longitude != null).map((wash) {
+        final isSelected = carWashes[selectedIndex].id == wash.id;
+        return PlacemarkMapObject(
+          mapId: MapObjectId(wash.id.toString()),
+          point: Point(latitude: wash.latitude!, longitude: wash.longitude!),
+          icon: PlacemarkIcon.single(
+            PlacemarkIconStyle(
+              image: BitmapDescriptor.fromAssetImage(
+                isSelected
+                    ? 'assets/icons/marker_selected.png'
+                    : 'assets/icons/marker.png',
+              ),
+              scale: isSelected ? 1.4 : 1.0,
+            ),
+          ),
+          onTap: (mapObject, point) {
+            setState(() {
+              selectedIndex = carWashes.indexWhere((w) => w.id == int.parse(mapObject.mapId.value));
+            });
+          },
+        );
+      }).toList();
+    });
+  }
+
   void _moveToCarWash(CarWashModel wash) {
+    if (wash.latitude == null || wash.longitude == null) return;
+
     mapController.moveCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
-          target: Point(latitude: wash.latitude, longitude: wash.longitude),
+          target: Point(latitude: wash.latitude!, longitude: wash.longitude!),
           zoom: 15,
         ),
       ),
@@ -304,6 +223,95 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
         type: MapAnimationType.smooth,
         duration: 1.2,
       ),
+    );
+  }
+
+  void _sortCarWashes() {
+    if (selectedSortOption == 'Расстояние') {
+      carWashes.sort((a, b) => b.rating.compareTo(a.rating));
+    } else if (selectedSortOption == 'Очередь') {
+      carWashes.sort((a, b) => a.slots.compareTo(b.slots));
+    } else if (selectedSortOption == 'Рейтинг') {
+      carWashes.sort((a, b) => b.rating.compareTo(a.rating));
+    }
+  }
+
+  void _showLoginDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.transparent,
+          contentPadding: EdgeInsets.zero,
+          content: Center(
+            child: Container(
+              width: 800,
+              height: 830,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(Icons.close, color: Colors.white, size: 52),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 120,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Вход',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 32,
+                            color: Color(0xff1F3D59),
+                          ),
+                        ),
+                        SizedBox(height: 30),
+                        CustomTextformfield(text_in_button: 'Номер телефона'),
+                        SizedBox(height: 20),
+                        CustomTextformfield(text_in_button: 'Пароль'),
+                        SizedBox(height: 25),
+                        Text(
+                          'Забыли пароль?',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xff228CEE),
+                          ),
+                        ),
+                        SizedBox(height: 25),
+                        CustomButton(text_of_button: 'Войти'),
+                        SizedBox(height: 20),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
