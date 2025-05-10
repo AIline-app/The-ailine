@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gghgggfsfs/data/repository/car_wash_repository.dart';
+import 'package:gghgggfsfs/presentation/auth/screens/phone_signup_screen.dart';
 import 'package:gghgggfsfs/presentation/client/widgets/custom_button.dart';
 import 'package:gghgggfsfs/presentation/client/widgets/custom_textformfield.dart';
 import 'package:gghgggfsfs/routes.dart';
@@ -265,7 +266,7 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
 
   Widget _buildCarWashCards(List<CarWashModel> carWashes) {
     return Container(
-      height: 240,
+      height: 500,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
