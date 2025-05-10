@@ -26,7 +26,7 @@ TextTheme customTextTheme = TextTheme(
   ),
 
   bodyMedium: TextStyle(
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: FontWeight.w400,
     color: customColorScheme.onSurface,
   ),

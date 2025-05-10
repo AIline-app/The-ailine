@@ -14,5 +14,5 @@ final ColorScheme customColorScheme = ColorScheme(
   onSurface: Color(0xFF4A4A4A),
   background: Color(0xFFE6E6E6),
   onBackground: Color(0xFF1F3D59),
-  outline: Colors.grey.shade500,
+  outline: Color(0xFFCBCBCB),
 );

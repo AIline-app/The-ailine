@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gghgggfsfs/data/repository/car_wash_repository.dart';
+import 'package:gghgggfsfs/presentation/auth/screens/phone_signup_screen.dart';
 import 'package:gghgggfsfs/presentation/client/widgets/custom_button.dart';
 import 'package:gghgggfsfs/presentation/client/widgets/custom_textformfield.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
@@ -99,7 +100,9 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       GestureDetector(
-                        onTap: (){Navigator.pop(context);},
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
                         child: Container(
                           width: 56,
                           height: 56,
@@ -107,9 +110,12 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                             color: Colors.blue,
 
                             borderRadius: BorderRadius.circular(8),
-
                           ),
-                          child: Icon(Icons.close, color: Colors.white, size: 52),
+                          child: Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 52,
+                          ),
                         ),
                       ),
                     ],
@@ -147,6 +153,24 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                         CustomButton(text_of_button: 'Войти'),
                         SizedBox(height: 20),
 
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PhoneSignupScreen(),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            'Регистрация',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xff228CEE),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -196,7 +220,7 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
 
   Widget _buildCarWashCards(List<CarWashModel> carWashes) {
     return Container(
-      height: 240,
+      height: 500,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),

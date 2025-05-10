@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:gghgggfsfs/core/theme/color_schemes.dart';
 import 'package:gghgggfsfs/core/theme/text_theme.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 final ThemeData appTheme = ThemeData(
   useMaterial3: true,
-  scaffoldBackgroundColor: customColorScheme.onBackground,
+  scaffoldBackgroundColor: customColorScheme.background,
   colorScheme: customColorScheme,
-  textTheme: customTextTheme,
+  textTheme: GoogleFonts.interTextTheme(customTextTheme),
+  appBarTheme: AppBarTheme(backgroundColor: customColorScheme.background),
 );

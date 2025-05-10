@@ -15,6 +15,7 @@ class AilineApp extends StatelessWidget {
       title: 'Ailine',
       home: const MapHomeScreen(),
       theme: appTheme,
+      
     );
   }
 }
