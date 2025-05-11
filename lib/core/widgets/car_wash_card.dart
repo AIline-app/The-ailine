@@ -34,6 +34,8 @@ class CarWashCard extends StatelessWidget {
         child: Stack(
           children: [
             // 👇 Background image
+
+
             Positioned.fill(
               child: Image.asset(
                 'assets/images/card_car.jpg',
@@ -41,6 +43,7 @@ class CarWashCard extends StatelessWidget {
                 colorBlendMode: BlendMode.darken,
               ),
             ),
+
 
             Padding(
               padding: const EdgeInsets.all(16.0),
