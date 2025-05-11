@@ -327,6 +327,51 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                         SizedBox(height: 25),
                         CustomButton(text_of_button: 'Войти'),
                         SizedBox(height: 20),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, AppRoutes.reg);
+                          },
+
+                          child: Text(
+                            'Регистрация',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600,
+                              color: MainColors.mainBlue,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 2,
+                          child: Container(
+                            width: 150,
+                            height: 2,
+                            color: MainColors.mainBlue,
+                          ),
+                        ),
+                        SizedBox(height: 130),
+                        TextButton(
+                          onPressed: () {},
+                          style: TextButton.styleFrom(
+                            overlayColor: Colors.transparent,
+                          ),
+                          child: Text(
+                            'Стать партнером',
+                            style: TextStyle(
+                              fontSize: 27,
+                              fontWeight: FontWeight.w600,
+                              color: MainColors.mainOrrange,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 2,
+                          child: Container(
+                            width: 220,
+                            height: 2,
+                            color: MainColors.mainOrrange,
+                          ),
+                        ),
                       ],
                     ),
                   ),
