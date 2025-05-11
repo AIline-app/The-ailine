@@ -23,7 +23,9 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
   String selectedSortOption = 'Сортировать по';
   bool isExpanded = false;
 
-  final CarWashRepository carWashRepository = CarWashRepository(apiClient: ApiClient());
+  final CarWashRepository carWashRepository = CarWashRepository(
+    apiClient: ApiClient(),
+  );
   late Future<List<CarWashModel>> _futureCarWashes;
   List<CarWashModel> carWashes = [];
 
@@ -82,199 +84,11 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
     );
   }
 
-
   // Alert Dialog for sign in
 
-  void _showLoginDialog(BuildContext context) {
-    showDialog(
-      context: context,
-
-      builder: (BuildContext context) {
-        return SingleChildScrollView(
-          child: Dialog(
-            backgroundColor: Colors.transparent,
-            insetPadding: EdgeInsets.all(30),
-            child: Center(
-              child: Container(
-                width: double.infinity,
-                height: 800,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: Container(
-                            width: 56,
-                            height: 56,
-                            decoration: BoxDecoration(
-                              color: Colors.blue,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(
-                              Icons.close,
-                              color: Colors.white,
-                              size: 52,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        right: 30,
-                        left: 30,
-                        top: 120,
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Вход',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 32,
-                              color: MainColors.mainDeepBlue,
-                            ),
-                          ),
-                          SizedBox(height: 30),
-                          CustomTextformfield(text_in_button: 'Номер телефона'),
-                          SizedBox(height: 20),
-                          CustomTextformfield(text_in_button: 'Пароль'),
-                          SizedBox(height: 25),
-                          TextButton(
-                            onPressed: () {},
-                            style: TextButton.styleFrom(
-                              overlayColor: Colors.transparent,
-                            ),
-                            child: Text(
-                              'Забыли пароль?',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: MainColors.mainBlue,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 2,
-                            child: Container(
-                              width: 120,
-                              height: 2,
-                              color: Colors.blue,
-                            ),
-                          ),
-                          SizedBox(height: 25),
-                          CustomButton(text_of_button: 'Войти'),
-                          SizedBox(height: 20),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, AppRoutes.reg);
-                            },
-
-                            child: Text(
-                              'Регистрация',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w600,
-                                color: MainColors.mainBlue,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 2,
-                            child: Container(
-                              width: 150,
-                              height: 2,
-                              color: MainColors.mainBlue,
-                            ),
-                          ),
-                          SizedBox(height: 130),
-                          TextButton(
-                            onPressed: () {},
-                            style: TextButton.styleFrom(
-                              overlayColor: Colors.transparent,
-                            ),
-                            child: Text(
-                              'Стать партнером',
-                              style: TextStyle(
-                                fontSize: 27,
-                                fontWeight: FontWeight.w600,
-                                color: MainColors.mainOrrange,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 2,
-                            child: Container(
-                              width: 220,
-                              height: 2,
-                              color: MainColors.mainOrrange,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _addPlacemarks(List<CarWashModel> carWashes) {
-    setState(() {
-      mapObjects =
-          carWashes.map((wash) {
-            final isSelected = carWashes[selectedIndex].id == wash.id;
-            return PlacemarkMapObject(
-              mapId: MapObjectId(wash.id.toString()),
-              point: Point(latitude: wash.latitude, longitude: wash.longitude),
-              icon: PlacemarkIcon.single(
-                PlacemarkIconStyle(
-                  image: BitmapDescriptor.fromAssetImage(
-                    isSelected
-                        ? 'assets/icons/marker_selected.png'
-                        : 'assets/icons/marker.png',
-                  ),
-                  scale: isSelected ? 1.4 : 1.0,
-                ),
-              ),
-            );
-          }).toList();
-    });
-  }
-
-  void _sortCarWashes() {
-    if (selectedSortOption == 'Расстояние') {
-      carWashes.sort((a, b) => a.distance.compareTo(b.distance));
-    } else if (selectedSortOption == 'Очередь') {
-      carWashes.sort((a, b) => a.queueLength.compareTo(b.queueLength));
-    } else if (selectedSortOption == 'Рейтинг') {
-      carWashes.sort(
-        (a, b) => b.rating.compareTo(a.rating),
-      ); // рейтинг от большего к меньшему
-    }
-  }
-
-  Widget _buildCarWashCards(List<CarWashModel> carWashes) {
-    return Container(
-      height: 500,
-=======
   Widget _buildCarWashCards(List<CarWashModel> carWashes) {
     return Container(
       height: 300,
-
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -371,7 +185,9 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
   }
 
   void _addPlacemarks(List<CarWashModel> carWashes) {
-    final hasCoordinates = carWashes.any((wash) => wash.latitude != null && wash.longitude != null);
+    final hasCoordinates = carWashes.any(
+      (wash) => wash.latitude != null && wash.longitude != null,
+    );
 
     if (!hasCoordinates) {
       setState(() => mapObjects = []);
@@ -379,28 +195,37 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
     }
 
     setState(() {
-      mapObjects = carWashes.where((wash) => wash.latitude != null && wash.longitude != null).map((wash) {
-        final isSelected = carWashes[selectedIndex].id == wash.id;
-        return PlacemarkMapObject(
-          mapId: MapObjectId(wash.id.toString()),
-          point: Point(latitude: wash.latitude!, longitude: wash.longitude!),
-          icon: PlacemarkIcon.single(
-            PlacemarkIconStyle(
-              image: BitmapDescriptor.fromAssetImage(
-                isSelected
-                    ? 'assets/icons/marker_selected.png'
-                    : 'assets/icons/marker.png',
-              ),
-              scale: isSelected ? 1.4 : 1.0,
-            ),
-          ),
-          onTap: (mapObject, point) {
-            setState(() {
-              selectedIndex = carWashes.indexWhere((w) => w.id == int.parse(mapObject.mapId.value));
-            });
-          },
-        );
-      }).toList();
+      mapObjects =
+          carWashes
+              .where((wash) => wash.latitude != null && wash.longitude != null)
+              .map((wash) {
+                final isSelected = carWashes[selectedIndex].id == wash.id;
+                return PlacemarkMapObject(
+                  mapId: MapObjectId(wash.id.toString()),
+                  point: Point(
+                    latitude: wash.latitude!,
+                    longitude: wash.longitude!,
+                  ),
+                  icon: PlacemarkIcon.single(
+                    PlacemarkIconStyle(
+                      image: BitmapDescriptor.fromAssetImage(
+                        isSelected
+                            ? 'assets/icons/marker_selected.png'
+                            : 'assets/icons/marker.png',
+                      ),
+                      scale: isSelected ? 1.4 : 1.0,
+                    ),
+                  ),
+                  onTap: (mapObject, point) {
+                    setState(() {
+                      selectedIndex = carWashes.indexWhere(
+                        (w) => w.id == int.parse(mapObject.mapId.value),
+                      );
+                    });
+                  },
+                );
+              })
+              .toList();
     });
   }
 
@@ -461,7 +286,11 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                             color: Colors.blue,
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Icon(Icons.close, color: Colors.white, size: 52),
+                          child: Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 52,
+                          ),
                         ),
                       ),
                     ],
