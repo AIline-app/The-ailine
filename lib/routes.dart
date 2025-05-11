@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gghgggfsfs/presentation/auth/screens/otp_signup_screen.dart';
 import 'package:gghgggfsfs/presentation/client/screens/map_home_screen.dart';
 import 'package:gghgggfsfs/presentation/client/screens/reg_phone_password.dart';
 
@@ -12,7 +13,7 @@ class AppRoutes {
       case home:
         return MaterialPageRoute(builder: (_) => MapHomeScreen());
       case reg:
-        return MaterialPageRoute(builder: (_) => RegPhonePassword());
+        return MaterialPageRoute(builder: (_) => OtpSignupScreen());
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(

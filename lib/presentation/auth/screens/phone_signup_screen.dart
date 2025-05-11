@@ -2,6 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gghgggfsfs/presentation/auth/screens/otp_signup_screen.dart';
+import 'package:gghgggfsfs/presentation/auth/widgets/custom_back_button.dart';
+import 'package:gghgggfsfs/presentation/auth/widgets/custom_button.dart';
+import 'package:gghgggfsfs/presentation/auth/widgets/custom_text_field.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 
 class PhoneSignupScreen extends StatefulWidget {
@@ -17,18 +21,7 @@ class _PhoneSignupScreenState extends State<PhoneSignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          icon: SvgPicture.asset(
-            "assets/icons/arrow_back.svg",
-            width: 20,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-      ),
+      appBar: AppBar(leading: CustomBackButton()),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
@@ -55,83 +48,25 @@ class _PhoneSignupScreenState extends State<PhoneSignupScreen> {
                       style: Theme.of(context).textTheme.displayMedium,
                     ),
 
-                    Container(
-                      padding: EdgeInsets.symmetric(vertical: 10),
-                      height: 65,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.outline,
-                          width: 4,
-                        ),
-                      ),
-                      child: TextFormField(
-                        style: TextStyle(fontSize: 20),
-                        maxLength: 20,
-                        decoration: InputDecoration(
-                          counterText: "",
-                          fillColor: Colors.white,
-                          filled: true,
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                          ),
-                          label: Text("Номер телефона"),
-                          labelStyle: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                      ),
-                    ),
+                    CustomTextField(labelText: "Номер телефона"),
 
-                    Container(
-                      padding: EdgeInsets.symmetric(vertical: 10),
-                      height: 65,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
+                    CustomTextField(
+                      labelText: "Придумайте пароль",
+                      icon: InkWell(
+                        onTap: () {
+                          setState(() {
+                            isClicked = !isClicked;
+                          });
+                        },
+                        child: Icon(
+                          isClicked
+                              ? IconsaxPlusLinear.eye
+                              : IconsaxPlusLinear.eye_slash,
+                          size: 30,
                           color: Theme.of(context).colorScheme.outline,
-                          width: 4,
                         ),
                       ),
-                      child: TextFormField(
-                        style: TextStyle(fontSize: 20),
-                        maxLength: 20,
-                        obscureText: !isClicked,
-                        decoration: InputDecoration(
-                          counterText: "",
-                          fillColor: Colors.white,
-                          filled: true,
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                          ),
-                          label: Text("Придумайте пароль"),
-                          labelStyle: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                          suffixIcon: InkWell(
-                            onTap: () {
-                              setState(() {
-                                isClicked = !isClicked;
-                              });
-                            },
-                            child: Icon(
-                              isClicked
-                                  ? IconsaxPlusLinear.eye
-                                  : IconsaxPlusLinear.eye_slash,
-                              size: 30,
-                              color: Theme.of(context).colorScheme.outline,
-                            ),
-                          ),
-                        ),
-                      ),
+                      isClicked: isClicked,
                     ),
 
                     Text(
@@ -141,21 +76,16 @@ class _PhoneSignupScreenState extends State<PhoneSignupScreen> {
                   ],
                 ),
 
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    minimumSize: Size(double.infinity, 100),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      side: BorderSide(
-                        color: Theme.of(context).colorScheme.tertiary,
-                        width: 5,
+                CustomButton(
+                  text: "Далее",
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => OtpSignupScreen(),
                       ),
-                    ),
-                  ),
-                  onPressed: () {},
-                  child: Text("Далее"),
+                    );
+                  },
                 ),
               ],
             ),

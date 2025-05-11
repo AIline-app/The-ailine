@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gghgggfsfs/core/api_client/api_client.dart';
 import 'package:gghgggfsfs/data/repository/car_wash_repository.dart';
-import 'package:gghgggfsfs/presentation/auth/screens/phone_signup_screen.dart';
 import 'package:gghgggfsfs/presentation/client/widgets/custom_button.dart';
 import 'package:gghgggfsfs/presentation/client/widgets/custom_textformfield.dart';
 import 'package:gghgggfsfs/routes.dart';
