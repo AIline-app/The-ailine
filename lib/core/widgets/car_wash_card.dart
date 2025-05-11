@@ -35,6 +35,16 @@ class CarWashCard extends StatelessWidget {
           children: [
             // 👇 Background image
 
+
+            Positioned.fill(
+              child: Image.asset(
+                'assets/images/card_car.jpg',
+                color: Colors.black.withOpacity(0.4),
+                colorBlendMode: BlendMode.darken,
+              ),
+            ),
+
+
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -46,7 +56,7 @@ class CarWashCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    carWash.name,
+                    carWash.title,
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -57,14 +67,14 @@ class CarWashCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Перед вами: ${carWash.queueLength} машин',
+                        'Перед вами: ${carWash.queueLenght} машин',
                         style: const TextStyle(
                           color: Colors.blue,
                           fontSize: 14,
                         ),
                       ),
                       Text(
-                        '${carWash.boxCount} бокса',
+                        '${carWash.slots} бокса',
                         style: const TextStyle(
                           color: Colors.blue,
                           fontSize: 14,

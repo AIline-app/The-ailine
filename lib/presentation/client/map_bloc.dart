@@ -9,7 +9,6 @@ import 'package:yandex_mapkit/yandex_mapkit.dart';
 import '../../data/repository/car_wash_repository.dart';
 import 'map_event.dart';
 import 'map_state.dart';
-
 class CarWashBloc extends Bloc<CarWashEvent, CarWashState> {
   final CarWashRepository repository;
 
