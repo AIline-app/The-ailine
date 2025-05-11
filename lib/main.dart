@@ -7,6 +7,7 @@ import 'package:gghgggfsfs/routes.dart';
 
 void main() {
   runApp(AilineApp());
+  
 }
 
 class AilineApp extends StatelessWidget {
