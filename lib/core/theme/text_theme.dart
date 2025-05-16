@@ -5,24 +5,24 @@ TextTheme customTextTheme = TextTheme(
   displayLarge: TextStyle(
     fontSize: 32,
     fontWeight: FontWeight.w700,
-    color: customColorScheme.onBackground,
+    color: customColorScheme.onPrimary,
   ),
   displayMedium: TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.w700,
-    color: customColorScheme.onBackground,
+    color: customColorScheme.onSurface,
   ),
 
   displaySmall: TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w700,
-    color: customColorScheme.onBackground,
+    color: customColorScheme.onSurface,
   ),
 
   headlineLarge: TextStyle(
     fontSize: 44,
     fontWeight: FontWeight.w500,
-    color: customColorScheme.onBackground,
+    color: customColorScheme.onSurface,
   ),
 
   bodyMedium: TextStyle(
@@ -46,4 +46,5 @@ TextTheme customTextTheme = TextTheme(
     fontWeight: FontWeight.w600,
     color: customColorScheme.primary,
   ),
+ 
 );

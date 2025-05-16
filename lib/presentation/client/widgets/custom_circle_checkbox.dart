@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
-class CustomCheckboxWidget extends StatefulWidget {
-  const CustomCheckboxWidget({super.key});
+class CustomCircleCheckbox extends StatefulWidget {
+  const CustomCircleCheckbox({super.key});
 
   @override
-  _CustomCheckboxWidgetState createState() => _CustomCheckboxWidgetState();
+  // ignore: library_private_types_in_public_api
+  _CustomCircleCheckboxState createState() => _CustomCircleCheckboxState();
 }
 
-class _CustomCheckboxWidgetState extends State<CustomCheckboxWidget> {
+class _CustomCircleCheckboxState extends State<CustomCircleCheckbox> {
   bool _isChecked = false;
 
   @override
@@ -21,7 +22,7 @@ class _CustomCheckboxWidgetState extends State<CustomCheckboxWidget> {
       child: Container(
         padding: const EdgeInsets.all(2.0),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12.0),
+          borderRadius: BorderRadius.circular(16.0),
           border: Border.all(
             color:
                 // _isChecked
@@ -40,7 +41,7 @@ class _CustomCheckboxWidgetState extends State<CustomCheckboxWidget> {
                   ? null
                   : BoxDecoration(
                     color: Theme.of(context).colorScheme.secondary,
-                    borderRadius: BorderRadius.circular(6.0),
+                    borderRadius: BorderRadius.circular(10.0),
                     border: Border.all(
                       color: Theme.of(context).colorScheme.secondary,
                       width: 2,
