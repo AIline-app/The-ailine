@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/presentation/client/widgets/custom_circle_checkbox.dart';
+import 'package:gghgggfsfs/presentation/auth/widgets/custom_checkbox.dart';
 
-class TarifsSection extends StatelessWidget {
-  const TarifsSection({
+class AnotherService extends StatelessWidget {
+  const AnotherService({
     super.key,
 
     required this.title,
@@ -19,7 +19,7 @@ class TarifsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: CustomCircleCheckbox(),
+      leading: CustomCheckboxWidget(),
       title: Text(
         title,
         style: TextStyle(

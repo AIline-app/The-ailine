@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:gghgggfsfs/core/theme/color_schemes.dart';
 import 'package:gghgggfsfs/presentation/auth/widgets/custom_back_button.dart';
 import 'package:gghgggfsfs/presentation/auth/widgets/custom_button.dart';
+import 'package:gghgggfsfs/presentation/auth/widgets/custom_checkbox.dart';
+import 'package:gghgggfsfs/presentation/client/themes/main_colors.dart';
+import 'package:gghgggfsfs/presentation/client/widgets/another_service.dart';
 import 'package:gghgggfsfs/presentation/client/widgets/tarifs_section.dart';
 import 'package:gghgggfsfs/presentation/client/widgets/type_car_button.dart';
 
@@ -21,10 +24,11 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
       backgroundColor: const Color.fromARGB(255, 243, 241, 241),
       appBar: AppBar(leading: CustomBackButton()),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(10.0),
         child: SingleChildScrollView(
           child: SingleChildScrollView(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
@@ -184,39 +188,132 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                 ),
                 SizedBox(height: 20),
                 Container(
-                  height: 345,
+                  height: 310,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: ListView(
+                    children: [
+                      TarifsSection(
+                        title: 'Стандарт',
+                        subtitle: 'Пена, вода, сушка',
+                        minutes: '30 мин',
+                        price: '500р',
+                      ),
+                      TarifsSection(
+                        title: 'Стандарт',
+                        subtitle: 'Пена, вода, сушка',
+                        minutes: '30 мин',
+                        price: '500р',
+                      ),
+                      TarifsSection(
+                        title: 'Стандарт',
+                        subtitle: 'Пена, вода, сушка',
+                        minutes: '30 мин',
+                        price: '500р',
+                      ),
+                      TarifsSection(
+                        title: 'Стандарт',
+                        subtitle: 'Пена, вода, сушка',
+                        minutes: '30 мин',
+                        price: '500р',
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20),
+                Padding(
+                  padding: EdgeInsets.only(left: 20),
+                  child: Text(
+                    'Дополнительные услуги',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 24,
+                      color: MainColors.mainDeepBlue,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 5),
+                AnotherService(
+                  title: 'Покрытие воском',
+                  subtitle: 'Какой-то текст',
+                  minutes: '10 мин',
+                  price: '200р',
+                ),
+                AnotherService(
+                  title: 'Покрытие воском',
+                  subtitle: 'Какой-то текст',
+                  minutes: '10 мин',
+                  price: '200р',
+                ),
+                AnotherService(
+                  title: 'Покрытие воском',
+                  subtitle: 'Какой-то текст',
+                  minutes: '10 мин',
+                  price: '200р',
+                ),
+                AnotherService(
+                  title: 'Покрытие воском',
+                  subtitle: 'Какой-то текст',
+                  minutes: '10 мин',
+                  price: '200р',
+                ),
+                SizedBox(height: 10),
+                Container(
+                  height: 200,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Padding(
-                    padding: EdgeInsets.all(8),
-                    child: ListView(
+                    padding: const EdgeInsets.all(9.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TarifsSection(
-                          title: 'Стандарт',
-                          subtitle: 'Пена, вода, сушка',
-                          minutes: '30 мин',
-                          price: '500р',
+                        Text(
+                          'Вы выбрали',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                        TarifsSection(
-                          title: 'Стандарт',
-                          subtitle: 'Пена, вода, сушка',
-                          minutes: '30 мин',
-                          price: '500р',
+
+                        Text(
+                          '750 р',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 32,
+                            color: MainColors.mainDeepBlue,
+                          ),
                         ),
-                        TarifsSection(
-                          title: 'Стандарт',
-                          subtitle: 'Пена, вода, сушка',
-                          minutes: '30 мин',
-                          price: '500р',
+
+                        Text(
+                          '2.02, вторник, 14:00',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 32,
+                            color: MainColors.mainDeepBlue,
+                          ),
                         ),
-                        TarifsSection(
-                          title: 'Стандарт',
-                          subtitle: 'Пена, вода, сушка',
-                          minutes: '30 мин',
-                          price: '500р',
+                        SizedBox(height: 30),
+                        Row(
+                          children: [
+                            CustomCheckboxWidget(),
+                            SizedBox(width: 10),
+                            SizedBox(
+                              width: 327,
+                              child: Text(
+                                'Я подтверждаю дату и время бронирования и ознакомлен с условиями оплаты ',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -224,6 +321,7 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                 ),
                 SizedBox(height: 20),
                 CustomButton(text: 'Записаться', onPressed: () {}),
+                SizedBox(height: 10),
               ],
             ),
           ),

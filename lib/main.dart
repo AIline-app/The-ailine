@@ -5,7 +5,6 @@ import 'package:gghgggfsfs/routes.dart';
 
 void main() {
   runApp(AilineApp());
-  
 }
 
 class AilineApp extends StatelessWidget {
@@ -15,6 +14,7 @@ class AilineApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+
       title: 'Ailine',
       home: const MapHomeScreen(),
       theme: appTheme,
