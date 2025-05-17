@@ -9,5 +9,5 @@ final ThemeData appTheme = ThemeData(
   colorScheme: customColorScheme,
   textTheme: GoogleFonts.interTextTheme(customTextTheme),
   appBarTheme: AppBarTheme(backgroundColor: customColorScheme.surface),
-  fontFamily: 'Inter',
+
 );
