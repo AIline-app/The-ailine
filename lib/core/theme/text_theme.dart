@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gghgggfsfs/core/theme/color_schemes.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-TextTheme customTextTheme = TextTheme(
+final TextTheme customTextTheme = GoogleFonts.interTextTheme().copyWith(
   displayLarge: TextStyle(
     fontSize: 32,
     fontWeight: FontWeight.w700,

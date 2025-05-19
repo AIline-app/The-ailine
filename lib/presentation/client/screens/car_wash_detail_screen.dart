@@ -16,7 +16,7 @@ class CarWashDetailScreen extends StatefulWidget {
 }
 
 class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
-  bool chooseType = false;
+  int selectedIndex = -1;
 
   @override
   Widget build(BuildContext context) {
@@ -151,38 +151,57 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                   ),
                 ),
                 SizedBox(height: 10),
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     TypeCarButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        setState(() {
+                          selectedIndex = 0;
+                        });
+                      },
                       text: 'седан',
                       textColor:
-                          chooseType ? customColorScheme.primary : Colors.white,
-                      backgroundColor:
-                          chooseType
-                              ? Colors.transparent
+                          selectedIndex == 0
+                              ? Colors.white
                               : customColorScheme.primary,
+                      backgroundColor:
+                          selectedIndex == 0
+                              ? customColorScheme.primary
+                              : Colors.transparent,
                     ),
                     TypeCarButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        setState(() {
+                          selectedIndex = 1;
+                        });
+                      },
                       text: 'джип',
                       textColor:
-                          chooseType ? customColorScheme.primary : Colors.white,
-                      backgroundColor:
-                          chooseType
-                              ? Colors.transparent
+                          selectedIndex == 1
+                              ? Colors.white
                               : customColorScheme.primary,
+                      backgroundColor:
+                          selectedIndex == 1
+                              ? customColorScheme.primary
+                              : Colors.transparent,
                     ),
                     TypeCarButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        setState(() {
+                          selectedIndex = 2;
+                        });
+                      },
                       text: 'минивен',
                       textColor:
-                          chooseType ? customColorScheme.primary : Colors.white,
-                      backgroundColor:
-                          chooseType
-                              ? Colors.transparent
+                          selectedIndex == 2
+                              ? Colors.white
                               : customColorScheme.primary,
+                      backgroundColor:
+                          selectedIndex == 2
+                              ? customColorScheme.primary
+                              : Colors.transparent,
                     ),
                   ],
                 ),
@@ -194,7 +213,7 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: ListView(
+                  child: Column(
                     children: [
                       TarifsSection(
                         title: 'Стандарт',
