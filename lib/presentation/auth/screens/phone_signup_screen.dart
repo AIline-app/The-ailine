@@ -77,7 +77,7 @@ class _PhoneSignupScreenState extends State<PhoneSignupScreen> {
                 ),
 
                 CustomButton(
-                  text: "Далее",
+                  text: "Далeе",
                   onPressed: () {
                     Navigator.push(
                       context,
