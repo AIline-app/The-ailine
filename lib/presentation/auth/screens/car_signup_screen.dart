@@ -3,6 +3,7 @@ import 'package:gghgggfsfs/presentation/auth/widgets/custom_back_button.dart';
 import 'package:gghgggfsfs/presentation/auth/widgets/custom_button.dart';
 import 'package:gghgggfsfs/presentation/auth/widgets/custom_checkbox.dart';
 import 'package:gghgggfsfs/presentation/auth/widgets/custom_text_field.dart';
+import 'package:gghgggfsfs/routes.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 
 class CarSignupScreen extends StatefulWidget {
@@ -131,7 +132,12 @@ class _CarSignupScreenState extends State<CarSignupScreen> {
                     ],
                   ),
 
-                  CustomButton(text: "Зарегистрироваться", onPressed: () {}),
+                  CustomButton(
+                    text: "Зарегистрироваться",
+                    onPressed: () {
+                      Navigator.pushNamed(context, AppRoutes.home);
+                    },
+                  ),
 
                   SizedBox(height: 50),
                 ],

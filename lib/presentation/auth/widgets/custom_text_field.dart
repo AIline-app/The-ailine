@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:iconsax_plus/iconsax_plus.dart';
 
 class CustomTextField extends StatefulWidget {
-  const CustomTextField({
+  const CustomTextField({super.key, 
     this.icon,
     this.isClicked = false,
     this.textController,

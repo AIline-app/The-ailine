@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gghgggfsfs/presentation/auth/screens/car_signup_screen.dart';
 import 'package:gghgggfsfs/presentation/auth/widgets/custom_back_button.dart';
 import 'package:gghgggfsfs/presentation/auth/widgets/custom_button.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_text_field.dart';
 import 'package:otp_text_field_v2/otp_field_v2.dart';
 import 'package:otp_text_field_v2/otp_text_field_v2.dart';
 
@@ -66,10 +64,10 @@ class _OtpSignupScreenState extends State<OtpSignupScreen> {
                         fontWeight: FontWeight.w700,
                       ),
                       onChanged: (pin) {
-                        print("Changed: " + pin);
+                        print("Changed: $pin");
                       },
                       onCompleted: (pin) {
-                        print("Completed: " + pin);
+                        print("Completed: $pin");
                       },
                     ),
 
