@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/presentation/client/widgets/custom_circle_checkbox.dart';
+import 'package:gghgggfsfs/core/widgets/custom_circle_checkbox.dart';
 
 class TarifsSection extends StatelessWidget {
   const TarifsSection({

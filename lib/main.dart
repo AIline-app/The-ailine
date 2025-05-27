@@ -14,8 +14,7 @@ class AilineApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-
-      title: 'Ailine',
+      title: 'Ailine', 
       home: const MapHomeScreen(),
       theme: appTheme,
       initialRoute: AppRoutes.home,

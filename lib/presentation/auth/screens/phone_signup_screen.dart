@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
+import 'package:gghgggfsfs/core/widgets/custom_button.dart';
+import 'package:gghgggfsfs/core/widgets/custom_text_field.dart';
 import 'package:gghgggfsfs/presentation/auth/screens/otp_signup_screen.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_back_button.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_button.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_text_field.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 
 class PhoneSignupScreen extends StatefulWidget {
@@ -35,18 +35,20 @@ class _PhoneSignupScreenState extends State<PhoneSignupScreen> {
                   "Регистрация",
                   style: Theme.of(context).textTheme.displayLarge,
                 ),
-
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 15,
                   children: [
                     Text(
                       "Введите номер телефона",
                       style: Theme.of(context).textTheme.displayMedium,
                     ),
-
+                    SizedBox(
+                      height: 15,
+                    ),
                     CustomTextField(labelText: "Номер телефона"),
-
+                    SizedBox(
+                      height: 15,
+                    ),
                     CustomTextField(
                       labelText: "Придумайте пароль",
                       icon: InkWell(
@@ -65,14 +67,15 @@ class _PhoneSignupScreenState extends State<PhoneSignupScreen> {
                       ),
                       isClicked: isClicked,
                     ),
-
+                    SizedBox(
+                      height: 15,
+                    ),
                     Text(
                       "На данный номер телефона будет отправлен СМС-код для подтверждения",
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
                 ),
-
                 CustomButton(
                   text: "Далeе",
                   onPressed: () {

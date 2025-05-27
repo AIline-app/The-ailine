@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gghgggfsfs/core/api_client/api_client.dart';
 import 'package:gghgggfsfs/data/repository/car_wash_repository.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_button.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_text_field.dart';
+import 'package:gghgggfsfs/core/widgets/custom_button.dart';
+import 'package:gghgggfsfs/core/widgets/custom_text_field.dart';
 import 'package:gghgggfsfs/routes.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import '../../../data/model_car_wash/model_car_wash.dart';

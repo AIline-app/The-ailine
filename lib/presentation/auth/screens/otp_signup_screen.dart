@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gghgggfsfs/presentation/auth/screens/car_signup_screen.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_back_button.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_button.dart';
+import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
+import 'package:gghgggfsfs/core/widgets/custom_button.dart';
 import 'package:otp_text_field_v2/otp_field_v2.dart';
 import 'package:otp_text_field_v2/otp_text_field_v2.dart';
 
@@ -38,16 +38,21 @@ class _OtpSignupScreenState extends State<OtpSignupScreen> {
 
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 15,
+               
                   children: [
                     Text(
                       "Введите номер телефона",
                       style: Theme.of(context).textTheme.displayMedium,
                     ),
-
+                    SizedBox(
+                      height: 15,
+                    ),
                     Text(
                       "Код будет доставлен в течение 30 секунд. Если код не пришел, проверьте правильность указанного номер телефона и попробуйте еще раз",
                       style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    SizedBox(
+                      height: 15,
                     ),
 
                     OTPTextFieldV2(
@@ -70,7 +75,9 @@ class _OtpSignupScreenState extends State<OtpSignupScreen> {
                         print("Completed: $pin");
                       },
                     ),
-
+                    SizedBox(
+                      height: 15,
+                    ),
                     Center(
                       child: Text(
                         "Выслать код повторно",

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_back_button.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_button.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_checkbox.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_text_field.dart';
+import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
+import 'package:gghgggfsfs/core/widgets/custom_button.dart';
+import 'package:gghgggfsfs/core/widgets/custom_checkbox.dart';
+import 'package:gghgggfsfs/core/widgets/custom_text_field.dart';
 import 'package:gghgggfsfs/routes.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 
@@ -31,19 +31,21 @@ class _CarSignupScreenState extends State<CarSignupScreen> {
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 25,
                 children: [
                   Text(
                     "Регистрация",
                     style: Theme.of(context).textTheme.displayLarge,
                   ),
-
+                  SizedBox(
+                    height: 25,
+                  ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 15,
                     children: [
                       CustomTextField(labelText: "Как вас зовут?"),
-
+                      SizedBox(
+                        height: 15,
+                      ),
                       CustomTextField(
                         labelText: "Придумайте пароль",
                         icon: InkWell(
@@ -62,67 +64,84 @@ class _CarSignupScreenState extends State<CarSignupScreen> {
                         ),
                         isClicked: isClicked,
                       ),
-
+                      SizedBox(
+                        height: 15,
+                      ),
                       Text(
                         "На данный номер телефона будет отправлен СМС-код для подтверждения",
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
                   ),
-
+                  SizedBox(
+                    height: 25,
+                  ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 15,
                     children: [
                       Text(
                         "Информация о машине",
                         style: Theme.of(context).textTheme.displayMedium,
                       ),
+                      SizedBox(
+                        height: 15,
+                      ),
                       CustomTextField(labelText: "Номер машины"),
                     ],
                   ),
-
+                  SizedBox(
+                    height: 25,
+                  ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 15,
                     children: [
                       Text(
                         "Уведомления",
                         style: Theme.of(context).textTheme.displayMedium,
                       ),
-
+                      SizedBox(
+                        height: 15,
+                      ),
                       Text(
                         "За какой период вам напомнить о записи?",
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
                   ),
-
+                  SizedBox(
+                    height: 25,
+                  ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 15,
                     children: [
                       Text(
                         "Выберите мессенджер для отправки уведомлений ",
                         style: Theme.of(context).textTheme.displayMedium,
                       ),
-
+                      SizedBox(
+                        height: 15,
+                      ),
                       Row(
-                        spacing: 10,
                         children: [
                           CustomCheckboxWidget(),
-
+                          SizedBox(
+                            width: 10,
+                          ),
                           Text(
                             "Telegram",
                             style: Theme.of(context).textTheme.displaySmall,
                           ),
                         ],
                       ),
+                      SizedBox(
+                        height: 15,
+                      ),
                       Row(
-                        spacing: 10,
                         children: [
                           CustomCheckboxWidget(),
-
+                          SizedBox(
+                            width: 10,
+                          ),
                           Text(
                             "WhatsApp",
                             style: Theme.of(context).textTheme.displaySmall,
@@ -131,14 +150,15 @@ class _CarSignupScreenState extends State<CarSignupScreen> {
                       ),
                     ],
                   ),
-
+                  SizedBox(
+                    height: 25,
+                  ),
                   CustomButton(
                     text: "Зарегистрироваться",
                     onPressed: () {
                       Navigator.pushNamed(context, AppRoutes.home);
                     },
                   ),
-
                   SizedBox(height: 50),
                 ],
               ),

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:gghgggfsfs/core/theme/color_schemes.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_back_button.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_button.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_checkbox.dart';
+import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
+import 'package:gghgggfsfs/core/widgets/custom_button.dart';
+import 'package:gghgggfsfs/core/widgets/custom_checkbox.dart';
 import 'package:gghgggfsfs/presentation/client/themes/main_colors.dart';
-import 'package:gghgggfsfs/presentation/client/widgets/another_service.dart';
-import 'package:gghgggfsfs/presentation/client/widgets/tarifs_section.dart';
-import 'package:gghgggfsfs/presentation/client/widgets/type_car_button.dart';
+import 'package:gghgggfsfs/core/widgets/another_service.dart';
+import 'package:gghgggfsfs/core/widgets/tarifs_section.dart';
+import 'package:gghgggfsfs/core/widgets/type_car_button.dart';
 
 class CarWashDetailScreen extends StatefulWidget {
   const CarWashDetailScreen({super.key});
