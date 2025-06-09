@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gghgggfsfs/core/theme/color_schemes.dart';
+import 'package:gghgggfsfs/data/model_car_wash/model_car_wash.dart';
 import 'package:gghgggfsfs/presentation/auth/widgets/custom_back_button.dart';
 import 'package:gghgggfsfs/presentation/auth/widgets/custom_button.dart';
 import 'package:gghgggfsfs/presentation/auth/widgets/custom_checkbox.dart';
@@ -7,15 +8,23 @@ import 'package:gghgggfsfs/presentation/client/themes/main_colors.dart';
 import 'package:gghgggfsfs/presentation/client/widgets/another_service.dart';
 import 'package:gghgggfsfs/presentation/client/widgets/tarifs_section.dart';
 import 'package:gghgggfsfs/presentation/client/widgets/type_car_button.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CarWashDetailScreen extends StatefulWidget {
-  const CarWashDetailScreen({super.key});
+  final CarWashModel carWash;
+  const CarWashDetailScreen({super.key, required this.carWash});
 
   @override
   State<CarWashDetailScreen> createState() => _CarWashDetailScreenState();
 }
 
 class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
+  void _openLink(String? url) {
+    if (url != null && url.isNotEmpty) {
+      launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    }
+  }
+
   int selectedIndex = -1;
 
   @override
@@ -42,38 +51,47 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                         colorBlendMode: BlendMode.darken,
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(10.0),
+                        padding: const EdgeInsets.only(
+                          top: 15,
+                          left: 12,
+                          right: 12,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
                                 Text(
-                                  'г. Астана, ул. Абая, 117',
+                                  widget.carWash.address,
                                   style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 SizedBox(width: 7),
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(9),
-                                  child: Image.asset(
-                                    'assets/icons/2gis.png',
-                                    width: 19,
+                                GestureDetector(
+                                  onTap:
+                                      () => _openLink(widget.carWash.link2gis),
+
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(9),
+                                    child: Image.asset(
+                                      'assets/icons/2gis.png',
+                                      width: 19,
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
                             SizedBox(height: 10),
                             Text(
-                              'Автомойка 777',
+                              widget.carWash.address,
                               style: Theme.of(context).textTheme.displayLarge,
                             ),
-                            SizedBox(height: 5),
+                            SizedBox(height: 6),
                             Text(
-                              '50 метров от вас',
+                              '${widget.carWash.distance} метров от вас',
                               style: TextStyle(
                                 color: Colors.grey,
                                 fontWeight: FontWeight.w600,
@@ -93,7 +111,7 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                  '12',
+                                  widget.carWash.queueLenght.toString(),
                                   style: TextStyle(
                                     height: 0.9,
                                     color: Colors.white,
@@ -122,7 +140,7 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                             ),
                             SizedBox(height: 10),
                             Text(
-                              '≈15:30',
+                              '≈${widget.carWash.endTime}',
                               style: TextStyle(
                                 height: 0.9,
                                 color: Colors.white,

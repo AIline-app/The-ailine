@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/presentation/auth/screens/car_signup_screen.dart';
 import 'package:gghgggfsfs/presentation/auth/widgets/custom_back_button.dart';
 import 'package:gghgggfsfs/presentation/auth/widgets/custom_button.dart';
+import 'package:go_router/go_router.dart';
 import 'package:otp_text_field_v2/otp_field_v2.dart';
 import 'package:otp_text_field_v2/otp_text_field_v2.dart';
 
@@ -41,13 +41,8 @@ class _OtpSignupScreenState extends State<OtpSignupScreen> {
                   spacing: 15,
                   children: [
                     Text(
-                      "Введите номер телефона",
+                      "Введите код из СМС",
                       style: Theme.of(context).textTheme.displayMedium,
-                    ),
-
-                    Text(
-                      "Код будет доставлен в течение 30 секунд. Если код не пришел, проверьте правильность указанного номер телефона и попробуйте еще раз",
-                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
 
                     OTPTextFieldV2(
@@ -70,7 +65,10 @@ class _OtpSignupScreenState extends State<OtpSignupScreen> {
                         print("Completed: $pin");
                       },
                     ),
-
+                    Text(
+                      "Код будет доставлен в течение 30 секунд. Если код не пришел, проверьте правильность указанного номер телефона и попробуйте еще раз",
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                     Center(
                       child: Text(
                         "Выслать код повторно",
@@ -86,16 +84,10 @@ class _OtpSignupScreenState extends State<OtpSignupScreen> {
                     ),
                   ],
                 ),
-
                 CustomButton(
                   text: "Далее",
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CarSignupScreen(),
-                      ),
-                    );
+                    context.push('/car_signup');
                   },
                 ),
               ],

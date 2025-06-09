@@ -17,7 +17,6 @@ class CarWashModel {
   final double? longitude;
   final String? link2gis;
 
-
   CarWashModel({
     required this.id,
     required this.title,
@@ -168,4 +167,3 @@ class SlotModel {
     );
   }
 }
-
