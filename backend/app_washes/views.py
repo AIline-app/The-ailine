@@ -12,7 +12,8 @@ from app_washes.permissions import IsMyServiceOrReadOnly, TrueForAll
 from app_washes.serializers import (
     RegisterCarWashSerializer, CarWashSerializer, ServiceCreateSerializer,
     ServiceDetailSerializer, AdministratorCreateSerializer,
-    AdministratorListSerializer, WashListSerializer
+    AdministratorListSerializer, WashListSerializer, WasherDetailSerializer,
+    WasherCreateSerializer
 )
 
 
@@ -183,6 +184,19 @@ class AdminDetailAPI(generics.RetrieveUpdateDestroyAPIView):
 class AdminCreateAPI(generics.CreateAPIView, generics.DestroyAPIView):
     """Добавление администратора"""
     serializer_class = AdministratorCreateSerializer
+    permission_classes = (IsAuthenticated,)
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        if request.headers['api_key'] == API_KEY:
+            return super().post(request)
+        else:
+            return HttpResponseNotAllowed(_('Give me correct api key'))
+
+
+class WasherCreateAPI(generics.CreateAPIView, generics.DestroyAPIView):
+    """Добавление мойщика"""
+    serializer_class = WasherCreateSerializer
     permission_classes = (IsAuthenticated,)
     http_method_names = ['post']
 

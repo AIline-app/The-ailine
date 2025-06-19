@@ -134,3 +134,13 @@ class Administrator(models.Model):
     class Meta:
         verbose_name = _('Administrator')
         verbose_name_plural = _('Administrators')
+
+
+class Washer(models.Model):
+    """ Модель мойщика автомойки """
+    name = models.CharField(verbose_name=_('Name'), max_length=30, blank=True, null=True)
+    phone = models.CharField(verbose_name=_('Phone'), max_length=12, blank=False)
+
+    class Meta:
+        verbose_name = _('Washer')
+        verbose_name_plural = _('Washers')

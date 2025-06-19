@@ -6,7 +6,7 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from app_users.models import User, BankCard
-from app_washes.models import Administrator, CarWash, CarWashCoordinates, Service
+from app_washes.models import Administrator, CarWash, CarWashCoordinates, Service, Washer
 from app_adminwork.models import SlotsInWash
 from app_orders.models import Order
 
@@ -52,6 +52,22 @@ class AdministratorDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Administrator
         fields = ['id', 'name', 'phone']
+
+
+class WasherDetailSerializer(serializers.ModelSerializer):
+    """Информация об мойщике автомойки"""
+
+    class Meta:
+        model = Washer
+        fields = ['id', 'name', 'phone']
+
+
+class WasherCreateSerializer(serializers.ModelSerializer):
+    """Информация об мойщике автомойки"""
+
+    class Meta:
+        model = Washer
+        fields = '__all__'
 
 
 class CarWashAdminSerializer(serializers.ModelSerializer):
