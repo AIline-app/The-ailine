@@ -76,41 +76,23 @@ class LoginAPIView(generics.GenericAPIView):
     http_method_names = ['get', 'post']
 
     def post(self, request, *args, **kwargs):
-        # if request.headers['api_key'] == API_KEY:
-        #     try:
-        #         serializer = self.get_serializer(data=request.data)
-        #         serializer.is_valid(raise_exception=True)
-        #     except Exception:
-        #         return Response({"Error": 'Incorrect credentials.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        #
-        #     access = serializer.validated_data.get('access', None)
-        #     refresh = serializer.validated_data.get('refresh', None)
-        #
-        #     if access is not None:
-        #         response = Response({'access': serializer.validated_data['access']}, status=status.HTTP_200_OK)
-        #         response.set_cookie('refresh', refresh, httponly=True, max_age=1209600)
-        #         return response
-        #     return Response({"Error": 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
-        # else:
-        #     return HttpResponseNotAllowed(_('Give me correct api key'))
+        if request.headers['api_key'] == API_KEY:
+            try:
+                serializer = self.get_serializer(data=request.data)
+                serializer.is_valid(raise_exception=True)
+            except Exception:
+                return Response({"Error": 'Incorrect credentials.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        try:
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-        except Exception:
-            return Response({"Error": 'Incorrect credentials.'},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            access = serializer.validated_data.get('access', None)
+            refresh = serializer.validated_data.get('refresh', None)
 
-        access = serializer.validated_data.get('access', None)
-        refresh = serializer.validated_data.get('refresh', None)
-
-        if access is not None:
-            response = Response({'access': serializer.validated_data['access']},
-                                status=status.HTTP_200_OK)
-            response.set_cookie('refresh', refresh, httponly=True, max_age=1209600)
-            return response
-        return Response({"Error": 'Something went wrong'},
-                        status=status.HTTP_400_BAD_REQUEST)
+            if access is not None:
+                response = Response({'access': serializer.validated_data['access']}, status=status.HTTP_200_OK)
+                response.set_cookie('refresh', refresh, httponly=True, max_age=1209600)
+                return response
+            return Response({"Error": 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return HttpResponseNotAllowed(_('Give me correct api key'))
 
 
 class LogoutView(GenericAPIView):

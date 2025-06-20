@@ -2,6 +2,8 @@ import os
 import environ
 from datetime import timedelta
 from AstSmartTime.log_formatters import CustomJsonFormatter
+
+
 BASE_DIR = environ.Path(__file__) - 2
 # setting_root = environ.Path(__file__) - 3
 
