@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/presentation/auth/screens/car_signup_screen.dart';
-import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
-import 'package:gghgggfsfs/core/widgets/custom_button.dart';
+import 'package:gghgggfsfs/presentation/auth/widgets/custom_back_button.dart';
+import 'package:gghgggfsfs/presentation/auth/widgets/custom_button.dart';
+import 'package:go_router/go_router.dart';
 import 'package:otp_text_field_v2/otp_field_v2.dart';
 import 'package:otp_text_field_v2/otp_text_field_v2.dart';
 
@@ -41,18 +41,8 @@ class _OtpSignupScreenState extends State<OtpSignupScreen> {
                
                   children: [
                     Text(
-                      "Введите номер телефона",
+                      "Введите код из СМС",
                       style: Theme.of(context).textTheme.displayMedium,
-                    ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    Text(
-                      "Код будет доставлен в течение 30 секунд. Если код не пришел, проверьте правильность указанного номер телефона и попробуйте еще раз",
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    SizedBox(
-                      height: 15,
                     ),
 
                     OTPTextFieldV2(
@@ -75,8 +65,9 @@ class _OtpSignupScreenState extends State<OtpSignupScreen> {
                         print("Completed: $pin");
                       },
                     ),
-                    SizedBox(
-                      height: 15,
+                    Text(
+                      "Код будет доставлен в течение 30 секунд. Если код не пришел, проверьте правильность указанного номер телефона и попробуйте еще раз",
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     Center(
                       child: Text(
@@ -93,16 +84,10 @@ class _OtpSignupScreenState extends State<OtpSignupScreen> {
                     ),
                   ],
                 ),
-
                 CustomButton(
                   text: "Далее",
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CarSignupScreen(),
-                      ),
-                    );
+                    context.push('/car_signup');
                   },
                 ),
               ],

@@ -47,5 +47,4 @@ final TextTheme customTextTheme = GoogleFonts.interTextTheme().copyWith(
     fontWeight: FontWeight.w600,
     color: customColorScheme.primary,
   ),
- 
 );

@@ -1,22 +1,53 @@
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/core/theme/color_schemes.dart';
 import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_checkbox.dart';
-import 'package:gghgggfsfs/presentation/client/themes/main_colors.dart';
-import 'package:gghgggfsfs/core/widgets/another_service.dart';
 import 'package:gghgggfsfs/core/widgets/tarifs_section.dart';
-import 'package:gghgggfsfs/core/widgets/type_car_button.dart';
+import 'package:gghgggfsfs/core/widgets/type_car.dart';
+import 'package:gghgggfsfs/data/model_car_wash/model_car_wash.dart';
+import 'package:gghgggfsfs/presentation/client/themes/main_colors.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CarWashDetailScreen extends StatefulWidget {
-  const CarWashDetailScreen({super.key});
+  final CarWashModel carWash;
+  const CarWashDetailScreen({super.key, required this.carWash});
 
   @override
   State<CarWashDetailScreen> createState() => _CarWashDetailScreenState();
 }
 
 class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
-  int selectedIndex = -1;
+  void _openLink(String? url) {
+    if (url != null && url.isNotEmpty) {
+      launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    }
+  }
+
+  void updateTotalPrice() {
+    final allServices = [...mainServices, ...extraServices];
+    totalPrice = allServices
+        .where((s) => s.isSelected)
+        .fold(0, (sum, item) => sum + item.price);
+    setState(() {});
+  }
+
+  final carTypes = ['седан', 'джип', 'минивен'];
+  int selectedIndex = 0;
+
+  List<Service> mainServices = [
+    Service(title: 'Стандарт', price: 500),
+    Service(title: 'Покрытие воском', price: 200),
+    Service(title: 'Покрытие воском', price: 200),
+    Service(title: 'Покрытие воском', price: 200),
+  ];
+  List<Service> extraServices = [
+    Service(title: 'Мойка кузова', price: 1000),
+    Service(title: 'Пылесос', price: 800),
+    Service(title: 'Мойка кузова', price: 1000),
+    Service(title: 'Мойка кузова', price: 1000),
+  ];
+
+  int totalPrice = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -42,38 +73,47 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                         colorBlendMode: BlendMode.darken,
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(10.0),
+                        padding: const EdgeInsets.only(
+                          top: 15,
+                          left: 12,
+                          right: 12,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
                                 Text(
-                                  'г. Астана, ул. Абая, 117',
+                                  widget.carWash.address,
                                   style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 SizedBox(width: 7),
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(9),
-                                  child: Image.asset(
-                                    'assets/icons/2gis.png',
-                                    width: 19,
+                                GestureDetector(
+                                  onTap:
+                                      () => _openLink(widget.carWash.link2gis),
+
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(9),
+                                    child: Image.asset(
+                                      'assets/icons/2gis.png',
+                                      width: 19,
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
                             SizedBox(height: 10),
                             Text(
-                              'Автомойка 777',
+                              widget.carWash.address,
                               style: Theme.of(context).textTheme.displayLarge,
                             ),
-                            SizedBox(height: 5),
+                            SizedBox(height: 6),
                             Text(
-                              '50 метров от вас',
+                              '${widget.carWash.distance} метров от вас',
                               style: TextStyle(
                                 color: Colors.grey,
                                 fontWeight: FontWeight.w600,
@@ -93,7 +133,7 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                  '12',
+                                  widget.carWash.queueLenght.toString(),
                                   style: TextStyle(
                                     height: 0.9,
                                     color: Colors.white,
@@ -122,7 +162,7 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                             ),
                             SizedBox(height: 10),
                             Text(
-                              '≈15:30',
+                              '≈${widget.carWash.startTime}',
                               style: TextStyle(
                                 height: 0.9,
                                 color: Colors.white,
@@ -152,59 +192,8 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                 ),
                 SizedBox(height: 10),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TypeCarButton(
-                      onPressed: () {
-                        setState(() {
-                          selectedIndex = 0;
-                        });
-                      },
-                      text: 'седан',
-                      textColor:
-                          selectedIndex == 0
-                              ? Colors.white
-                              : customColorScheme.primary,
-                      backgroundColor:
-                          selectedIndex == 0
-                              ? customColorScheme.primary
-                              : Colors.transparent,
-                    ),
-                    TypeCarButton(
-                      onPressed: () {
-                        setState(() {
-                          selectedIndex = 1;
-                        });
-                      },
-                      text: 'джип',
-                      textColor:
-                          selectedIndex == 1
-                              ? Colors.white
-                              : customColorScheme.primary,
-                      backgroundColor:
-                          selectedIndex == 1
-                              ? customColorScheme.primary
-                              : Colors.transparent,
-                    ),
-                    TypeCarButton(
-                      onPressed: () {
-                        setState(() {
-                          selectedIndex = 2;
-                        });
-                      },
-                      text: 'минивен',
-                      textColor:
-                          selectedIndex == 2
-                              ? Colors.white
-                              : customColorScheme.primary,
-                      backgroundColor:
-                          selectedIndex == 2
-                              ? customColorScheme.primary
-                              : Colors.transparent,
-                    ),
-                  ],
-                ),
+                //! ТИП МАШИН
+                TypeCar(),
                 SizedBox(height: 20),
                 Container(
                   height: 310,
@@ -213,36 +202,59 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Column(
-                    children: [
-                      TarifsSection(
-                        title: 'Стандарт',
-                        subtitle: 'Пена, вода, сушка',
-                        minutes: '30 мин',
-                        price: '500р',
-                      ),
-                      TarifsSection(
-                        title: 'Стандарт',
-                        subtitle: 'Пена, вода, сушка',
-                        minutes: '30 мин',
-                        price: '500р',
-                      ),
-                      TarifsSection(
-                        title: 'Стандарт',
-                        subtitle: 'Пена, вода, сушка',
-                        minutes: '30 мин',
-                        price: '500р',
-                      ),
-                      TarifsSection(
-                        title: 'Стандарт',
-                        subtitle: 'Пена, вода, сушка',
-                        minutes: '30 мин',
-                        price: '500р',
-                      ),
-                    ],
+                  //! ОСНОВНЫЕ УСЛУГИ
+                  child: ListView.builder(
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: mainServices.length,
+                    itemBuilder: (context, index) {
+                      final service = mainServices[index];
+                      return TarifsClientSection(
+                        title: service.title,
+                        subtitle: 'subtitle',
+                        minutes: 'minutes',
+                        price: '${service.price}₸',
+                        onTap: () {
+                          service.isSelected = !service.isSelected;
+                          updateTotalPrice();
+                        },
+                        leading: Container(
+                          padding: const EdgeInsets.all(2.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16.0),
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.secondary,
+                              width: 5,
+                            ),
+                          ),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: 20,
+                            height: 20,
+                            decoration:
+                                service.isSelected
+                                    ? BoxDecoration(
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.secondary,
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      border: Border.all(
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.secondary,
+                                        width: 2,
+                                      ),
+                                    )
+                                    : null,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
                 SizedBox(height: 20),
+                //! ДОП. УСЛУГИ
                 Padding(
                   padding: EdgeInsets.only(left: 20),
                   child: Text(
@@ -255,29 +267,61 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                   ),
                 ),
                 SizedBox(height: 5),
-                AnotherService(
-                  title: 'Покрытие воском',
-                  subtitle: 'Какой-то текст',
-                  minutes: '10 мин',
-                  price: '200р',
-                ),
-                AnotherService(
-                  title: 'Покрытие воском',
-                  subtitle: 'Какой-то текст',
-                  minutes: '10 мин',
-                  price: '200р',
-                ),
-                AnotherService(
-                  title: 'Покрытие воском',
-                  subtitle: 'Какой-то текст',
-                  minutes: '10 мин',
-                  price: '200р',
-                ),
-                AnotherService(
-                  title: 'Покрытие воском',
-                  subtitle: 'Какой-то текст',
-                  minutes: '10 мин',
-                  price: '200р',
+                Column(
+                  children: [
+                    ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: extraServices.length,
+                      itemBuilder: (context, index) {
+                        final service = extraServices[index];
+                        return TarifsClientSection(
+                          title: service.title,
+                          subtitle: 'subtitle',
+                          minutes: 'minutes',
+                          price: '${service.price}₸',
+                          onTap: () {
+                            service.isSelected = !service.isSelected;
+                            updateTotalPrice();
+                          },
+                          leading: Container(
+                            padding: const EdgeInsets.all(2.0),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16.0),
+                              border: Border.all(
+                                color: Theme.of(context).colorScheme.secondary,
+                                width: 5,
+                              ),
+                            ),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              width: 20,
+                              height: 20,
+                              decoration:
+                                  service.isSelected
+                                      ? BoxDecoration(
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.secondary,
+                                        borderRadius: BorderRadius.circular(
+                                          10.0,
+                                        ),
+                                        border: Border.all(
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.secondary,
+                                          width: 2,
+                                        ),
+                                      )
+                                      : null,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
                 SizedBox(height: 10),
                 Container(
@@ -299,16 +343,15 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-
+                        // final price
                         Text(
-                          '750 р',
+                          '${totalPrice.toString()} p',
                           style: TextStyle(
                             fontWeight: FontWeight.w700,
                             fontSize: 32,
                             color: MainColors.mainDeepBlue,
                           ),
                         ),
-
                         Text(
                           '2.02, вторник, 14:00',
                           style: TextStyle(
