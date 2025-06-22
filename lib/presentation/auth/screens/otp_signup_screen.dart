@@ -18,6 +18,7 @@ class _OtpSignupScreenState extends State<OtpSignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(leading: CustomBackButton()),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,

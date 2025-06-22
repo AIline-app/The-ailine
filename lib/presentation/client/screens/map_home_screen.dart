@@ -3,6 +3,9 @@ import 'package:gghgggfsfs/core/api_client/api_client.dart';
 import 'package:gghgggfsfs/data/repository/car_wash_repository.dart';
 import 'package:gghgggfsfs/core/widgets/custom_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_text_field.dart';
+import 'package:gghgggfsfs/presentation/client/widgets/car_wash_time_modal.dart';
+import 'package:gghgggfsfs/presentation/client/widgets/count_down_modal.dart';
+import 'package:gghgggfsfs/presentation/client/widgets/star_modal.dart';
 import 'package:gghgggfsfs/routes.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import '../../../data/model_car_wash/model_car_wash.dart';
@@ -30,6 +33,8 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
 
   int selectedIndex = 0;
 
+  int selectedTabIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -38,47 +43,54 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: FutureBuilder<List<CarWashModel>>(
-        future: _futureCarWashes,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Ошибка загрузки автомоек'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('Нет доступных автомоек'));
-          }
+    final tabs = ['Tab 1', 'Tab 2'];
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        body: FutureBuilder<List<CarWashModel>>(
+          future: _futureCarWashes,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Ошибка загрузки автомоек'));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(child: Text('Нет доступных автомоек'));
+            }
 
-          carWashes = snapshot.data!;
+            carWashes = snapshot.data!;
 
-          return Stack(
-            children: [
-              YandexMap(
-                onMapCreated: (controller) {
-                  mapController = controller;
-                  _addPlacemarks(carWashes);
-                },
-                mapObjects: mapObjects,
-              ),
-
-              Positioned(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    _showLoginDialog(context);
+            return Stack(
+              children: [
+                YandexMap(
+                  onMapCreated: (controller) {
+                    mapController = controller;
+                    _addPlacemarks(carWashes);
                   },
-                  child: Container(),
+                  mapObjects: mapObjects,
                 ),
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: _buildCarWashCards(carWashes),
-              ),
-              SizedBox(height: 20),
-            ],
-          );
-        },
+
+                Positioned(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () {
+                      _showLoginDialog(context);
+                    },
+                    child: Container(),
+                  ),
+                ),
+
+                Align(alignment: Alignment(0, -0.7), child: StarModal()),
+
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: _buildCarWashCards(carWashes),
+                ),
+                SizedBox(height: 20),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -342,13 +354,10 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                               ),
                             ),
                           ),
-                          Positioned(
-                            bottom: 2,
-                            child: Container(
-                              width: 150,
-                              height: 2,
-                              color: MainColors.mainBlue,
-                            ),
+                          Container(
+                            width: 150,
+                            height: 2,
+                            color: MainColors.mainBlue,
                           ),
                           SizedBox(height: 90),
                           TextButton(
@@ -383,6 +392,29 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
           ),
         );
       },
+    );
+  }
+}
+
+class ArrivalHint extends StatelessWidget {
+  const ArrivalHint({super.key, required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Text(
+        text,
+        style: Theme.of(
+          context,
+        ).textTheme.labelSmall?.copyWith(color: Colors.black),
+      ),
     );
   }
 }
