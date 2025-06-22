@@ -8,7 +8,7 @@ class CustomCheckboxWidget extends StatefulWidget {
 }
 
 class _CustomCheckboxWidgetState extends State<CustomCheckboxWidget> {
-  bool _isChecked = false;
+  bool _isChecked = true;
 
   @override
   Widget build(BuildContext context) {
