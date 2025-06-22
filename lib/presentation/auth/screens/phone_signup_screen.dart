@@ -18,6 +18,7 @@ class _PhoneSignupScreenState extends State<PhoneSignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(leading: CustomBackButton()),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
@@ -42,13 +43,9 @@ class _PhoneSignupScreenState extends State<PhoneSignupScreen> {
                       "Введите номер телефона",
                       style: Theme.of(context).textTheme.displayMedium,
                     ),
-                    SizedBox(
-                      height: 15,
-                    ),
+                    SizedBox(height: 15),
                     CustomTextField(labelText: "Номер телефона"),
-                    SizedBox(
-                      height: 15,
-                    ),
+                    SizedBox(height: 15),
                     CustomTextField(
                       labelText: "Придумайте пароль",
                       icon: InkWell(
@@ -67,9 +64,7 @@ class _PhoneSignupScreenState extends State<PhoneSignupScreen> {
                       ),
                       isClicked: isClicked,
                     ),
-                    SizedBox(
-                      height: 15,
-                    ),
+                    SizedBox(height: 15),
                     Text(
                       "На данный номер телефона будет отправлен СМС-код для подтверждения",
                       style: Theme.of(context).textTheme.bodyMedium,

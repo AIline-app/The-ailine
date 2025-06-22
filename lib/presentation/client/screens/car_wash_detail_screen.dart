@@ -3,6 +3,8 @@ import 'package:gghgggfsfs/core/theme/color_schemes.dart';
 import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_checkbox.dart';
+import 'package:gghgggfsfs/presentation/auth/screens/phone_signup_screen.dart';
+import 'package:gghgggfsfs/presentation/client/screens/payment_warning_screen.dart';
 import 'package:gghgggfsfs/presentation/client/themes/main_colors.dart';
 import 'package:gghgggfsfs/core/widgets/another_service.dart';
 import 'package:gghgggfsfs/core/widgets/tarifs_section.dart';
@@ -339,7 +341,17 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                   ),
                 ),
                 SizedBox(height: 20),
-                CustomButton(text: 'Записаться', onPressed: () {}),
+                CustomButton(
+                  text: 'Записаться',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PaymentWarningScreen(),
+                      ),
+                    );
+                  },
+                ),
                 SizedBox(height: 10),
               ],
             ),
