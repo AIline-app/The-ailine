@@ -140,6 +140,8 @@ class Washer(models.Model):
     """ Модель мойщика автомойки """
     name = models.CharField(verbose_name=_('Name'), max_length=30, blank=True, null=True)
     phone = models.CharField(verbose_name=_('Phone'), max_length=12, blank=False)
+    wash = models.ForeignKey(CarWash, verbose_name=_('Car Wash'),
+                             on_delete=models.CASCADE, related_name='wash_washer')
 
     class Meta:
         verbose_name = _('Washer')

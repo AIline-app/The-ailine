@@ -63,7 +63,7 @@ class WasherDetailSerializer(serializers.ModelSerializer):
 
 
 class WasherCreateSerializer(serializers.ModelSerializer):
-    """Информация об мойщике автомойки"""
+    """Создание мойщика"""
 
     class Meta:
         model = Washer
