@@ -34,21 +34,6 @@ services:
     depends_on:
       - backend
 
-  telegram-bot:
-    restart: always
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command:
-      - python manage.py bot
-    volumes:
-      - .:/app
-    env_file:
-      - .env
-    depends_on:
-      - db
-      - backend
-
 volumes:
   postgres_data:
   static_value:
