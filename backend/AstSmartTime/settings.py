@@ -82,24 +82,35 @@ TEMPLATES = [
 WSGI_APPLICATION = 'AstSmartTime.wsgi.application'
 
 
-if DEBUG is True:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        }
+# if DEBUG is True:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.sqlite3',
+#             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#         }
+#     }
+# else:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#             'NAME': env.str('POSTGRES_DB', 'POSTGRES_DB'),
+#             'USER': env.str('POSTGRES_USER', 'POSTGRES_USER'),
+#             'PASSWORD': env.str('POSTGRES_PASSWORD', 'POSTGRES_PASSWORD'),
+#             'HOST': env.str('HOST', 'localhost'),
+#             'PORT': env.int('PORT', 5432),
+#         }
+#     }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': env.str('POSTGRES_DB', 'POSTGRES_DB'),
+        'USER': env.str('POSTGRES_USER', 'POSTGRES_USER'),
+        'PASSWORD': env.str('POSTGRES_PASSWORD', 'POSTGRES_PASSWORD'),
+        'HOST': env.str('HOST', 'localhost'),
+        'PORT': env.int('PORT', 5432),
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': env.str('POSTGRES_DB', 'POSTGRES_DB'),
-            'USER': env.str('POSTGRES_USER', 'POSTGRES_USER'),
-            'PASSWORD': env.str('POSTGRES_PASSWORD', 'POSTGRES_PASSWORD'),
-            'HOST': env.str('HOST', 'localhost'),
-            'PORT': env.int('PORT', 5432),
-        }
-    }
+}
 
 
 AUTH_PASSWORD_VALIDATORS = [
