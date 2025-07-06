@@ -1,4 +1,4 @@
-FROM python:3.12
+FROM python:3.8
 
 WORKDIR /app
 
@@ -15,4 +15,4 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 COPY . .
 
-CMD ["sh", "entrypoint.sh"]
+CMD ["gunicorn", "AstSmartTime.wsgi:application", "--bind", "0:8000" ]

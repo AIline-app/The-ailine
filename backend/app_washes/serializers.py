@@ -51,7 +51,7 @@ class AdministratorDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Administrator
-        fields = ['id', 'name', 'phone']
+        fields = ['id', 'phone']
 
 
 class WasherDetailSerializer(serializers.ModelSerializer):
