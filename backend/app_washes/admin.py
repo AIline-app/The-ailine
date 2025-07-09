@@ -12,6 +12,6 @@ class CarWashAdmin(admin.ModelAdmin):
 
 @admin.register(Administrator)
 class AdministratorAdmin(admin.ModelAdmin):
-    list_display = ('boss', 'phone', 'name',)
+    list_display = ('boss', 'phone',)
     filter_horizontal = ('wash',)
     ordering = ('pk',)

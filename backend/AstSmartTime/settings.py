@@ -2,8 +2,9 @@ import os
 import environ
 from datetime import timedelta
 from AstSmartTime.log_formatters import CustomJsonFormatter
+
+
 BASE_DIR = environ.Path(__file__) - 2
-# setting_root = environ.Path(__file__) - 3
 
 env = environ.Env()
 environ.Env.read_env(env_file=BASE_DIR('.env'))
@@ -13,7 +14,7 @@ DEBUG = env.bool('DEBUG', False)
 
 
 ALLOWED_HOSTS = env.str('ALLOWED_HOSTS', default='').split(' ')
-CORS_ALLOWED_ORIGINS = env.str('CORS_ALLOWED_ORIGINS', default='').split(' ')
+CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[])
 CORS_ALLOW_HEADERS = ['Access-Control-Allow-Methods', 'Access-Control-Allow-Origin', 'Api-key',
                       'Access-Control-Allow-Headers', 'content-type', 'Authorization']
 CORS_ALLOW_CREDENTIALS = True
@@ -30,7 +31,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'rest_framework.authtoken',
     'rest_framework',
     'rest_framework_simplejwt',
@@ -53,7 +53,6 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -132,6 +131,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = '/resources/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'resources')

@@ -128,9 +128,20 @@ class Administrator(models.Model):
     """ Модель администратора автомойки """
     boss = models.ForeignKey(User, on_delete=models.CASCADE, related_name='admin_boss')
     wash = models.ManyToManyField(to=CarWash, verbose_name=_('Car Wash'), related_name='wash_admin')
-    name = models.CharField(verbose_name=_('Name'), max_length=30, blank=False)
     phone = models.CharField(verbose_name=_('Phone'), max_length=12, blank=False)
 
     class Meta:
         verbose_name = _('Administrator')
         verbose_name_plural = _('Administrators')
+
+
+class Washer(models.Model):
+    """ Модель мойщика автомойки """
+    name = models.CharField(verbose_name=_('Name'), max_length=30, blank=True, null=True)
+    phone = models.CharField(verbose_name=_('Phone'), max_length=12, blank=False)
+    wash = models.ForeignKey(CarWash, verbose_name=_('Car Wash'),
+                             on_delete=models.CASCADE, related_name='wash_washer')
+
+    class Meta:
+        verbose_name = _('Washer')
+        verbose_name_plural = _('Washers')

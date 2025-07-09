@@ -7,12 +7,13 @@ from AstSmartTime.settings import API_KEY
 from app_users.models import User
 from app_users.permissions import IsOwnerOrReadOnly, OwnerOnly
 from app_users.views import JWTAuthenticationSafe
-from app_washes.models import CarWash, Service, Administrator
+from app_washes.models import CarWash, Service, Administrator, Washer
 from app_washes.permissions import IsMyServiceOrReadOnly, TrueForAll
 from app_washes.serializers import (
     RegisterCarWashSerializer, CarWashSerializer, ServiceCreateSerializer,
     ServiceDetailSerializer, AdministratorCreateSerializer,
-    AdministratorListSerializer, WashListSerializer
+    AdministratorListSerializer, WashListSerializer, WasherCreateSerializer,
+    WasherDetailSerializer
 )
 
 
@@ -191,6 +192,56 @@ class AdminCreateAPI(generics.CreateAPIView, generics.DestroyAPIView):
             return super().post(request)
         else:
             return HttpResponseNotAllowed(_('Give me correct api key'))
+
+
+class WasherCreateAPI(generics.CreateAPIView, generics.DestroyAPIView):
+    """Добавление мойщика"""
+    serializer_class = WasherCreateSerializer
+    permission_classes = (IsAuthenticated,)
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        if request.headers['api_key'] == API_KEY:
+            return super().post(request)
+        else:
+            return HttpResponseNotAllowed(_('Give me correct api key'))
+
+
+class WasherDetailAPI(generics.RetrieveUpdateDestroyAPIView):
+    """Детально об мойщике"""
+    queryset = Washer.objects.all()
+    serializer_class = WasherCreateSerializer
+    permission_classes = (IsAuthenticated,)
+    http_method_names = ['get', 'put', 'patch', 'delete']
+
+    def put(self, request, *args, **kwargs):
+        if request.headers['api_key'] == API_KEY:
+            return super().put(request)
+        else:
+            return HttpResponseNotAllowed(_('Give me correct api key'))
+
+    def patch(self, request, *args, **kwargs):
+        if request.headers['api_key'] == API_KEY:
+            return super().patch(request)
+        else:
+            return HttpResponseNotAllowed(_('Give me correct api key'))
+
+    def delete(self, request, *args, **kwargs):
+        if request.headers['api_key'] == API_KEY:
+            return super().delete(request)
+        else:
+            return HttpResponseNotAllowed(_('Give me correct api key'))
+
+
+class ListWasherOwner(generics.ListAPIView):
+    """Получение списка мойщиков одной мойки."""
+    permission_classes = (IsAuthenticated, OwnerOnly,)
+    serializer_class = WasherDetailSerializer
+    http_method_names = ['get']
+
+    def get_queryset(self):
+        """Фильтруем получение мойщиков по мойке"""
+        return Washer.objects.filter(wash=self.kwargs['pk'])
 
 
 class ListWashesOwner(generics.ListAPIView, generics.DestroyAPIView):
