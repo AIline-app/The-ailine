@@ -5,7 +5,6 @@ from AstSmartTime.log_formatters import CustomJsonFormatter
 
 
 BASE_DIR = environ.Path(__file__) - 2
-# setting_root = environ.Path(__file__) - 3
 
 env = environ.Env()
 environ.Env.read_env(env_file=BASE_DIR('.env'))
@@ -15,7 +14,7 @@ DEBUG = env.bool('DEBUG', False)
 
 
 ALLOWED_HOSTS = env.str('ALLOWED_HOSTS', default='').split(' ')
-CORS_ALLOWED_ORIGINS = env.str('CORS_ALLOWED_ORIGINS', default='').split(' ')
+CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[])
 CORS_ALLOW_HEADERS = ['Access-Control-Allow-Methods', 'Access-Control-Allow-Origin', 'Api-key',
                       'Access-Control-Allow-Headers', 'content-type', 'Authorization']
 CORS_ALLOW_CREDENTIALS = True
@@ -32,7 +31,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'rest_framework.authtoken',
     'rest_framework',
     'rest_framework_simplejwt',
@@ -55,7 +53,6 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -101,17 +98,6 @@ else:
         }
     }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': env.str('POSTGRES_DB', 'POSTGRES_DB'),
-#         'USER': env.str('POSTGRES_USER', 'POSTGRES_USER'),
-#         'PASSWORD': env.str('POSTGRES_PASSWORD', 'POSTGRES_PASSWORD'),
-#         'HOST': env.str('HOST', 'localhost'),
-#         'PORT': env.int('PORT', 5432),
-#     }
-# }
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -145,7 +131,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
-# STATIC_ROOT = "/app/collected_static/"
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = '/resources/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'resources')
@@ -198,7 +184,6 @@ SIMPLE_JWT = {
 }
 
 SWAGGER_SETTINGS = {
-    # 'USE_SESSION_AUTH': False,
     'SECURITY_DEFINITIONS': {
         'JWT': {
             'type': 'apiKey',
@@ -206,8 +191,6 @@ SWAGGER_SETTINGS = {
             'name': 'Authorization'
         }
     },
-    # 'APIS_SORTER': 'alpha',
-    # 'DOC_EXPANSION': 'none',
     "exclude_namespaces": [],
     "api_version": '0.1',
     "api_path": "/",

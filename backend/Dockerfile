@@ -1,18 +1,21 @@
-FROM python:3.8
+FROM python:3.11-slim
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       build-essential \
+       libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-RUN pip install --upgrade pip
 COPY requirements.txt .
-RUN pip install -r requirements.txt --no-cache-dir
-
-RUN apt-get update && apt-get install -y tzdata
-ENV TZ=UTC
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["gunicorn", "AstSmartTime.wsgi:application", "--bind", "0:8000" ]
+# 6. Собираем статические файлы (для Swagger UI и статики)
+RUN python manage.py collectstatic --noinput
+
+EXPOSE 8000
+
+CMD ["gunicorn", "AstSmartTime.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--log-level", "info"]

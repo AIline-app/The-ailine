@@ -1,26 +1,32 @@
 # AstSmartTime
-Веб-сервис для ...
+Бэкенд сторона проекта с подключенным swagger
 
 Требования
 ===
 
-- Python 3.10
-- Django 4.0.1
+- Docker desktop
 
-Установка
+Запуск проекта
 ===
-source venv/bin/activate
-python manage.py makemigrations
-python manage.py migrate
-python manage.py runserver
+1) Перейти в папку бэкенд части проекта, ../The-ailine/backend 
+2) Создать файл .env и скопировать в него содержимого файла env.example или просто переименовать его в .env
+3) В консоли находясь в папке проекта (../The-ailine/backend) выполнить следующие команды по очереди:
 
-python manage.py bot - запуск бота
+````
+docker-compose build
+````
+
+````
+docker-compose up
+````
+
+Для корректного выключения следует использовать сочетание клавиш CTRL+C несколько раз, или в той же иерархии вести команду:
+
+````
+docker-compose down
+````
 
 
-## Built With
+## Адреса
 
-* [Django](https://www.djangoproject.com/) -  web framework written in Python.
-
-
-## Make команды
-
+* Swagger - http://localhost:8000/swagger/
