@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_back_button.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_button.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_checkbox.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_text_field.dart';
+import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
+import 'package:gghgggfsfs/core/widgets/custom_button.dart';
+import 'package:gghgggfsfs/core/widgets/custom_checkbox.dart';
+import 'package:gghgggfsfs/core/widgets/custom_text_field.dart';
+
 import 'package:iconsax_plus/iconsax_plus.dart';
 
 class CarSignupScreen extends StatefulWidget {

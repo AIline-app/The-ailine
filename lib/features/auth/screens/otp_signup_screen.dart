@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_back_button.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_button.dart';
+import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
+import 'package:gghgggfsfs/core/widgets/custom_button.dart';
+
 import 'package:go_router/go_router.dart';
 import 'package:otp_text_field_v2/otp_field_v2.dart';
 import 'package:otp_text_field_v2/otp_text_field_v2.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../data/model_car_wash/model_car_wash.dart';
+import '../../data/models/model_car_wash/model_car_wash.dart';
 
 class CarWashCard extends StatelessWidget {
   final CarWashModel carWash;

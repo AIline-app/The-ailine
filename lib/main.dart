@@ -1,70 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gghgggfsfs/core/theme/app_theme.dart';
-import 'package:gghgggfsfs/data/model_car_wash/model_car_wash.dart';
-import 'package:gghgggfsfs/presentation/auth/screens/car_signup_screen.dart';
-import 'package:gghgggfsfs/presentation/auth/screens/otp_signup_screen.dart';
-import 'package:gghgggfsfs/presentation/auth/screens/phone_signup_screen.dart';
-import 'package:gghgggfsfs/presentation/client/screens/car_wash_detail_screen.dart';
-import 'package:gghgggfsfs/presentation/director/screens/add_service.dart';
-import 'package:gghgggfsfs/presentation/director/screens/director_auth.dart';
-import 'package:go_router/go_router.dart';
+import 'package:gghgggfsfs/features/client/map_event.dart';
+import 'package:gghgggfsfs/features/director/ui/bloc/director_bloc.dart';
+import 'package:gghgggfsfs/routes/app_routes.dart';
+import 'package:gghgggfsfs/data/repository/car_wash_repository.dart';
+import 'package:gghgggfsfs/core/api_client/api_client.dart';
+import 'package:gghgggfsfs/features/client/map_bloc.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(AilineApp());
 }
 
 class AilineApp extends StatelessWidget {
   AilineApp({super.key});
 
+  final CarWashRepository _carWashRepository = CarWashRepository(
+    apiClient: ApiClient(),
+  );
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      title: 'Ailine',
-      theme: appTheme,
-      routerConfig: _router,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => DirectorBloc(),
+        ),
+      ],
+      child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        title: 'Ailine',
+        theme: appTheme,
+        routerConfig: router,
+      ),
     );
   }
-
-  final GoRouter _router = GoRouter(
-    initialLocation: '/',
-    routes: [
-      GoRoute(
-        path: '/',
-        builder: (context, state) => DirectorAuth(),
-      ), // changing MapHomeScreen into DirectorAuth()
-      GoRoute(
-        path: '/car_details',
-        builder: (context, state) {
-          final carWash = state.extra as CarWashModel;
-          return CarWashDetailScreen(carWash: carWash);
-        },
-      ),
-      GoRoute(
-        path: '/reg',
-        builder: (context, state) {
-          return PhoneSignupScreen();
-        },
-      ),
-      GoRoute(
-        path: '/otp',
-        builder: (context, state) {
-          return OtpSignupScreen();
-        },
-      ),
-      GoRoute(
-        path: '/car_signup',
-        builder: (context, state) {
-          return CarSignupScreen();
-        },
-      ),
-      //derector control
-      GoRoute(
-        path: '/add_service',
-        builder: (context, state) {
-          return AddService();
-        },
-      ),
-    ],
-  );
 }

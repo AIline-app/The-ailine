@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/core/api_client/api_client.dart';
-import 'package:gghgggfsfs/data/repository/car_wash_repository.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_button.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_text_field.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gghgggfsfs/core/widgets/custom_button.dart';
+import 'package:gghgggfsfs/core/widgets/custom_text_field.dart';
+import 'package:gghgggfsfs/data/models/model_car_wash/model_car_wash.dart';
+import 'package:gghgggfsfs/features/client/map_bloc.dart';
+import 'package:gghgggfsfs/features/client/map_event.dart';
+import 'package:gghgggfsfs/features/client/map_state.dart';
 import 'package:go_router/go_router.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-import '../../../data/model_car_wash/model_car_wash.dart';
 import '../../../core/widgets/car_wash_card.dart';
 import '../themes/main_colors.dart';
 
@@ -19,79 +21,68 @@ class MapHomeScreen extends StatefulWidget {
 class _MapHomeScreenState extends State<MapHomeScreen> {
   late YandexMapController mapController;
   List<MapObject> mapObjects = [];
-  String selectedSortOption = 'Сортировать по';
   bool isExpanded = false;
-
-  final CarWashRepository carWashRepository = CarWashRepository(
-    apiClient: ApiClient(),
-  );
-  late Future<List<CarWashModel>> _futureCarWashes;
-  List<CarWashModel> carWashes = [];
-
-  int selectedIndex = 0;
+  String selectedSortOption = 'Сортировать по';
 
   @override
   void initState() {
     super.initState();
-    _futureCarWashes = carWashRepository.getAllCarWashes();
+    context.read<CarWashBloc>().add(LoadCarWashes());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<List<CarWashModel>>(
-        future: _futureCarWashes,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Ошибка загрузки автомоек'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('Нет доступных автомоек'));
-          }
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => _showLoginDialog(context),
+        child: BlocBuilder<CarWashBloc, CarWashState>(
+          builder: (context, state) {
+            if (state.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          carWashes = snapshot.data!;
+            final carWashes = state.visibleCarWashes;
+            final selectedIndex = state.selectedIndex;
 
-          return Stack(
-            children: [
-              YandexMap(
-                onMapCreated: (controller) {
-                  mapController = controller;
-                  _addPlacemarks(carWashes);
-                },
-                mapObjects: mapObjects,
-              ),
+            if (carWashes.isEmpty) {
+              return const Center(child: Text('Нет доступных автомоек'));
+            }
 
-              Positioned(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    _showLoginDialog(context);
+            _addPlacemarks(carWashes, selectedIndex);
+
+            return Stack(
+              children: [
+                YandexMap(
+                  onMapCreated: (controller) {
+                    mapController = controller;
+                    _moveToCarWash(carWashes[selectedIndex]);
                   },
-                  child: Container(),
+                  mapObjects: mapObjects,
                 ),
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: _buildCarWashCards(carWashes),
-              ),
-              SizedBox(height: 20),
-            ],
-          );
-        },
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: _buildCarWashCards(context, carWashes, selectedIndex),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
 
-  // Alert Dialog for sign in
-
-  Widget _buildCarWashCards(List<CarWashModel> carWashes) {
+  Widget _buildCarWashCards(
+    BuildContext context,
+    List<CarWashModel> carWashes,
+    int selectedIndex,
+  ) {
     return Container(
       height: 300,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
       ),
       child: Column(
         children: [
@@ -101,14 +92,14 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+                boxShadow: const [
+                  BoxShadow(color: Colors.black12, blurRadius: 4),
+                ],
               ),
               child: ExpansionTile(
                 initiallyExpanded: isExpanded,
-                onExpansionChanged: (bool expanded) {
-                  setState(() {
-                    isExpanded = expanded;
-                  });
+                onExpansionChanged: (expanded) {
+                  setState(() => isExpanded = expanded);
                 },
                 title: Text(
                   selectedSortOption,
@@ -127,9 +118,11 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                   ListTile(
                     title: const Text('Расстояние'),
                     onTap: () {
+                      context.read<CarWashBloc>().add(
+                        SortCarWashes('Расстояние'),
+                      );
                       setState(() {
                         selectedSortOption = 'Расстояние';
-                        _sortCarWashes();
                         isExpanded = false;
                       });
                     },
@@ -137,9 +130,9 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                   ListTile(
                     title: const Text('Очередь'),
                     onTap: () {
+                      context.read<CarWashBloc>().add(SortCarWashes('Очередь'));
                       setState(() {
                         selectedSortOption = 'Очередь';
-                        _sortCarWashes();
                         isExpanded = false;
                       });
                     },
@@ -147,9 +140,9 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                   ListTile(
                     title: const Text('Рейтинг'),
                     onTap: () {
+                      context.read<CarWashBloc>().add(SortCarWashes('Рейтинг'));
                       setState(() {
                         selectedSortOption = 'Рейтинг';
-                        _sortCarWashes();
                         isExpanded = false;
                       });
                     },
@@ -164,11 +157,8 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
               itemBuilder: (context, index) {
                 return GestureDetector(
                   onTap: () {
-                    setState(() {
-                      selectedIndex = index;
-                      _moveToCarWash(carWashes[index]);
-                      _addPlacemarks(carWashes);
-                    });
+                    context.read<CarWashBloc>().add(SelectCarWash(index));
+                    _moveToCarWash(carWashes[index]);
                   },
                   child: CarWashCard(
                     carWash: carWashes[index],
@@ -183,49 +173,33 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
     );
   }
 
-  void _addPlacemarks(List<CarWashModel> carWashes) {
-    final hasCoordinates = carWashes.any(
-      (wash) => wash.latitude != null && wash.longitude != null,
-    );
-
-    if (!hasCoordinates) {
-      setState(() => mapObjects = []);
-      return;
-    }
-
-    setState(() {
-      mapObjects =
-          carWashes
-              .where((wash) => wash.latitude != null && wash.longitude != null)
-              .map((wash) {
-                final isSelected = carWashes[selectedIndex].id == wash.id;
-                return PlacemarkMapObject(
-                  mapId: MapObjectId(wash.id.toString()),
-                  point: Point(
-                    latitude: wash.latitude!,
-                    longitude: wash.longitude!,
-                  ),
-                  icon: PlacemarkIcon.single(
-                    PlacemarkIconStyle(
-                      image: BitmapDescriptor.fromAssetImage(
-                        isSelected
-                            ? 'assets/icons/marker_selected.png'
-                            : 'assets/icons/marker.png',
-                      ),
-                      scale: isSelected ? 1.4 : 1.0,
-                    ),
-                  ),
-                  onTap: (mapObject, point) {
-                    setState(() {
-                      selectedIndex = carWashes.indexWhere(
-                        (w) => w.id == int.parse(mapObject.mapId.value),
-                      );
-                    });
-                  },
-                );
-              })
-              .toList();
-    });
+  void _addPlacemarks(List<CarWashModel> carWashes, int selectedIndex) {
+    mapObjects =
+        carWashes.where((w) => w.latitude != null && w.longitude != null).map((
+          wash,
+        ) {
+          final isSelected = wash.id == carWashes[selectedIndex].id;
+          return PlacemarkMapObject(
+            mapId: MapObjectId(wash.id.toString()),
+            point: Point(latitude: wash.latitude!, longitude: wash.longitude!),
+            icon: PlacemarkIcon.single(
+              PlacemarkIconStyle(
+                image: BitmapDescriptor.fromAssetImage(
+                  isSelected
+                      ? 'assets/icons/marker_selected.png'
+                      : 'assets/icons/marker.png',
+                ),
+                scale: isSelected ? 1.4 : 1.0,
+              ),
+            ),
+            onTap: (mapObject, point) {
+              final tappedIndex = carWashes.indexWhere(
+                (w) => w.id.toString() == mapObject.mapId.value,
+              );
+              context.read<CarWashBloc>().add(SelectCarWash(tappedIndex));
+            },
+          );
+        }).toList();
   }
 
   void _moveToCarWash(CarWashModel wash) {
@@ -243,16 +217,6 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
         duration: 1.2,
       ),
     );
-  }
-
-  void _sortCarWashes() {
-    if (selectedSortOption == 'Расстояние') {
-      carWashes.sort((a, b) => b.rating.compareTo(a.rating));
-    } else if (selectedSortOption == 'Очередь') {
-      carWashes.sort((a, b) => a.slots.compareTo(b.slots));
-    } else if (selectedSortOption == 'Рейтинг') {
-      carWashes.sort((a, b) => b.rating.compareTo(a.rating));
-    }
   }
 
   void _showLoginDialog(BuildContext context) {

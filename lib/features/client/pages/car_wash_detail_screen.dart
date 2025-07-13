@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_checkbox.dart';
-import 'package:gghgggfsfs/core/widgets/tarifs_section.dart';
+import 'package:gghgggfsfs/core/widgets/tarifs_client_section.dart';
 import 'package:gghgggfsfs/core/widgets/type_car.dart';
-import 'package:gghgggfsfs/data/model_car_wash/model_car_wash.dart';
-import 'package:gghgggfsfs/presentation/client/themes/main_colors.dart';
+import 'package:gghgggfsfs/data/models/model_car_wash/model_car_wash.dart';
+import 'package:gghgggfsfs/features/client/themes/main_colors.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CarWashDetailScreen extends StatefulWidget {
@@ -110,6 +110,7 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                             Text(
                               widget.carWash.address,
                               style: Theme.of(context).textTheme.displayLarge,
+                            
                             ),
                             SizedBox(height: 6),
                             Text(

@@ -1,6 +1,5 @@
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-
-import '../../data/model_car_wash/model_car_wash.dart';
+import '../../data/models/model_car_wash/model_car_wash.dart';
 
 class CarWashState {
   final bool isLoading;
@@ -8,6 +7,7 @@ class CarWashState {
   final List<CarWashModel> visibleCarWashes;
   final int selectedIndex;
   final Point? currentPosition;
+  final String? error;
 
   CarWashState({
     required this.isLoading,
@@ -15,15 +15,17 @@ class CarWashState {
     required this.visibleCarWashes,
     required this.selectedIndex,
     required this.currentPosition,
+    required this.error,
   });
 
   factory CarWashState.initial() => CarWashState(
-    isLoading: false,
-    allCarWashes: [],
-    visibleCarWashes: [],
-    selectedIndex: 0,
-    currentPosition: null,
-  );
+        isLoading: false,
+        allCarWashes: [],
+        visibleCarWashes: [],
+        selectedIndex: 0,
+        currentPosition: null,
+        error: null,
+      );
 
   CarWashState copyWith({
     bool? isLoading,
@@ -39,6 +41,7 @@ class CarWashState {
       visibleCarWashes: visibleCarWashes ?? this.visibleCarWashes,
       selectedIndex: selectedIndex ?? this.selectedIndex,
       currentPosition: currentPosition ?? this.currentPosition,
+      error: error,
     );
   }
 }

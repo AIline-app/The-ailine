@@ -7,6 +7,9 @@ class CustomTextField extends StatefulWidget {
     this.isClicked = false,
     this.textController,
     required this.labelText,
+    TextInputType? keyboardType,
+    void Function(dynamic value)? onChanged,
+    String? initialValue,
   });
 
   final Widget? icon;
@@ -33,6 +36,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         ),
       ),
       child: TextFormField(
+        controller: widget.textController,
         style: TextStyle(fontSize: 20),
         maxLength: 20,
         obscureText: !widget.isClicked,
