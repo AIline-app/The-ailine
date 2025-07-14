@@ -2,8 +2,9 @@
 
 
 
-import 'package:gghgggfsfs/core/api_client/api_client.dart';
 import 'package:gghgggfsfs/data/model_car_wash/model_car_wash.dart';
+
+import '../../core/api/api_client.dart';
 
 class CarWashRepository {
   final ApiClient apiClient;

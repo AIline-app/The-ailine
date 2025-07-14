@@ -8,6 +8,8 @@ import 'package:gghgggfsfs/data/model_car_wash/model_car_wash.dart';
 import 'package:gghgggfsfs/presentation/client/themes/main_colors.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../data/model_car_wash/service.dart';
+
 class CarWashDetailScreen extends StatefulWidget {
   final CarWashModel carWash;
   const CarWashDetailScreen({super.key, required this.carWash});

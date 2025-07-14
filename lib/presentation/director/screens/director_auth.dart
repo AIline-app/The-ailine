@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gghgggfsfs/core/widgets/main_text.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_back_button.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_button.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_text_field.dart';
 import 'package:go_router/go_router.dart';
+
+import '../../../core/widgets/custom_back_button.dart';
+import '../../../core/widgets/custom_button.dart';
+import '../../../core/widgets/custom_text_field.dart';
 
 class DirectorAuth extends StatefulWidget {
   const DirectorAuth({super.key});
@@ -216,7 +217,6 @@ class _DirectorAuthState extends State<DirectorAuth> {
                     ],
                   ),
                   SizedBox(height: 20),
-
                   CustomButton(
                     text: "Далее",
                     onPressed: () {
