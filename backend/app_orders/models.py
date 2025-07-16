@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from AstSmartTime import choices_lists
-from app_washes.models import Service, CarWash
+from app_washes.models import Service, CarWash, Washer
 from app_users.models import MaxValueValidator, MinValueValidator
 
 
@@ -13,6 +13,7 @@ class Order(models.Model):
     Attributes
         customer: Пользователь
         car_wash: Автомойка
+        washer: Мойщик
         time_start: Время начала
         time_work: Время мойки
         final_price: Итоговая цена
@@ -31,6 +32,7 @@ class Order(models.Model):
     customer = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('Customer'), on_delete=models.PROTECT,
                                  blank=True, null=True, related_name='order_customer')
     car_wash = models.ForeignKey(CarWash, verbose_name=_('CarWash'), on_delete=models.PROTECT, related_name='orders')
+    washer = models.ForeignKey(Washer, verbose_name=_('Washer'), on_delete=models.PROTECT, related_name='orders')
     time_start = models.DateTimeField(verbose_name=_('Time start'), blank=True, null=True)
     time_work = models.PositiveSmallIntegerField(help_text='В минутах', null=True, blank=True)
     time_end = models.DateTimeField(verbose_name=_('Time end'), blank=True, null=True)

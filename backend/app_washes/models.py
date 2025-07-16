@@ -145,3 +145,6 @@ class Washer(models.Model):
     class Meta:
         verbose_name = _('Washer')
         verbose_name_plural = _('Washers')
+
+    def __str__(self):
+        return f'{self.name}'

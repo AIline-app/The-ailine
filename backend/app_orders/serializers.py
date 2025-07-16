@@ -132,7 +132,7 @@ class CreateOrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ('id', 'customer', 'car_wash', 'service', 'time_start', 'item_service',
+        fields = ('id', 'customer', 'car_wash', 'washer', 'service', 'time_start', 'item_service',
                   'time_work', 'final_price', 'status', 'time_end', 'on_site', 'rated', 'price', 'commission')
 
     @transaction.atomic
@@ -141,6 +141,7 @@ class CreateOrderSerializer(serializers.ModelSerializer):
         price = 0
         customer = validated_data.pop('customer')
         car_wash = validated_data.pop('car_wash')
+        washer = validated_data.pop('washer')
         service = validated_data.pop('service')
         validated_data.pop('link', None)
         wash = CarWash.objects.get(id=car_wash.id)
@@ -150,6 +151,7 @@ class CreateOrderSerializer(serializers.ModelSerializer):
         new_order = Order.objects.create(
             customer=customer,
             car_wash=car_wash,
+            washer=washer,
             **validated_data
         )
         for serv in service:
@@ -207,7 +209,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ('id', 'customer', 'car_wash', 'time_start', 'status', 'item_service', 'service', 'final_price',
+        fields = ('id', 'customer', 'car_wash', 'washer', 'time_start', 'status', 'item_service', 'service', 'final_price',
                   'rating', 'rated', 'on_site', 'time_end', 'date_create', 'payment_status', 'wash_title', 'price',
                   'commission', 'phone', 'phone_admin', 'customer_name')
 
