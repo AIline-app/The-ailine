@@ -1,6 +1,8 @@
 from django.urls import path
 
-from app_users.views import DetailUserAPI, RegisterUserAPI, LoginAPIView, MyTokenRefreshView, UpdateUserPasswordView, CreateOrUpdateBankCard, ListBankCard, CallBackCashOut, CreateCashOutData, LogoutView
+from app_users.views import (DetailUserAPI, RegisterUserAPI, LoginAPIView, MyTokenRefreshView,
+                             UpdateUserPasswordView, CreateOrUpdateBankCard, ListBankCard,
+                             CallBackCashOut, CreateCashOutData, LogoutView, CashOutStatsView)
 from app_washes.views import AdminListAPI
 
 urlpatterns = [
@@ -9,6 +11,7 @@ urlpatterns = [
     path('me/bankcard', CreateOrUpdateBankCard.as_view(), name='create_bank_card'),
     path('me/listcard', ListBankCard.as_view(), name='list_card'),
     path('me/cashout', CreateCashOutData.as_view(), name='cash_out'),
+    path('me/cashout/stats', CashOutStatsView.as_view(), name='cashout-stats'),
     path('callback', CallBackCashOut.as_view(), name='callback'),
 
     path('register', RegisterUserAPI.as_view(), name='user_register'),

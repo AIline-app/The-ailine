@@ -19,7 +19,7 @@ from .serializers import (MyTokenRefreshSerializer, LoginUserSerializer,
                           DetailUserSerializer, RegisterSerializer,
                           UpdateUserPasswordSerializer, BankCardSerializer,
                           ListBankCardSerializers, CashOutSerializer,
-                          CallBackCashOutSerializer, RefreshTokenSerializer)
+                          CallBackCashOutSerializer, RefreshTokenSerializer, CashOutStatsSerializer)
 
 
 class JWTAuthenticationSafe(JWTAuthentication):
@@ -239,3 +239,17 @@ class CallBackCashOut(generics.GenericAPIView):
             raise ValidationError(serializer.errors)
 
         return Response(data={"accepted": True})
+
+
+class CashOutStatsView(generics.GenericAPIView):
+    serializer_class = CashOutStatsSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        # возвращаем любой queryset — DRF только проверяет, что этот метод есть
+        return User.objects.filter(pk=self.request.user.pk)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data)
