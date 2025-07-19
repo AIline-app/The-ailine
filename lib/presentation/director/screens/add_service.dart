@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/core/theme/color_schemes.dart';
+import 'package:gghgggfsfs/core/resources/colors/app_colors.dart';
 import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_button.dart';
 import 'package:gghgggfsfs/core/widgets/main_text.dart';

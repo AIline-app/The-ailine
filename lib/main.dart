@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/core/theme/app_theme.dart';
+import 'package:gghgggfsfs/core/resources/theme/app_theme.dart';
 import 'package:gghgggfsfs/data/model_car_wash/model_car_wash.dart';
 import 'package:gghgggfsfs/presentation/auth/screens/car_signup_screen.dart';
 import 'package:gghgggfsfs/presentation/auth/screens/otp_signup_screen.dart';
