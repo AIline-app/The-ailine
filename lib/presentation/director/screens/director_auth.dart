@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
+import 'package:gghgggfsfs/core/widgets/custom_button.dart';
+import 'package:gghgggfsfs/core/widgets/custom_text_field.dart';
 import 'package:gghgggfsfs/core/widgets/main_text.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_back_button.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_button.dart';
-import 'package:gghgggfsfs/presentation/auth/widgets/custom_text_field.dart';
 import 'package:go_router/go_router.dart';
 
 class DirectorAuth extends StatefulWidget {

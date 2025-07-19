@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_checkbox.dart';
-import 'package:gghgggfsfs/core/widgets/tarifs_section.dart';
+import 'package:gghgggfsfs/core/widgets/tarifs_client_section.dart';
 import 'package:gghgggfsfs/core/widgets/type_car.dart';
 import 'package:gghgggfsfs/data/model_car_wash/model_car_wash.dart';
 import 'package:gghgggfsfs/presentation/client/themes/main_colors.dart';
