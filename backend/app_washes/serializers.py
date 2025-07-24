@@ -2,8 +2,10 @@ import base64
 
 from django.core.files.base import ContentFile
 from django.db import transaction
+from django.db.models import F, Sum, ExpressionWrapper, DecimalField
 from django.utils import timezone
 from rest_framework import serializers
+from decimal import Decimal
 
 from app_users.models import User, BankCard
 from app_washes.models import Administrator, CarWash, CarWashCoordinates, Service, Washer
@@ -68,6 +70,55 @@ class WasherCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Washer
         fields = '__all__'
+
+
+class WasherStatsSerializer(serializers.ModelSerializer):
+    """Статистика мойщиков одной мойки"""
+    count_order    = serializers.SerializerMethodField()
+    total_earnings = serializers.SerializerMethodField()
+
+    class Meta:
+        model  = Washer
+        fields = ("id", "name", "phone", "count_order", "total_earnings")
+
+    def get_count_order(self, washer):
+        start = self.context['start_date']
+        end   = self.context['end_date']
+        return Order.objects.filter(
+            washer=washer,
+            status='Done',
+            time_end__date__gte=start,
+            time_end__date__lte=end,
+        ).count()
+
+    def get_total_earnings(self, washer):
+        start = self.context['start_date']
+        end   = self.context['end_date']
+        qs = Order.objects.filter(
+            washer=washer,
+            status='Done',
+            time_end__date__gte=start,
+            time_end__date__lte=end,
+        )
+        profit_expr = ExpressionWrapper(
+            F('price') * F('car_wash__percent_washers') / Decimal('100'),
+            output_field=DecimalField(max_digits=12, decimal_places=2)
+        )
+        qs = qs.annotate(profit=profit_expr)
+
+        aggregated = qs.aggregate(total_profit=Sum('profit'))
+        return aggregated['total_profit'] or Decimal('0')
+
+
+class DateRangeSerializer(serializers.Serializer):
+    """Принимает start_date и end_date в POST."""
+    start_date = serializers.DateField()
+    end_date   = serializers.DateField()
+
+    def validate(self, data):
+        if data['start_date'] > data['end_date']:
+            raise serializers.ValidationError("start_date не может быть позже end_date")
+        return data
 
 
 class CarWashAdminSerializer(serializers.ModelSerializer):
