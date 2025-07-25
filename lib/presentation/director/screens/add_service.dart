@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gghgggfsfs/core/localization/generated/l10n.dart';
 import 'package:gghgggfsfs/core/resources/colors/app_colors.dart';
 import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_button.dart';
@@ -24,7 +25,7 @@ class _AddServiceState extends State<AddService> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            MainText(text: 'Добавление услуг'),
+            MainText(text: S.current.common_add_service),
             SizedBox(height: 30),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -35,7 +36,7 @@ class _AddServiceState extends State<AddService> {
                       selectedIndex = 0;
                     });
                   },
-                  text: 'седан',
+                  text: S.current.common_car_type_sedan,
                   textColor:
                       selectedIndex == 0
                           ? Colors.white
@@ -52,7 +53,7 @@ class _AddServiceState extends State<AddService> {
                       selectedIndex = 1;
                     });
                   },
-                  text: 'джип',
+                  text: S.current.common_car_type_suv,
                   textColor:
                       selectedIndex == 1
                           ? Colors.white
@@ -68,7 +69,7 @@ class _AddServiceState extends State<AddService> {
                       selectedIndex = 2;
                     });
                   },
-                  text: 'минивен',
+                  text: S.current.common_car_type_minivan,
                   textColor:
                       selectedIndex == 2
                           ? Colors.white
@@ -84,26 +85,26 @@ class _AddServiceState extends State<AddService> {
             Column(
               children: [
                 TarifsDirector(
-                  title: 'Стандарт',
-                  subtitle: 'Пена, вода, сушка',
+                  title: S.current.common_standard,
+                  subtitle: S.current.common_tariff_description,
                   minutes: '30 мин',
                   price: '500р',
                 ),
                 TarifsDirector(
-                  title: 'Стандарт',
-                  subtitle: 'Пена, вода, сушка',
+                  title: S.current.common_standard,
+                  subtitle: S.current.common_tariff_description,
                   minutes: '30 мин',
                   price: '500р',
                 ),
                 TarifsDirector(
-                  title: 'Стандарт',
-                  subtitle: 'Пена, вода, сушка',
+                  title: S.current.common_standard,
+                  subtitle: S.current.common_tariff_description,
                   minutes: '30 мин',
                   price: '500р',
                 ),
                 TarifsDirector(
-                  title: 'Стандарт',
-                  subtitle: 'Пена, вода, сушка',
+                  title: S.current.common_standard,
+                  subtitle: S.current.common_tariff_description,
                   minutes: '30 мин',
                   price: '500р',
                 ),
@@ -114,7 +115,7 @@ class _AddServiceState extends State<AddService> {
               onPressed: () {},
               style: TextButton.styleFrom(overlayColor: Colors.transparent),
               child: Text(
-                'Добавить услугу',
+                S.current.common_add_service,
                 style: TextStyle(
                   fontSize: 27,
                   fontWeight: FontWeight.w600,
@@ -133,11 +134,11 @@ class _AddServiceState extends State<AddService> {
             ),
             SizedBox(height: 90),
             Text(
-              "Вы можете изменить информацию позже в личном кабинете",
+              S.current.common_edit_later_info,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
             SizedBox(height: 20),
-            CustomButton(onPressed: () {}, text: 'Сохранить'),
+            CustomButton(onPressed: () {}, text: S.current.common_save),
           ],
         ),
       ),

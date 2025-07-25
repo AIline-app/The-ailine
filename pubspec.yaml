@@ -33,6 +33,8 @@ dependencies:
   equatable: ^2.0.7
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   flutter_bloc: ^9.1.0
   flutter_dotenv: ^5.2.1
   flutter_screenutil: ^5.9.3
@@ -55,6 +57,7 @@ dependencies:
 
 dev_dependencies:
   flutter_lints: ^5.0.0
+  intl_utils: ^2.8.11
   flutter_test:
     sdk: flutter
 
@@ -94,3 +97,21 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+  generate: true
+  
+flutter_gen:
+  output: lib/gen/
+  line_length: 80
+  integrations:
+    flutter_svg: true
+
+
+flutter_intl:
+  enabled: true
+  class_name: S
+  main_locale: ru
+  arb_dir: lib/core/localization/l10n
+  output_dir: lib/core/localization/generated
+  untranslated_messages_file: lib/core/localization/l10n/untranslated_messages.txt
+  # template-arb-file: intl_ru.arb
+  # output-localization-file: l10n.dart

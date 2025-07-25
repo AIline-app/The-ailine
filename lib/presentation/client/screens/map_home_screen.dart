@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gghgggfsfs/core/api_client/api_client.dart';
+import 'package:gghgggfsfs/core/localization/generated/l10n.dart';
 import 'package:gghgggfsfs/core/widgets/custom_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_text_field.dart';
 import 'package:gghgggfsfs/data/repository/car_wash_repository.dart';
@@ -19,7 +20,7 @@ class MapHomeScreen extends StatefulWidget {
 class _MapHomeScreenState extends State<MapHomeScreen> {
   late YandexMapController mapController;
   List<MapObject> mapObjects = [];
-  String selectedSortOption = 'Сортировать по';
+  String selectedSortOption = S.current.common_sort_by;
   bool isExpanded = false;
 
   final CarWashRepository carWashRepository = CarWashRepository(
@@ -45,9 +46,9 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Ошибка загрузки автомоек'));
+            return Center(child: Text(S.current.common_loading_error));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('Нет доступных автомоек'));
+            return Center(child: Text(S.current.common_no_carwashes));
           }
 
           carWashes = snapshot.data!;
@@ -125,30 +126,30 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                 ),
                 children: [
                   ListTile(
-                    title: const Text('Расстояние'),
+                    title: Text(S.current.common_sort_distance),
                     onTap: () {
                       setState(() {
-                        selectedSortOption = 'Расстояние';
+                        selectedSortOption = S.current.common_sort_distance;
                         _sortCarWashes();
                         isExpanded = false;
                       });
                     },
                   ),
                   ListTile(
-                    title: const Text('Очередь'),
+                    title: Text(S.current.common_sort_queue),
                     onTap: () {
                       setState(() {
-                        selectedSortOption = 'Очередь';
+                        selectedSortOption = S.current.common_sort_queue;
                         _sortCarWashes();
                         isExpanded = false;
                       });
                     },
                   ),
                   ListTile(
-                    title: const Text('Рейтинг'),
+                    title: Text(S.current.common_sort_rating),
                     onTap: () {
                       setState(() {
-                        selectedSortOption = 'Рейтинг';
+                        selectedSortOption = S.current.common_sort_rating;
                         _sortCarWashes();
                         isExpanded = false;
                       });
@@ -246,11 +247,11 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
   }
 
   void _sortCarWashes() {
-    if (selectedSortOption == 'Расстояние') {
+    if (selectedSortOption == S.current.common_sort_distance) {
       carWashes.sort((a, b) => b.rating.compareTo(a.rating));
-    } else if (selectedSortOption == 'Очередь') {
+    } else if (selectedSortOption == S.current.common_sort_queue) {
       carWashes.sort((a, b) => a.slots.compareTo(b.slots));
-    } else if (selectedSortOption == 'Рейтинг') {
+    } else if (selectedSortOption == S.current.common_sort_rating) {
       carWashes.sort((a, b) => b.rating.compareTo(a.rating));
     }
   }
@@ -306,7 +307,7 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'Вход',
+                              S.current.common_login,
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 32,
@@ -314,12 +315,16 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                               ),
                             ),
                             SizedBox(height: 30),
-                            CustomTextField(labelText: 'Номер телефона'),
+                            CustomTextField(
+                              labelText: S.current.common_phone_number,
+                            ),
                             SizedBox(height: 20),
-                            CustomTextField(labelText: 'Пароль'),
+                            CustomTextField(
+                              labelText: S.current.common_password,
+                            ),
                             SizedBox(height: 25),
                             Text(
-                              'Забыли пароль?',
+                              S.current.common_forgot_password,
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
@@ -327,7 +332,10 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                               ),
                             ),
                             SizedBox(height: 25),
-                            CustomButton(text: 'Войти', onPressed: () {}),
+                            CustomButton(
+                              text: S.current.common_login,
+                              onPressed: () {},
+                            ),
                             SizedBox(height: 20),
                             TextButton(
                               onPressed: () {
@@ -335,7 +343,7 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                               },
 
                               child: Text(
-                                'Регистрация',
+                                S.current.common_register,
                                 style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.w600,
@@ -358,7 +366,7 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                                 overlayColor: Colors.transparent,
                               ),
                               child: Text(
-                                'Стать партнером',
+                                S.current.common_become_partner,
                                 style: TextStyle(
                                   fontSize: 27,
                                   fontWeight: FontWeight.w600,
