@@ -10,10 +10,12 @@ class ApiClient {
       receiveTimeout: const Duration(seconds: 15),
     );
 
-    dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) => handler.next(options),
-      onError: (error, handler) => handler.next(error),
-    ));
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) => handler.next(options),
+        onError: (error, handler) => handler.next(error),
+      ),
+    );
   }
 
   Future<List<Map<String, dynamic>>> getCarWashes() async {
