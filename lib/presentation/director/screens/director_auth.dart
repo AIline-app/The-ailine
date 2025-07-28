@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gghgggfsfs/core/localization/generated/l10n.dart';
 import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_text_field.dart';
@@ -85,15 +86,17 @@ class _DirectorAuthState extends State<DirectorAuth> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  MainText(text: 'Подключение автомойки'),
+                  MainText(text: S.current.common_connect_carwash),
                   SizedBox(height: 40),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     spacing: 25,
                     children: [
-                      CustomTextField(labelText: "ТОО/ИИН"),
+                      CustomTextField(
+                        labelText: S.current.common_company_or_iin,
+                      ),
 
-                      CustomTextField(labelText: "Название"),
+                      CustomTextField(labelText: S.current.common_company_name),
                       Container(
                         padding: EdgeInsets.symmetric(vertical: 10),
                         height: 65,
@@ -119,7 +122,7 @@ class _DirectorAuthState extends State<DirectorAuth> {
                             focusedBorder: OutlineInputBorder(
                               borderSide: BorderSide.none,
                             ),
-                            label: Text(' Адрес'),
+                            label: Text(' ${S.current.common_address}'),
                             labelStyle: TextStyle(color: Colors.grey),
                             suffixIcon: Material(
                               shape: CircleBorder(),
@@ -132,20 +135,20 @@ class _DirectorAuthState extends State<DirectorAuth> {
                           ),
                         ),
                       ),
-                      MainText(text: 'Укажите время\nработы автомойки'),
+                      MainText(text: S.current.common_set_working_hours),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           //! startTime
                           _buildTimeBox(
-                            label: 'Начало',
+                            label: S.current.common_start_time,
                             time: startTime,
                             onTap: () => _selectTime(true),
                           ),
                           SizedBox(width: 20),
                           //! endTime
                           _buildTimeBox(
-                            label: 'Конец',
+                            label: S.current.common_end_time,
                             time: endTime,
                             onTap: () => _selectTime(false),
                           ),
@@ -177,7 +180,7 @@ class _DirectorAuthState extends State<DirectorAuth> {
                             focusedBorder: OutlineInputBorder(
                               borderSide: BorderSide.none,
                             ),
-                            label: Text('Количество слотов'),
+                            label: Text(S.current.common_number_of_slots),
                             labelStyle: TextStyle(color: Colors.grey),
                           ),
                         ),
@@ -208,7 +211,7 @@ class _DirectorAuthState extends State<DirectorAuth> {
                             focusedBorder: OutlineInputBorder(
                               borderSide: BorderSide.none,
                             ),
-                            label: Text('Процент выплаты мойщикам'),
+                            label: Text(S.current.common_washer_payout_percent),
                             labelStyle: TextStyle(color: Colors.grey),
                           ),
                         ),
@@ -218,7 +221,7 @@ class _DirectorAuthState extends State<DirectorAuth> {
                   SizedBox(height: 20),
 
                   CustomButton(
-                    text: "Далее",
+                    text: S.current.common_next,
                     onPressed: () {
                       context.push('/add_service');
                     },

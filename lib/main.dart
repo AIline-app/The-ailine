@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gghgggfsfs/core/resources/theme/app_theme.dart';
 import 'package:gghgggfsfs/data/model_car_wash/model_car_wash.dart';
 import 'package:gghgggfsfs/presentation/auth/screens/car_signup_screen.dart';
 import 'package:gghgggfsfs/presentation/auth/screens/otp_signup_screen.dart';
 import 'package:gghgggfsfs/presentation/auth/screens/phone_signup_screen.dart';
 import 'package:gghgggfsfs/presentation/client/screens/car_wash_detail_screen.dart';
+import 'package:gghgggfsfs/presentation/client/screens/map_home_screen.dart';
 import 'package:gghgggfsfs/presentation/director/screens/add_service.dart';
-import 'package:gghgggfsfs/presentation/director/screens/director_auth.dart';
 import 'package:go_router/go_router.dart';
 
 void main() {
@@ -19,19 +18,11 @@ class AilineApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: Size(375, 812),
-      minTextAdapt: true,
-      splitScreenMode: true,
-      useInheritedMediaQuery: true,
-      builder: (context, child) {
-        return MaterialApp.router(
-          debugShowCheckedModeBanner: false,
-          title: 'Ailine',
-          theme: appTheme,
-          routerConfig: _router,
-        );
-      },
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      title: 'Ailine',
+      theme: appTheme,
+      routerConfig: _router,
     );
   }
 
@@ -40,7 +31,7 @@ class AilineApp extends StatelessWidget {
     routes: [
       GoRoute(
         path: '/',
-        builder: (context, state) => DirectorAuth(),
+        builder: (context, state) => MapHomeScreen(),
       ), // changing MapHomeScreen into DirectorAuth()
       GoRoute(
         path: '/car_details',

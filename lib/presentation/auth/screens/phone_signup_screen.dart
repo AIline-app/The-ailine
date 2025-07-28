@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gghgggfsfs/core/localization/generated/l10n.dart';
 import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_text_field.dart';
@@ -32,25 +33,21 @@ class _PhoneSignupScreenState extends State<PhoneSignupScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Регистрация",
+                  S.current.common_registration,
                   style: Theme.of(context).textTheme.displayLarge,
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Введите номер телефона",
+                      S.current.common_enter_phone,
                       style: Theme.of(context).textTheme.displayMedium,
                     ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    CustomTextField(labelText: "Номер телефона"),
-                    SizedBox(
-                      height: 15,
-                    ),
+                    SizedBox(height: 15),
+                    CustomTextField(labelText: S.current.common_phone_number),
+                    SizedBox(height: 15),
                     CustomTextField(
-                      labelText: "Придумайте пароль",
+                      labelText: S.current.common_create_password,
                       icon: InkWell(
                         onTap: () {
                           setState(() {
@@ -67,17 +64,15 @@ class _PhoneSignupScreenState extends State<PhoneSignupScreen> {
                       ),
                       isClicked: isClicked,
                     ),
-                    SizedBox(
-                      height: 15,
-                    ),
+                    SizedBox(height: 15),
                     Text(
-                      "На данный номер телефона будет отправлен СМС-код для подтверждения",
+                      S.current.common_sms_verification_info,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
                 ),
                 CustomButton(
-                  text: "Далeе",
+                  text: S.current.common_next,
                   onPressed: () {
                     context.push('/otp');
                   },

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gghgggfsfs/core/localization/generated/l10n.dart';
 import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_button.dart';
 import 'package:go_router/go_router.dart';
@@ -32,16 +33,16 @@ class _OtpSignupScreenState extends State<OtpSignupScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Регистрация",
+                  S.current.common_register,
                   style: Theme.of(context).textTheme.displayLarge,
                 ),
 
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-               
+
                   children: [
                     Text(
-                      "Введите код из СМС",
+                      S.current.common_enter_sms_code,
                       style: Theme.of(context).textTheme.displayMedium,
                     ),
 
@@ -66,12 +67,12 @@ class _OtpSignupScreenState extends State<OtpSignupScreen> {
                       },
                     ),
                     Text(
-                      "Код будет доставлен в течение 30 секунд. Если код не пришел, проверьте правильность указанного номер телефона и попробуйте еще раз",
+                      S.current.common_sms_code_info,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     Center(
                       child: Text(
-                        "Выслать код повторно",
+                        S.current.common_resend_code,
                         style: TextStyle(
                           decoration: TextDecoration.underline,
                           decorationColor:
@@ -85,7 +86,7 @@ class _OtpSignupScreenState extends State<OtpSignupScreen> {
                   ],
                 ),
                 CustomButton(
-                  text: "Далее",
+                  text: S.current.common_next,
                   onPressed: () {
                     context.push('/car_signup');
                   },

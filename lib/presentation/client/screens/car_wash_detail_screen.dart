@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gghgggfsfs/core/localization/generated/l10n.dart';
 import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_checkbox.dart';
@@ -31,20 +32,24 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
     setState(() {});
   }
 
-  final carTypes = ['седан', 'джип', 'минивен'];
+  final carTypes = [
+    S.current.common_car_type_sedan,
+    S.current.common_car_type_suv,
+    S.current.common_car_type_minivan,
+  ];
   int selectedIndex = 0;
 
   List<Service> mainServices = [
-    Service(title: 'Стандарт', price: 500),
-    Service(title: 'Покрытие воском', price: 200),
-    Service(title: 'Покрытие воском', price: 200),
-    Service(title: 'Покрытие воском', price: 200),
+    Service(title: S.current.common_standard, price: 500),
+    Service(title: S.current.common_wax_coating, price: 200),
+    Service(title: S.current.common_wax_coating, price: 200),
+    Service(title: S.current.common_wax_coating, price: 200),
   ];
   List<Service> extraServices = [
-    Service(title: 'Мойка кузова', price: 1000),
-    Service(title: 'Пылесос', price: 800),
-    Service(title: 'Мойка кузова', price: 1000),
-    Service(title: 'Мойка кузова', price: 1000),
+    Service(title: S.current.common_body_wash, price: 1000),
+    Service(title: S.current.common_vacuum_cleaning, price: 800),
+    Service(title: S.current.common_body_wash, price: 1000),
+    Service(title: S.current.common_body_wash, price: 1000),
   ];
 
   int totalPrice = 0;
@@ -113,7 +118,9 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                             ),
                             SizedBox(height: 6),
                             Text(
-                              '${widget.carWash.distance} метров от вас',
+                              S.current.common_distance_from_you(
+                                widget.carWash.distance,
+                              ),
                               style: TextStyle(
                                 color: Colors.grey,
                                 fontWeight: FontWeight.w600,
@@ -121,7 +128,7 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                             ),
                             SizedBox(height: 40),
                             Text(
-                              'Перед вами сейчас:',
+                              S.current.common_currently_ahead_of_you,
                               style: TextStyle(
                                 height: 2,
                                 color: Colors.white,
@@ -142,7 +149,7 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                                   ),
                                 ),
                                 Text(
-                                  'машин',
+                                  S.current.common_cars,
                                   style: TextStyle(
                                     color: Colors.grey,
                                     fontWeight: FontWeight.w600,
@@ -152,7 +159,7 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                             ),
                             SizedBox(height: 35),
                             Text(
-                              'Вы сможете подъехать к:',
+                              S.current.common_you_can_arrive_at,
                               style: TextStyle(
                                 height: 2,
                                 color: Colors.white,
@@ -258,7 +265,7 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                 Padding(
                   padding: EdgeInsets.only(left: 20),
                   child: Text(
-                    'Дополнительные услуги',
+                    S.current.common_additional_services,
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 24,
@@ -337,7 +344,7 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Вы выбрали',
+                          S.current.common_you_selected,
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
@@ -368,7 +375,7 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                             SizedBox(
                               width: 327,
                               child: Text(
-                                'Я подтверждаю дату и время бронирования и ознакомлен с условиями оплаты ',
+                                S.current.common_booking_confirmation_text,
                                 style: TextStyle(
                                   fontWeight: FontWeight.w500,
                                   fontSize: 14,
@@ -382,7 +389,7 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                   ),
                 ),
                 SizedBox(height: 20),
-                CustomButton(text: 'Записаться', onPressed: () {}),
+                CustomButton(text: S.current.common_book, onPressed: () {}),
                 SizedBox(height: 10),
               ],
             ),

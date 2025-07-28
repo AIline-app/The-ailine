@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gghgggfsfs/core/localization/generated/l10n.dart';
 import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_checkbox.dart';
@@ -32,21 +33,19 @@ class _CarSignupScreenState extends State<CarSignupScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Регистрация",
+                    S.current.common_register,
                     style: Theme.of(context).textTheme.displayLarge,
                   ),
-                  SizedBox(
-                    height: 25,
-                  ),
+                  SizedBox(height: 25),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CustomTextField(labelText: "Как вас зовут?"),
-                      SizedBox(
-                        height: 15,
-                      ),
                       CustomTextField(
-                        labelText: "Придумайте пароль",
+                        labelText: S.current.common_what_is_your_name,
+                      ),
+                      SizedBox(height: 15),
+                      CustomTextField(
+                        labelText: S.current.common_create_password,
                         icon: InkWell(
                           onTap: () {
                             setState(() {
@@ -63,99 +62,78 @@ class _CarSignupScreenState extends State<CarSignupScreen> {
                         ),
                         isClicked: isClicked,
                       ),
-                      SizedBox(
-                        height: 15,
-                      ),
+                      SizedBox(height: 15),
                       Text(
-                        "На данный номер телефона будет отправлен СМС-код для подтверждения",
+                        S.current.common_sms_verification_info,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
                   ),
-                  SizedBox(
-                    height: 25,
-                  ),
+                  SizedBox(height: 25),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Информация о машине",
+                        S.current.common_vehicle_info,
                         style: Theme.of(context).textTheme.displayMedium,
                       ),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      CustomTextField(labelText: "Номер машины"),
+                      SizedBox(height: 15),
+                      CustomTextField(labelText: S.current.common_car_number),
                     ],
                   ),
-                  SizedBox(
-                    height: 25,
-                  ),
+                  SizedBox(height: 25),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Уведомления",
+                        S.current.common_notifications,
                         style: Theme.of(context).textTheme.displayMedium,
                       ),
-                      SizedBox(
-                        height: 15,
-                      ),
+                      SizedBox(height: 15),
                       Text(
-                        "За какой период вам напомнить о записи?",
+                        S.current.common_reminder_period,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
                   ),
-                  SizedBox(
-                    height: 25,
-                  ),
+                  SizedBox(height: 25),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Выберите мессенджер для отправки уведомлений ",
+                        S.current.common_choose_messenger,
                         style: Theme.of(context).textTheme.displayMedium,
                       ),
-                      SizedBox(
-                        height: 15,
-                      ),
+                      SizedBox(height: 15),
                       Row(
                         children: [
                           CustomCheckboxWidget(),
-                          SizedBox(
-                            width: 10,
-                          ),
+                          SizedBox(width: 10),
                           Text(
-                            "Telegram",
+                            S.current.common_telegram,
                             style: Theme.of(context).textTheme.displaySmall,
                           ),
                         ],
                       ),
-                      SizedBox(
-                        height: 15,
-                      ),
+                      SizedBox(height: 15),
                       Row(
                         children: [
                           CustomCheckboxWidget(),
-                          SizedBox(
-                            width: 10,
-                          ),
+                          SizedBox(width: 10),
                           Text(
-                            "WhatsApp",
+                            S.current.common_whatsapp,
                             style: Theme.of(context).textTheme.displaySmall,
                           ),
                         ],
                       ),
                     ],
                   ),
-                  SizedBox(
-                    height: 25,
-                  ),
+                  SizedBox(height: 25),
                   CustomButton(
-                    text: "Зарегистрироваться",
+                    text: S.current.common_registration,
                     onPressed: () {
-                      /* after the e lelopment of a pagt Страница ввода карточных /анных  */},
+                      /* after the e lelopment of a pagt Страница ввода карточных /анных  */
+                    },
                   ),
                   SizedBox(height: 50),
                 ],
