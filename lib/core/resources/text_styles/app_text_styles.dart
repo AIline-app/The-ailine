@@ -6,12 +6,12 @@ final TextTheme customTextTheme = GoogleFonts.interTextTheme().copyWith(
   displayLarge: TextStyle(
     fontSize: 32,
     fontWeight: FontWeight.w700,
-    color: customColorScheme.onPrimary,
+    color: customColorScheme.onBackground,
   ),
   displayMedium: TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.w700,
-    color: customColorScheme.onSurface,
+    color: customColorScheme.onBackground,
   ),
 
   displaySmall: TextStyle(

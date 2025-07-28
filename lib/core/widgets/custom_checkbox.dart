@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 
 class CustomCheckboxWidget extends StatefulWidget {
-  const CustomCheckboxWidget({super.key});
+  CustomCheckboxWidget({super.key, this.isChecked = false});
+
+  bool isChecked;
 
   @override
   _CustomCheckboxWidgetState createState() => _CustomCheckboxWidgetState();
 }
 
 class _CustomCheckboxWidgetState extends State<CustomCheckboxWidget> {
-  bool _isChecked = true;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         setState(() {
-          _isChecked = !_isChecked;
+          widget.isChecked = !widget.isChecked;
         });
       },
       child: Container(
@@ -23,11 +24,7 @@ class _CustomCheckboxWidgetState extends State<CustomCheckboxWidget> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12.0),
           border: Border.all(
-            color:
-                // _isChecked
-                //     ? Colors.grey
-                //     :
-                Theme.of(context).colorScheme.secondary,
+            color: Theme.of(context).colorScheme.secondary,
             width: 5,
           ),
         ),
@@ -36,25 +33,16 @@ class _CustomCheckboxWidgetState extends State<CustomCheckboxWidget> {
           width: 20,
           height: 20,
           decoration:
-              _isChecked
-                  ? null
-                  : BoxDecoration(
+              widget.isChecked
+                  ? BoxDecoration(
                     color: Theme.of(context).colorScheme.secondary,
                     borderRadius: BorderRadius.circular(6.0),
                     border: Border.all(
                       color: Theme.of(context).colorScheme.secondary,
                       width: 2,
                     ),
-                  ),
-          // child:
-          //     _isChecked
-          //         ? const Icon(
-          //           CupertinoIcons.check_mark,
-          //           color: Colors.white,
-          //           size: 25,
-          //           weight: 1,
-          //         )
-          //         : const SizedBox.shrink(),
+                  )
+                  : null,
         ),
       ),
     );

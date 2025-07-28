@@ -3,8 +3,14 @@ import 'package:gghgggfsfs/core/api_client/api_client.dart';
 import 'package:gghgggfsfs/core/localization/generated/l10n.dart';
 import 'package:gghgggfsfs/core/widgets/custom_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_text_field.dart';
+
 import 'package:gghgggfsfs/data/repository/car_wash_repository.dart';
 import 'package:go_router/go_router.dart';
+
+import 'package:gghgggfsfs/presentation/client/widgets/car_wash_time_modal.dart';
+import 'package:gghgggfsfs/presentation/client/widgets/count_down_modal.dart';
+import 'package:gghgggfsfs/presentation/client/widgets/star_modal.dart';
+
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import '../../../data/model_car_wash/model_car_wash.dart';
 import '../../../core/widgets/car_wash_card.dart';
@@ -30,6 +36,8 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
   List<CarWashModel> carWashes = [];
 
   int selectedIndex = 0;
+
+  int selectedTabIndex = 0;
 
   @override
   void initState() {
@@ -62,21 +70,18 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                 },
                 mapObjects: mapObjects,
               ),
-
-              Positioned(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    _showLoginDialog(context);
-                  },
-                  child: Container(),
-                ),
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  _showLoginDialog(context);
+                },
+                child: Container(),
               ),
+              Align(alignment: Alignment(0, -0.7), child: StarModal()),
               Align(
                 alignment: Alignment.bottomCenter,
                 child: _buildCarWashCards(carWashes),
               ),
-              SizedBox(height: 20),
             ],
           );
         },
@@ -359,6 +364,7 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                                 color: MainColors.mainBlue,
                               ),
                             ),
+
                             SizedBox(height: 90),
                             TextButton(
                               onPressed: () {},
@@ -376,10 +382,28 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                             ),
                             Positioned(
                               bottom: 2,
-                              child: Container(
-                                width: 220,
-                                height: 2,
-                                color: MainColors.mainOrrange,
+                              child: Container(width: 220, height: 2),
+                            ),
+                            Container(
+                              width: 150,
+                              height: 2,
+                              color: MainColors.mainBlue,
+                            ),
+                            SizedBox(height: 90),
+                            TextButton(
+                              onPressed: () {},
+                              style: TextButton.styleFrom(
+                                overlayColor: Colors.transparent,
+                              ),
+
+                              child: Text(
+                                'Стать партнером',
+                                style: TextStyle(
+                                  fontSize: 27,
+                                  fontWeight: FontWeight.w600,
+
+                                  color: MainColors.mainOrrange,
+                                ),
                               ),
                             ),
                           ],
@@ -393,6 +417,29 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
           ),
         );
       },
+    );
+  }
+}
+
+class ArrivalHint extends StatelessWidget {
+  const ArrivalHint({super.key, required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Text(
+        text,
+        style: Theme.of(
+          context,
+        ).textTheme.labelSmall?.copyWith(color: Colors.black),
+      ),
     );
   }
 }

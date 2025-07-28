@@ -19,6 +19,7 @@ class _PhoneSignupScreenState extends State<PhoneSignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(leading: CustomBackButton()),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
@@ -44,7 +45,11 @@ class _PhoneSignupScreenState extends State<PhoneSignupScreen> {
                       style: Theme.of(context).textTheme.displayMedium,
                     ),
                     SizedBox(height: 15),
+
                     CustomTextField(labelText: S.current.common_phone_number),
+
+                    CustomTextField(labelText: "Номер телефона"),
+
                     SizedBox(height: 15),
                     CustomTextField(
                       labelText: S.current.common_create_password,
