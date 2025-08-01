@@ -5,6 +5,7 @@ from AstSmartTime import settings
 from django.contrib.auth.hashers import make_password
 from django.shortcuts import get_object_or_404
 from django.db import transaction
+from django.db.models import Sum
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
@@ -203,6 +204,43 @@ class CashOutSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         return instance
+
+
+class CashOutStatsSerializer(serializers.Serializer):
+    start_date = serializers.DateField()
+    end_date = serializers.DateField()
+    count_order = serializers.SerializerMethodField()
+    count_price = serializers.SerializerMethodField()
+    orders = serializers.SerializerMethodField()
+
+    def validate(self, data):
+        if data['start_date'] > data['end_date']:
+            raise serializers.ValidationError({
+                'detail': 'start_date не может быть позже end_date'
+            })
+        return data
+
+    def get_queryset(self):
+        user = self.context['request'].user
+        # приводим time_end к дате через __date
+        return Order.objects.filter(
+            car_wash__user=user,
+            status='Done',
+            cash_out_status=0,
+            time_end__date__gte=self.validated_data['start_date'],
+            time_end__date__lte=self.validated_data['end_date'],
+        )
+
+    def get_count_order(self, _):
+        return self.get_queryset().count()
+
+    def get_count_price(self, _):
+        aggregated = self.get_queryset().aggregate(total_price=Sum('price'))
+        return aggregated['total_price'] or 0
+
+    def get_orders(self, _):
+        qs = self.get_queryset().order_by('time_end')
+        return OrderSerializer(qs, many=True).data
 
 
 class ListBankCardSerializers(serializers.ModelSerializer):

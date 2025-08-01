@@ -29,6 +29,7 @@ class CarWash(models.Model):
         end_time: Время окончания работы
         slots: Количество слотов
         image: Картинка
+        percent_washers: Процент мойщиков
         slots: Количество слотов в автомойке
         rating: Рейтинг автомойки
         last_time: Время последней записи на текущий момент
@@ -45,6 +46,14 @@ class CarWash(models.Model):
     start_time = models.TimeField(verbose_name=_('Start Time'), max_length=15)
     end_time = models.TimeField(verbose_name=_('End time'), max_length=20)
     slots = models.PositiveIntegerField(verbose_name=_('Slots'), blank=False)
+    ALLOWED_NUMBERS_PERCENT = (
+        (30, '30'),
+        (35, '35'),
+        (40, '40'),
+        (45, '45'),
+        (50, '50'),
+    )
+    percent_washers = models.IntegerField(verbose_name=_('Percent Washers'), choices=ALLOWED_NUMBERS_PERCENT, null=False, blank=True, default=30)
     img = models.FileField(verbose_name=_('Image'), blank=True, null=True)
     rating = models.IntegerField(verbose_name=_('Rating'), blank=True, null=True, default=0)
     last_time = models.DateTimeField(verbose_name=_('Time end last order'), null=True, blank=True)

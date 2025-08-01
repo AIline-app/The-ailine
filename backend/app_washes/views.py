@@ -1,7 +1,9 @@
 from django.http import HttpResponseNotAllowed
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
-from rest_framework import generics, filters
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, filters, status
+from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from AstSmartTime.settings import API_KEY
 from app_users.models import User
@@ -13,7 +15,7 @@ from app_washes.serializers import (
     RegisterCarWashSerializer, CarWashSerializer, ServiceCreateSerializer,
     ServiceDetailSerializer, AdministratorCreateSerializer,
     AdministratorListSerializer, WashListSerializer, WasherCreateSerializer,
-    WasherDetailSerializer
+    WasherDetailSerializer, WasherStatsSerializer, DateRangeSerializer
 )
 
 
@@ -231,6 +233,30 @@ class WasherDetailAPI(generics.RetrieveUpdateDestroyAPIView):
             return super().delete(request)
         else:
             return HttpResponseNotAllowed(_('Give me correct api key'))
+
+class WashersStatsView(generics.GenericAPIView):
+    """Статистика мойщиков"""
+    permission_classes = (IsAuthenticated, OwnerOnly,)
+    serializer_class = DateRangeSerializer
+    queryset = Washer.objects.all()  # нужно для GenericAPIView
+
+    def post(self, request, *args, **kwargs):
+        dr_serializer = self.get_serializer(data=request.data)
+        dr_serializer.is_valid(raise_exception=True)
+        start_date = dr_serializer.validated_data['start_date']
+        end_date   = dr_serializer.validated_data['end_date']
+        wash_pk = kwargs['pk']
+        washers = Washer.objects.filter(wash=wash_pk)
+        stats_serializer = WasherStatsSerializer(
+            washers,
+            many=True,
+            context={
+                'request': request,
+                'start_date': start_date,
+                'end_date': end_date,
+            }
+        )
+        return Response(stats_serializer.data, status=status.HTTP_200_OK)
 
 
 class ListWasherOwner(generics.ListAPIView):
