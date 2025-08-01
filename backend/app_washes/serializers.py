@@ -10,7 +10,7 @@ from decimal import Decimal
 from app_users.models import User, BankCard
 from app_washes.models import Administrator, CarWash, CarWashCoordinates, Service, Washer
 from app_adminwork.models import SlotsInWash
-from app_orders.models import Order
+from app_orders.models import Order, WasherEarning
 
 
 class Base64ImageField(serializers.ImageField):
@@ -82,32 +82,19 @@ class WasherStatsSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "phone", "count_order", "total_earnings")
 
     def get_count_order(self, washer):
-        start = self.context['start_date']
-        end   = self.context['end_date']
-        return Order.objects.filter(
+        return WasherEarning.objects.filter(
             washer=washer,
-            status='Done',
-            time_end__date__gte=start,
-            time_end__date__lte=end,
+            date__gte=self.context['start_date'],
+            date__lte=self.context['end_date'],
         ).count()
 
     def get_total_earnings(self, washer):
-        start = self.context['start_date']
-        end   = self.context['end_date']
-        qs = Order.objects.filter(
+        agg = WasherEarning.objects.filter(
             washer=washer,
-            status='Done',
-            time_end__date__gte=start,
-            time_end__date__lte=end,
-        )
-        profit_expr = ExpressionWrapper(
-            F('price') * F('car_wash__percent_washers') / Decimal('100'),
-            output_field=DecimalField(max_digits=12, decimal_places=2)
-        )
-        qs = qs.annotate(profit=profit_expr)
-
-        aggregated = qs.aggregate(total_profit=Sum('profit'))
-        return aggregated['total_profit'] or Decimal('0')
+            date__gte=self.context['start_date'],
+            date__lte=self.context['end_date'],
+        ).aggregate(total=Sum('earnings'))
+        return agg['total'] or Decimal('0')
 
 
 class DateRangeSerializer(serializers.Serializer):

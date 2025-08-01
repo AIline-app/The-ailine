@@ -158,3 +158,14 @@ class FullCallbackData(models.Model):
     order = models.CharField(max_length=55, null=True, blank=True)
     type_callback = models.CharField(max_length=255, null=True, blank=True)
     callback = models.CharField(max_length=10000, null=True, blank=True)
+
+
+class WasherEarning(models.Model):
+    """Модель выполненных заказов мойщиков"""
+    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='earning')
+    washer = models.ForeignKey(Washer, on_delete=models.CASCADE)
+    earnings = models.DecimalField(max_digits=12, decimal_places=2)
+    date = models.DateField()
+
+    def __str__(self):
+        return f'{self.washer} → {self.earnings} on {self.date}'

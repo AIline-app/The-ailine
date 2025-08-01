@@ -242,6 +242,7 @@ class CallBackCashOut(generics.GenericAPIView):
 
 
 class CashOutStatsView(generics.GenericAPIView):
+    """Статистика мойки"""
     serializer_class = CashOutStatsSerializer
     permission_classes = (IsAuthenticated,)
 
