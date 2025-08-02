@@ -10,6 +10,7 @@ class CustomCheckboxWidget extends StatefulWidget {
 }
 
 class _CustomCheckboxWidgetState extends State<CustomCheckboxWidget> {
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
