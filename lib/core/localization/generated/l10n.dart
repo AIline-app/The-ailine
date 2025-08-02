@@ -239,6 +239,16 @@ class S {
     return Intl.message('Далeе', name: 'common_next', desc: '', args: []);
   }
 
+  /// `Выберите тип машины`
+  String get common_choose_car_type {
+    return Intl.message(
+      'Выберите тип машины',
+      name: 'common_choose_car_type',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `седан`
   String get common_car_type_sedan {
     return Intl.message(
@@ -264,6 +274,16 @@ class S {
     return Intl.message(
       'минивен',
       name: 'common_car_type_minivan',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Выберите услуги`
+  String get common_chooose_service {
+    return Intl.message(
+      'Выберите услуги',
+      name: 'common_chooose_service',
       desc: '',
       args: [],
     );

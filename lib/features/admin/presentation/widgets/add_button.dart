@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class CustomButton extends StatelessWidget {
-  const CustomButton({super.key, required this.onPressed, required this.text});
-
+class AddButton extends StatelessWidget {
+  const AddButton({super.key, required this.onPressed, required this.text});
   final Function() onPressed;
   final String text;
 
@@ -13,7 +12,7 @@ class CustomButton extends StatelessWidget {
       style: TextButton.styleFrom(
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
-        minimumSize: Size(328.w, 96.h),
+        minimumSize: Size(344.w, 61.h),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8.r),
           side: BorderSide(
@@ -24,7 +23,14 @@ class CustomButton extends StatelessWidget {
         ),
       ),
       onPressed: onPressed,
-      child: Text(text),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(text),
+          SizedBox(width: 10.w),
+          Icon(Icons.add, size: 34.sp),
+        ],
+      ),
     );
   }
 }

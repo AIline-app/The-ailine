@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_button.dart';
-import 'package:gghgggfsfs/presentation/auth/screens/phone_signup_screen.dart';
+import 'package:gghgggfsfs/features/auth/screens/phone_signup_screen.dart';
 
 class PaymentWarningScreen extends StatelessWidget {
   const PaymentWarningScreen({super.key});
@@ -24,7 +24,7 @@ class PaymentWarningScreen extends StatelessWidget {
               Text(
                 "Оплата доступна зарегистрированным пользователям.",
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onBackground,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               Text(

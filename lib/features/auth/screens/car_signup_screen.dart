@@ -8,7 +8,7 @@ import 'package:gghgggfsfs/core/widgets/custom_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_checkbox.dart';
 import 'package:gghgggfsfs/core/widgets/custom_text_field.dart';
 import 'package:gghgggfsfs/core/widgets/type_car_button.dart';
-import 'package:gghgggfsfs/presentation/client/screens/payment_screen.dart';
+import 'package:gghgggfsfs/features/client/screens/payment_screen.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 
 class CarSignupScreen extends StatefulWidget {

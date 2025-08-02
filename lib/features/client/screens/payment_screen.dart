@@ -3,7 +3,6 @@ import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_checkbox.dart';
 import 'package:gghgggfsfs/core/widgets/custom_text_field.dart';
-import 'package:gghgggfsfs/routes.dart';
 
 class PaymentScreen extends StatelessWidget {
   const PaymentScreen({super.key});
@@ -126,7 +125,7 @@ class PaymentScreen extends StatelessWidget {
                         style: Theme.of(
                           context,
                         ).textTheme.displaySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onBackground,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -146,7 +145,7 @@ class PaymentScreen extends StatelessWidget {
 
                 CustomButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, AppRoutes.home);
+                    // Navigator.pushNamed(context, AppRoutes.home);
                   },
                   text: "Зарегистрироваться",
                 ),

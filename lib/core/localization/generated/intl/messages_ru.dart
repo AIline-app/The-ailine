@@ -47,6 +47,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "common_car_type_sedan": MessageLookupByLibrary.simpleMessage("седан"),
     "common_car_type_suv": MessageLookupByLibrary.simpleMessage("джип"),
     "common_cars": MessageLookupByLibrary.simpleMessage("машин"),
+    "common_chooose_service": MessageLookupByLibrary.simpleMessage(
+      "Выберите услуги",
+    ),
+    "common_choose_car_type": MessageLookupByLibrary.simpleMessage(
+      "Выберите тип машины",
+    ),
     "common_choose_messenger": MessageLookupByLibrary.simpleMessage(
       "Выберите мессенджер для отправки уведомлений",
     ),

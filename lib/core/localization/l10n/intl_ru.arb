@@ -20,13 +20,14 @@
   "common_whatsapp": "WhatsApp",
   "common_next": "Далeе",
 
-
+  "common_choose_car_type": "Выберите тип машины",
   "common_car_type_sedan": "седан",
   "common_car_type_suv": "джип",
   "common_car_type_minivan": "минивен",
 
 
-   "common_standard": "Стандарт",
+  "common_chooose_service": "Выберите услуги",
+  "common_standard": "Стандарт",
   "common_wax_coating": "Покрытие воском",
   "common_body_wash": "Мойка кузова",
   "common_vacuum_cleaning": "Пылесос",

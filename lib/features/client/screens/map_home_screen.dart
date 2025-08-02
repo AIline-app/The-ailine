@@ -7,9 +7,7 @@ import 'package:gghgggfsfs/core/widgets/custom_text_field.dart';
 import 'package:gghgggfsfs/data/repository/car_wash_repository.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:gghgggfsfs/presentation/client/widgets/car_wash_time_modal.dart';
-import 'package:gghgggfsfs/presentation/client/widgets/count_down_modal.dart';
-import 'package:gghgggfsfs/presentation/client/widgets/star_modal.dart';
+import 'package:gghgggfsfs/features/client/widgets/star_modal.dart';
 
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import '../../../data/model_car_wash/model_car_wash.dart';
@@ -382,7 +380,7 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                             ),
                             Positioned(
                               bottom: 2,
-                              child: Container(width: 220, height: 2),
+                              child: SizedBox(width: 220, height: 2),
                             ),
                             Container(
                               width: 150,

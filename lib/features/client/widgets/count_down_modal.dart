@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/presentation/client/screens/map_home_screen.dart';
+import 'package:gghgggfsfs/features/client/screens/map_home_screen.dart';
 
 class CountDownModal extends StatelessWidget {
   const CountDownModal({

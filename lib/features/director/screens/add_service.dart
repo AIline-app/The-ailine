@@ -5,7 +5,7 @@ import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_button.dart';
 import 'package:gghgggfsfs/core/widgets/main_text.dart';
 import 'package:gghgggfsfs/core/widgets/type_car_button.dart';
-import 'package:gghgggfsfs/presentation/director/widgets/tarifs_director.dart';
+import 'package:gghgggfsfs/features/director/widgets/tarifs_director.dart';
 
 class AddService extends StatefulWidget {
   const AddService({super.key});
