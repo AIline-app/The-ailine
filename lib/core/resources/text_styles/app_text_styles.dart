@@ -1,53 +1,76 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:gghgggfsfs/core/resources/colors/app_colors.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-final TextTheme customTextTheme = GoogleFonts.interTextTheme().copyWith(
-  displayLarge: TextStyle(
+mixin AppTextStyles {
+  /// Bold
+  static TextStyle bold = TextStyle(
     fontSize: 32.sp,
-    fontWeight: FontWeight.w700,
-    height: 1.h,
-
-    color: customColorScheme.onSurface,
-  ),
-  displayMedium: TextStyle(
-    fontSize: 24.sp,
-    fontWeight: FontWeight.w700,
-    color: customColorScheme.onSurface,
-  ),
-
-  displaySmall: TextStyle(
-    fontSize: 16.sp,
-    fontWeight: FontWeight.w700,
-    color: customColorScheme.onSurface,
-  ),
-
-  headlineLarge: TextStyle(
-    fontSize: 44.sp,
-    fontWeight: FontWeight.w500,
-    color: customColorScheme.onSurface,
-  ),
-
-  bodyMedium: TextStyle(
-    fontSize: 14.sp,
     fontWeight: FontWeight.w400,
-    color: customColorScheme.onSurface,
-  ),
+    height: 1.h,
+  );
 
-  labelLarge: TextStyle(
-    fontSize: 30.sp,
-    fontWeight: FontWeight.w600,
-    color: customColorScheme.onPrimary,
-  ),
-  labelMedium: TextStyle(
+  static TextStyle bold_16 = TextStyle(
+    fontSize: 16.sp,
+    fontWeight: FontWeight.w400,
+  );
+
+  static TextStyle bold_24 = TextStyle(
     fontSize: 24.sp,
-    fontWeight: FontWeight.w600,
-    color: customColorScheme.primary,
-  ),
-  labelSmall: TextStyle(
+    fontWeight: FontWeight.w400,
+    height: 1.h,
+  );
+
+  /// Medium
+  static TextStyle medium = TextStyle(
+    fontSize: 8.sp,
+    fontWeight: FontWeight.w500,
+  );
+
+  static TextStyle medium_12 = TextStyle(
+    fontSize: 12.sp,
+    fontWeight: FontWeight.w500,
+  );
+
+  /// Regular
+  static TextStyle regular_16 = TextStyle(
+    fontSize: 16.sp,
+    fontWeight: FontWeight.w400,
+  );
+
+  /// Semi Bold
+  static TextStyle semiBold_12 = TextStyle(
     fontSize: 12.sp,
     fontWeight: FontWeight.w600,
-    color: customColorScheme.primary,
-  ),
-);
+  );
+
+  static TextStyle semiBold_30 = TextStyle(
+    fontSize: 32.sp,
+    fontWeight: FontWeight.w600,
+  );
+
+  static TextStyle semiBold_24 = TextStyle(
+    fontSize: 24.sp,
+    fontWeight: FontWeight.w600,
+  );
+
+  static TextStyle semiBold_14 = TextStyle(
+    fontSize: 14.sp,
+    fontWeight: FontWeight.w600,
+  );
+
+  static TextStyle semiBold_72 = TextStyle(
+    fontSize: 72.sp,
+    fontWeight: FontWeight.w600,
+    height: 1.2,
+  );
+
+  static TextStyle semiBold_16 = TextStyle(
+    fontSize: 16.sp,
+    fontWeight: FontWeight.w600,
+  );
+
+  static TextStyle semiBold_20 = TextStyle(
+    fontSize: 20.sp,
+    fontWeight: FontWeight.w600,
+  );
+}

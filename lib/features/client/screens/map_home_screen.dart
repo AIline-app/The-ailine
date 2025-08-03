@@ -3,7 +3,6 @@ import 'package:gghgggfsfs/core/api_client/api_client.dart';
 import 'package:gghgggfsfs/core/localization/generated/l10n.dart';
 import 'package:gghgggfsfs/data/repository/car_wash_repository.dart';
 import 'package:gghgggfsfs/features/auth/screens/login_dialog.dart';
-import 'package:gghgggfsfs/features/client/widgets/star_modal.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import '../../../data/model_car_wash/model_car_wash.dart';
 import '../../../core/widgets/car_wash_card.dart';

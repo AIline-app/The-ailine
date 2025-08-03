@@ -7,6 +7,6 @@ final ThemeData appTheme = ThemeData(
   useMaterial3: true,
   scaffoldBackgroundColor: customColorScheme.surface,
   colorScheme: customColorScheme,
-  textTheme: GoogleFonts.interTextTheme(customTextTheme),
+  // textTheme: GoogleFonts.interTextTheme(customTextTheme),
   appBarTheme: AppBarTheme(backgroundColor: customColorScheme.surface),
 );
