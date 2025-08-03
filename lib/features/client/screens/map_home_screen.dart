@@ -69,7 +69,7 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                 },
                 child: Container(),
               ),
-              Align(alignment: Alignment(0, -0.7), child: StarModal()),
+              // Align(alignment: Alignment(0, -0.7), child: StarModal()),
               Align(
                 alignment: Alignment.bottomCenter,
                 child: _buildCarWashCards(carWashes),

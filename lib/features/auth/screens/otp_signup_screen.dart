@@ -89,7 +89,7 @@ class _OtpSignupScreenState extends State<OtpSignupScreen> {
                 CustomButton(
                   text: S.current.common_next,
                   onPressed: () {
-                    context.push('/car_signup');
+                    context.push('/auth/car_signup');
                   },
                 ),
               ],

@@ -7,6 +7,8 @@ final TextTheme customTextTheme = GoogleFonts.interTextTheme().copyWith(
   displayLarge: TextStyle(
     fontSize: 32.sp,
     fontWeight: FontWeight.w700,
+    height: 1.h,
+
     color: customColorScheme.onSurface,
   ),
   displayMedium: TextStyle(

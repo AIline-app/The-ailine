@@ -48,8 +48,6 @@ class _PhoneSignupScreenState extends State<PhoneSignupScreen> {
 
                     CustomTextField(labelText: S.current.common_phone_number),
 
-                    CustomTextField(labelText: "Номер телефона"),
-
                     SizedBox(height: 15),
                     CustomTextField(
                       labelText: S.current.common_create_password,
@@ -79,7 +77,7 @@ class _PhoneSignupScreenState extends State<PhoneSignupScreen> {
                 CustomButton(
                   text: S.current.common_next,
                   onPressed: () {
-                    context.push('/otp');
+                    context.push('/auth/otp');
                   },
                 ),
               ],
