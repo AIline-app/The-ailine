@@ -6,6 +6,7 @@ import 'package:gghgggfsfs/core/resources/theme/app_theme.dart';
 import 'package:gghgggfsfs/features/app/routes/app_router.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(AilineApp());
 }
 
@@ -15,7 +16,7 @@ class AilineApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: Size(360.w, 903.h),
+      designSize: Size(360, 903),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {

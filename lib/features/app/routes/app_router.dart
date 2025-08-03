@@ -6,7 +6,7 @@ import 'director_routes.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
-    initialLocation: '/',
+    initialLocation: '/client',
     routes: [
       ...authRoutes,
       ...clientRoutes,

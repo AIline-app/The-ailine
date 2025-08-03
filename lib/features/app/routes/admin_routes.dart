@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 final adminRoutes = [
   GoRoute(
-    path: '/',
+    path: '/admin',
     builder: (context, state) => const MainScreenAdmin(),
   ),
   GoRoute(

@@ -4,7 +4,7 @@ import 'package:gghgggfsfs/features/client/screens/map_home_screen.dart';
 import 'package:go_router/go_router.dart';
 
 final clientRoutes = [
-  GoRoute(path: '/', builder: (context, state) => MapHomeScreen()),
+  GoRoute(path: '/client', builder: (context, state) => MapHomeScreen()),
   GoRoute(
     path: '/car_details',
     builder: (context, state) {
