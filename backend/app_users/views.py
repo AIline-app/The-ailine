@@ -19,7 +19,8 @@ from .serializers import (MyTokenRefreshSerializer, LoginUserSerializer,
                           DetailUserSerializer, RegisterSerializer,
                           UpdateUserPasswordSerializer, BankCardSerializer,
                           ListBankCardSerializers, CashOutSerializer,
-                          CallBackCashOutSerializer, RefreshTokenSerializer, CashOutStatsSerializer)
+                          CallBackCashOutSerializer, RefreshTokenSerializer,
+                          CashOutStatsSerializer, CreateUserSerializer)
 
 
 class JWTAuthenticationSafe(JWTAuthentication):
@@ -104,6 +105,20 @@ class LogoutView(GenericAPIView):
         sz.is_valid(raise_exception=True)
         sz.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CreateUserAPI(generics.CreateAPIView):
+    """Создание пользователя вручную и заказа на него"""
+    serializer_class = CreateUserSerializer
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = (JWTAuthenticationSafe,)
+    http_method_names = ['post',]
+
+    def post(self, request, *args, **kwargs):
+        if request.headers['api_key'] == API_KEY:
+            return super().post(request)
+        else:
+            return HttpResponseNotAllowed(_('Give me correct api key'))
 
 
 class DetailUserAPI(generics.RetrieveUpdateDestroyAPIView):

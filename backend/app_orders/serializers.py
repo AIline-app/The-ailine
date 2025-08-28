@@ -217,10 +217,9 @@ class OrderSerializer(serializers.ModelSerializer):
         return obj.car_wash.title
 
     def get_phone_admin(self, obj):
-        try:
-            return Administrator.objects.filter(boss=obj.car_wash.user)[0].phone
-        except Exception:
-            return None
+        admin = Administrator.objects.filter(
+            boss=obj.car_wash.user).select_related('phone').first()
+        return admin.phone.phone if admin else None
 
     def get_phone(self, obj):
         return obj.customer.phone

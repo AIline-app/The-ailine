@@ -4,13 +4,14 @@ from rest_framework_simplejwt.exceptions import TokenError
 from AstSmartTime import settings
 from django.contrib.auth.hashers import make_password
 from django.shortcuts import get_object_or_404
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.db.models import Sum
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.exceptions import ValidationError
 
 from AstSmartTime.settings import env
 from .exception import CustomSMSException
@@ -19,6 +20,7 @@ from app_orders.serializers import OrderSerializer
 from app_orders.serializers import encrypted_payment
 from app_users.models import User, UserCode, BankCard, CashOutData, UserCodeConfirm
 from app_washes.models import Administrator, CarWash
+from app_orders.services import create_order_for_new_user
 
 merchant_id = env.str('MERCHANT_ID', 'MERCHANT_ID')
 merchant_data = env.str(
@@ -163,13 +165,12 @@ class CashOutSerializer(serializers.ModelSerializer):
                     count = 0
                     sum = 0
                     for order in Order.objects.filter(car_wash__user=user_db, cash_out_status=0, payment_status='Fulfilled', status='Done').order_by('date_create'):
-                        if sum >= 2000000:  # максимальная сумма выплаты
+                        if sum >= 2000000:
                             break
 
                         list_orders.append(order.id)
                         sum += order.price
                         count += 1
-                        # order.cash_out_status = 1
                         order.save()
 
                     cashout = CashOutData.objects.create(
@@ -207,6 +208,7 @@ class CashOutSerializer(serializers.ModelSerializer):
 
 
 class CashOutStatsSerializer(serializers.Serializer):
+    """Статистика"""
     start_date = serializers.DateField()
     end_date = serializers.DateField()
     count_order = serializers.SerializerMethodField()
@@ -351,13 +353,74 @@ class DetailUserSerializer(serializers.ModelSerializer):
                     instance.role = 'manager'
                 else:
                     instance.role = 'client'
-        # if instance.chat_id_telegram is not None and instance.chat_id_telegram != User.objects.get(id=instance.id).chat_id_telegram:
-        #     say_hi(instance.chat_id_telegram, "Регистрация завершена успешно! Добро пожаловать!")
         if instance.password != password:
             instance.password = make_password(password)
             instance.save()
         instance = super().update(instance, validated_data)
         return instance
+
+
+class CreateUserSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор создания пользователя вручную + автосоздание заказа.
+    - car_wash берётся из авторизованного администратора (request.user).
+    - washer и service (список PK) передаются в этом же запросе.
+    """
+
+    washer = serializers.IntegerField(write_only=True)
+    service = serializers.ListField(
+        child=serializers.IntegerField(), write_only=True, allow_empty=False
+    )
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'phone', 'type_auto', 'number_auto', 'washer', 'service']
+
+    def _get_request_user(self):
+        request = self.context.get('request')
+        if not request or not request.user or not request.user.is_authenticated:
+            raise ValidationError('Не удалось определить авторизованного пользователя.')
+        return request.user
+
+    @transaction.atomic
+    def create(self, validated_data):
+        washer_id = validated_data.pop('washer')
+        service_ids = validated_data.pop('service')
+
+        # 1) создаём пользователя с рандомным паролем
+        raw_password = User.objects.make_random_password()
+        user = User(
+            username=validated_data.get('username'),
+            phone=validated_data.get('phone'),
+            type_auto=validated_data.get('type_auto'),
+            number_auto=validated_data.get('number_auto'),
+            is_phone_verified=True,
+        )
+        user.set_password(raw_password)
+
+        try:
+            user.save()
+        except IntegrityError:
+            raise ValidationError({'phone': 'Пользователь с таким телефоном уже существует.'})
+
+        # 2) создаём заказ через сервис
+        admin_user = self._get_request_user()
+        order = create_order_for_new_user(
+            customer=user,
+            admin_user=admin_user,
+            washer_id=washer_id,
+            service_ids=service_ids,
+        )
+
+        return user
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if hasattr(self, '_generated_password'):
+            data['generated_password'] = self._generated_password
+        if hasattr(self, '_created_order_id'):
+            data['created_order_id'] = self._created_order_id
+        return data
 
 
 class TokenObtainWithoutPasswordSerializer(serializers.Serializer):

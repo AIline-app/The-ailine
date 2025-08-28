@@ -130,8 +130,8 @@ class AdministratorCreateSerializer(serializers.ModelSerializer):
         user = validated_data.pop('user')
         wash = validated_data.pop('wash')[0]
         wash_object = CarWash.objects.get(id=wash.id, user=user)
-        if wash_object.wash_admin.count() > 0:
-            raise ValueError('Admin is already exists!')
+        # if wash_object.wash_admin.count() > 0:
+        #     raise ValueError('Admin is already exists!')
         admin = Administrator.objects.create(**validated_data)
         if user.phone != wash_object.user.phone:
             raise ValueError('Customer cannot be a admin!')

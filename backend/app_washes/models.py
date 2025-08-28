@@ -137,7 +137,7 @@ class Administrator(models.Model):
     """ Модель администратора автомойки """
     boss = models.ForeignKey(User, on_delete=models.CASCADE, related_name='admin_boss')
     wash = models.ManyToManyField(to=CarWash, verbose_name=_('Car Wash'), related_name='wash_admin')
-    phone = models.CharField(verbose_name=_('Phone'), max_length=12, blank=False)
+    phone = models.ForeignKey(User, to_field="phone", db_column="user_phone", on_delete=models.CASCADE, related_name='administrator')
 
     class Meta:
         verbose_name = _('Administrator')
