@@ -15,9 +15,8 @@ from rest_framework.exceptions import ValidationError
 
 from AstSmartTime.settings import env
 from .exception import CustomSMSException
-from app_orders.models import Order, PaymentData, FullCallbackData
-from app_orders.serializers import OrderSerializer
-from app_orders.serializers import encrypted_payment
+from app_orders.models import Order, PaymentData, FullCallbackData, ItemService
+from app_orders.serializers import OrderSerializer, encrypted_payment
 from app_users.models import User, UserCode, BankCard, CashOutData, UserCodeConfirm
 from app_washes.models import Administrator, CarWash
 from app_orders.services import create_order_for_new_user
@@ -421,6 +420,41 @@ class CreateUserSerializer(serializers.ModelSerializer):
         if hasattr(self, '_created_order_id'):
             data['created_order_id'] = self._created_order_id
         return data
+
+
+class UserLastOrderSerializer(serializers.ModelSerializer):
+    """Сериализатор данных пользователя и его последнего заказа"""
+    service = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('phone', 'username', 'type_auto', 'number_auto', 'service')
+
+    def get_service(self, user: User):
+        # Берём последний заказ (по дате создания; при равенстве — по id)
+        last_order = (
+            Order.objects
+            .filter(customer=user)
+            .order_by('-date_create', '-id')
+            .first()
+        )
+        if not last_order:
+            return []
+
+        # Список id услуг из связующей таблицы
+        service_ids = list(
+            ItemService.objects
+            .filter(order=last_order)
+            .values_list('service_id', flat=True)
+        )
+        return service_ids
+
+
+class UserCarNumberSerializer(serializers.ModelSerializer):
+    """Сериализатор номера автомобиля"""
+    class Meta:
+        model = User
+        fields = ('number_auto',)
 
 
 class TokenObtainWithoutPasswordSerializer(serializers.Serializer):

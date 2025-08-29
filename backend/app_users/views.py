@@ -9,18 +9,19 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import InvalidToken
 from rest_framework_simplejwt.views import TokenRefreshView
+from django.shortcuts import get_object_or_404
 
 from AstSmartTime.settings import API_KEY
 
 from .permissions import OwnerOnly, IsOwnerOrReadOnly
 from .models import User, BankCard
-# from .models import CashOutData
 from .serializers import (MyTokenRefreshSerializer, LoginUserSerializer,
                           DetailUserSerializer, RegisterSerializer,
                           UpdateUserPasswordSerializer, BankCardSerializer,
                           ListBankCardSerializers, CashOutSerializer,
                           CallBackCashOutSerializer, RefreshTokenSerializer,
-                          CashOutStatsSerializer, CreateUserSerializer)
+                          CashOutStatsSerializer, CreateUserSerializer,
+                          UserLastOrderSerializer, UserCarNumberSerializer)
 
 
 class JWTAuthenticationSafe(JWTAuthentication):
@@ -117,6 +118,40 @@ class CreateUserAPI(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         if request.headers['api_key'] == API_KEY:
             return super().post(request)
+        else:
+            return HttpResponseNotAllowed(_('Give me correct api key'))
+
+
+class UserLastOrderByPhoneView(generics.CreateAPIView):
+    """Поиск данных пользователя и его последнего заказа"""
+    permission_classes = (IsAuthenticated,)
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        if request.headers['api_key'] == API_KEY:
+            number_auto = request.data.get('number_auto')
+            if not number_auto:
+                return Response({'detail': 'Поле "number_auto" обязательно.'},
+                                status=400)
+
+            user = get_object_or_404(User, number_auto=number_auto)
+            serializer = UserLastOrderSerializer(user,
+                                                 context={'request': request})
+            return Response(serializer.data, status=200)
+        else:
+            return HttpResponseNotAllowed(_('Give me correct api key'))
+
+
+class AllUserCarNumbersView(generics.CreateAPIView):
+    """Вывод всех номеров автомобилей для быстрого поиска"""
+    permission_classes = (IsAuthenticated,)
+    http_method_names = ['get']
+
+    def get(self, request, *args, **kwargs):
+        if request.headers['api_key'] == API_KEY:
+            users = User.objects.all().only('number_auto')
+            serializer = UserCarNumberSerializer(users, many=True)
+            return Response(serializer.data, status=200)
         else:
             return HttpResponseNotAllowed(_('Give me correct api key'))
 

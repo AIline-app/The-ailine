@@ -141,7 +141,7 @@ class CreateOrderSerializer(serializers.ModelSerializer):
         price = 0
         customer = validated_data.pop('customer')
         car_wash = validated_data.pop('car_wash')
-        washer = validated_data.pop('washer')
+        # washer = validated_data.pop('washer')
         service = validated_data.pop('service')
         validated_data.pop('link', None)
         wash = CarWash.objects.get(id=car_wash.id)
@@ -151,7 +151,7 @@ class CreateOrderSerializer(serializers.ModelSerializer):
         new_order = Order.objects.create(
             customer=customer,
             car_wash=car_wash,
-            washer=washer,
+            # washer=washer,
             **validated_data
         )
         for serv in service:
@@ -230,28 +230,29 @@ class OrderSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def update(self, instance, validated_data):
         rating = validated_data.get('rating')
-        car_wash = validated_data.get('service')[0].wash
-        wash = CarWash.objects.get(pk=car_wash.pk)
+        if validated_data.get('service') is not None:
+            car_wash = validated_data.get('service')[0].wash
+            wash = CarWash.objects.get(pk=car_wash.pk)
 
-        if validated_data.get('on_site') is not None and validated_data.get('on_site') == 1:
-            notify_for_admin(wash, f'Клиент с номером {instance.customer.number_auto} на месте.')
+            if validated_data.get('on_site') is not None and validated_data.get('on_site') == 1:
+                notify_for_admin(wash, f'Клиент с номером {instance.customer.number_auto} на месте.')
 
-        if rating is not None and rating >= 1:
-            value = 0
-            count = 0
-            for order in Order.objects.filter(car_wash=car_wash):
-                if order.rating is not None and order.rating >= 1:
-                    value += order.rating
-                    count += 1
-            try:
-                total = int(value / count)
-            except ZeroDivisionError:
-                total = int(value + rating)
-            wash.rating = total
-            instance.rated = 1
-            wash.save()
-        if rating == 0:
-            pass
+            if rating is not None and rating >= 1:
+                value = 0
+                count = 0
+                for order in Order.objects.filter(car_wash=car_wash):
+                    if order.rating is not None and order.rating >= 1:
+                        value += order.rating
+                        count += 1
+                try:
+                    total = int(value / count)
+                except ZeroDivisionError:
+                    total = int(value + rating)
+                wash.rating = total
+                instance.rated = 1
+                wash.save()
+            if rating == 0:
+                pass
         instance = super().update(instance, validated_data)
 
         return instance

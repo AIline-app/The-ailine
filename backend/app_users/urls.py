@@ -2,7 +2,9 @@ from django.urls import path
 
 from app_users.views import (DetailUserAPI, RegisterUserAPI, LoginAPIView, MyTokenRefreshView,
                              UpdateUserPasswordView, CreateOrUpdateBankCard, ListBankCard,
-                             CallBackCashOut, CreateCashOutData, LogoutView, CashOutStatsView, CreateUserAPI)
+                             CallBackCashOut, CreateCashOutData, LogoutView,
+                             CashOutStatsView, CreateUserAPI,
+                             UserLastOrderByPhoneView, AllUserCarNumbersView)
 from app_washes.views import AdminListAPI
 
 urlpatterns = [
@@ -14,6 +16,8 @@ urlpatterns = [
     path('me/cashout/stats', CashOutStatsView.as_view(), name='cashout-stats'),
     path('callback', CallBackCashOut.as_view(), name='callback'),
     path('create', CreateUserAPI.as_view(), name='create_user'),
+    path('lastData', UserLastOrderByPhoneView.as_view(), name='last_data_user'),
+    path('numbersCars', AllUserCarNumbersView.as_view(), name='all_cars_number'),
 
     path('register', RegisterUserAPI.as_view(), name='user_register'),
 
