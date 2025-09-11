@@ -17,7 +17,6 @@ class CarWashModel {
   final double? longitude;
   final String? link2gis;
 
-
   CarWashModel({
     required this.id,
     required this.title,
@@ -169,3 +168,15 @@ class SlotModel {
   }
 }
 
+
+class Service {
+  final String title;
+  final int price;
+  bool isSelected;
+
+  Service({
+    required this.title,
+    required this.price,
+    this.isSelected = false,
+  });
+}

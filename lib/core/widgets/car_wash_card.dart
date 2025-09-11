@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/routes.dart';
+import 'package:go_router/go_router.dart';
+
 import '../../data/model_car_wash/model_car_wash.dart';
 
 class CarWashCard extends StatelessWidget {
@@ -32,7 +33,7 @@ class CarWashCard extends StatelessWidget {
       ),
       child: GestureDetector(
         onTap: () {
-          Navigator.pushNamed(context, AppRoutes.details);
+          context.push('/car_details', extra: carWash);
         },
         child: ClipRRect(
           borderRadius: BorderRadius.circular(13),
@@ -61,6 +62,7 @@ class CarWashCard extends StatelessWidget {
                     Text(
                       carWash.title,
                       style: const TextStyle(
+                        color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),

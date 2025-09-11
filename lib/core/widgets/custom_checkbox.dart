@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class CustomCheckboxWidget extends StatefulWidget {
   CustomCheckboxWidget({super.key, this.isChecked = false});
 
   bool isChecked;
 
   @override
+  // ignore: library_private_types_in_public_api
   _CustomCheckboxWidgetState createState() => _CustomCheckboxWidgetState();
 }
 
