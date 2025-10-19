@@ -117,7 +117,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         ordering = ['id']
 
     def __str__(self):
-        return f'<User ({self.username}, {self.phone_number}, {self.id})>'
+        return f'<User ({self.phone_number}, {self.id})>'
 
     def send_registration_code(self):
         phone_number = self.phone_number.split('+')[1]

@@ -128,7 +128,7 @@ class RegisterUserConfirmWriteSerializer(PhoneNumberValidationMixin, BaseRegiste
         return None
 
 
-class LoginUserSerializer(serializers.ModelSerializer, PhoneNumberValidationMixin):
+class LoginUserSerializer(PhoneNumberValidationMixin, serializers.ModelSerializer):
     """Сериализатор аутентификации пользователя по телефону и паролю"""
     phone_number = serializers.CharField()
 
