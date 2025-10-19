@@ -4,6 +4,18 @@ from user_auth.utils.choices import UserRoles
 
 
 class IsDirector(permissions.BasePermission):
-    """Редактирование услуги только её владельцем"""
+    """Is user an authorized director"""
     def has_permission(self, request, view):
-        return request.user.roles.filter(name=UserRoles.DIRECTOR).exists()
+        return request.user.is_authenticated and request.user.roles.filter(name=UserRoles.DIRECTOR).exists()
+
+
+class IsManager(permissions.BasePermission):
+    """Is user an authorized manager"""
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.roles.filter(name=UserRoles.MANAGER).exists()
+
+
+class IsClient(permissions.BasePermission):
+    """Is user an authorized client"""
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.roles.filter(name=UserRoles.CLIENT).exists()
