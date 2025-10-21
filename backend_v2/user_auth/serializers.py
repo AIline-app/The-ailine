@@ -23,6 +23,10 @@ class PhoneNumberValidationMixin:
         return phone_number
 
 
+class ExceptionSerializer(serializers.Serializer):
+    detail = serializers.CharField()
+
+
 class BaseRegisterUserSerializer(serializers.Serializer):
     @staticmethod
     def get_user(phone_number):
@@ -33,10 +37,10 @@ class BaseRegisterUserSerializer(serializers.Serializer):
         ).first()
 
 
-class RegisterUserReadSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('phone_number', 'username')
+        fields = ['id', 'username', 'phone_number', 'created_at']
 
 
 class RegisterUserWriteSerializer(PhoneNumberValidationMixin, BaseRegisterUserSerializer):
@@ -60,7 +64,6 @@ class RegisterUserWriteSerializer(PhoneNumberValidationMixin, BaseRegisterUserSe
         attrs['user'] = user
         return attrs
 
-    @transaction.atomic
     def create(self, validated_data):
         user = validated_data.pop('user')
         if not user:
@@ -80,7 +83,7 @@ class RegisterUserWriteSerializer(PhoneNumberValidationMixin, BaseRegisterUserSe
         return user
 
     def to_representation(self, instance):
-        return RegisterUserReadSerializer(instance).data
+        return UserSerializer(instance).data
 
 
 class RegisterUserConfirmWriteSerializer(PhoneNumberValidationMixin, BaseRegisterUserSerializer):
@@ -125,7 +128,7 @@ class RegisterUserConfirmWriteSerializer(PhoneNumberValidationMixin, BaseRegiste
         return user
 
     def to_representation(self, instance):
-        return None
+        return UserSerializer(instance).data
 
 
 class LoginUserSerializer(PhoneNumberValidationMixin, serializers.ModelSerializer):
@@ -157,4 +160,4 @@ class LoginUserSerializer(PhoneNumberValidationMixin, serializers.ModelSerialize
         return validated_data['user']
 
     def to_representation(self, instance):
-        return None
+        return UserSerializer(instance).data

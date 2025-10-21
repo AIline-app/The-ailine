@@ -1,5 +1,7 @@
 from rest_framework import serializers
+from django.utils.translation import gettext_lazy as _
 
+from carwash.models import Car
 from carwash.models.carwash import CarWash, CarWashSettings, CarWashDocuments
 
 
@@ -15,7 +17,13 @@ class CarWashDocumentsSerializer(serializers.ModelSerializer):
         exclude = ('car_wash',)
 
 
-class CarWashSerializer(serializers.ModelSerializer):
+class CarWashReadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CarWash
+        fields = ['id','owner', 'name', 'address', 'created_at']
+
+
+class CarWashWriteSerializer(serializers.ModelSerializer):
     settings = CarWashSettingsSerializer(many=False)
     documents = CarWashDocumentsSerializer(many=False)
 
@@ -43,3 +51,17 @@ class CarWashSerializer(serializers.ModelSerializer):
                     setattr(obj, k, v)
                 obj.save()
         return super().update(instance, validated_data)
+
+    def to_representation(self, instance):
+        return CarWashReadSerializer(instance).data
+
+class CarSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Car
+        fields = ['number', 'type']
+
+    def validate(self, attrs):
+        if Car.objects.filter(number=attrs['number']).exists():
+            raise serializers.ValidationError({'number': _('This car already exists')})
+        # TODO validate car number
+        return attrs
