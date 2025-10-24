@@ -40,8 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'drf_spectacular',
-    'user_auth.apps.UserAuthConfig',
-    'carwash.apps.CarwashConfig'
     'accounts.apps.AccountsConfig',
     'carwash.apps.CarwashConfig',
 ]
