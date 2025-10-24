@@ -7,7 +7,7 @@ from user_auth.utils.choices import TypeAuto
 
 class Car(models.Model):
     number = models.CharField(max_length=15)
-    type = models.CharField(verbose_name=_('Car Type'), max_length=15, choices=TypeAuto.choices)
+    # type = models.CharField(verbose_name=_('Car Type'), max_length=15, choices=TypeAuto.choices)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cars')
 
     class Meta:

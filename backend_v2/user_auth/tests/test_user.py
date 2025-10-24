@@ -1,70 +1,177 @@
-from django.test import Client
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from user_auth.models import User
+from user_auth.models.user import User
+from user_auth.utils.choices import UserRoles, TypeSmsCode
+from user_auth.tests.factories import (
+    create_active_user,
+    create_inactive_user,
+    register_user_and_get_sms,
+    confirm_registration,
+    login_user,
+)
+from user_auth.utils.constants import MAX_SMS_CODE_VALUE
 
 
-class UserRegistrationTests(APITestCase):
+class UserAuthEndpointsTests(APITestCase):
     def setUp(self):
-        User.objects.create_user(
-            username='TestUser Inactive',
-            phone_number='+77770000000',
-            password='password',
-            is_active=False,
-        )
+        self.register_url = reverse('user_register')
+        self.register_confirm_url = reverse('user_register_confirm')
+        self.login_url = reverse('user_login')
+        # Router-registered endpoint to fetch current user (requires auth)
+        self.me_url = '/user/me/'
 
-        User.objects.create_user(
-            username='TestUser Active',
-            phone_number='+77777777777',
-            password='password',
-        )
+        self.sample_username = 'John Doe'
+        self.sample_phone = '+77051234567'
+        self.sample_password = 'S3cureP@ssw0rd'
 
-    def tearDown(self):
-        User.objects.all().delete()
-
-    def test_register_success(self):
-        """
-        Ensure a new user can send a registration request
-        """
-        url = reverse('user_register')
-        data = {'phone_number': '+7(777) 123-45-67', 'password': 'password', 'username': 'NewTestUser'}
-        response = self.client.post(url, data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(User.objects.count(), 1)
-
-        user = User.objects.prefetch_related('sms_codes').get()
-        self.assertEqual(user.phone_number, '+77771234567')
-        self.assertEqual(user.username, 'NewTestUser')
+    def test_register_success_creates_inactive_user_and_returns_user_data(self):
+        payload = {
+            'username': self.sample_username,
+            'phone_number': self.sample_phone,
+            'password': self.sample_password,
+            'role': UserRoles.CLIENT,
+        }
+        resp = self.client.post(self.register_url, data=payload, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        # Response should contain user fields
+        self.assertIn('id', resp.data)
+        self.assertEqual(resp.data['username'], self.sample_username)
+        self.assertIn('phone_number', resp.data)
+        # Ensure user exists and is inactive until confirmation
+        user = User.objects.get(phone_number=User.objects.normalize_phone_number(self.sample_phone))
         self.assertFalse(user.is_active)
-        self.assertFalse(user.is_staff)
-        self.assertFalse(user.is_superuser)
-        self.assertEqual(user.sms_codes.count(), 1)
-        self.assertEqual(user.sms_codes.get().type, 'register')
+        # SMS code for registration should be created
+        self.assertTrue(user.sms_codes.filter(type=TypeSmsCode.REGISTER).exists())
 
-    def test_register_confirmation_success(self):
-        """
-        Ensure user can confirm registration
-        """
-        url = reverse('user_register_confirm')
-        user = User.objects.prefetch_related('sms_codes').filter(phone_number='+77770000000').get()
+    def test_register_existing_active_same_role_fails(self):
+        # Prepare existing active user with CLIENT role
+        create_active_user(
+            username=self.sample_username,
+            phone_number=self.sample_phone,
+            password=self.sample_password,
+            role=UserRoles.CLIENT,
+        )
 
-        data = {'phone_number': user.phone_number, 'code': user.sms_codes.filter(type='register').first().code}
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        payload = {
+            'username': 'Another Name',
+            'phone_number': self.sample_phone,
+            'password': 'AnotherPass123',
+            'role': UserRoles.CLIENT,
+        }
+        resp = self.client.post(self.register_url, data=payload, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('phone_number', resp.data)
+
+    def test_register_confirm_success_activates_user_and_logs_in(self):
+        # Register first to create user and SMS
+        reg_resp, user, code = register_user_and_get_sms(
+            self.client,
+            username=self.sample_username,
+            phone_number=self.sample_phone,
+            password=self.sample_password,
+            role=UserRoles.CLIENT,
+        )
+        self.assertEqual(reg_resp.status_code, status.HTTP_201_CREATED)
+        self.assertIsNotNone(code)
+
+        resp = confirm_registration(self.client, phone_number=self.sample_phone, code=code)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        # User should now be active and logged in (session auth)
+        user.refresh_from_db()
         self.assertTrue(user.is_active)
-        self.assertEqual(user.sms_codes.count(), 0)
+        # SMS should be deleted after successful confirmation
+        self.assertFalse(user.sms_codes.filter(type=TypeSmsCode.REGISTER).exists())
+        # Verify session by accessing protected endpoint
+        me_resp = self.client.get(self.me_url)
+        self.assertEqual(me_resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(me_resp.data.get('id'), str(user.id))
+
+    def test_register_confirm_with_wrong_code_fails(self):
+        # Create an inactive user and a valid SMS, but send incorrect code
+        reg_resp, user, code = register_user_and_get_sms(
+            self.client,
+            username=self.sample_username,
+            phone_number=self.sample_phone,
+            password=self.sample_password,
+            role=UserRoles.CLIENT,
+        )
+        self.assertEqual(reg_resp.status_code, status.HTTP_201_CREATED)
+        self.assertIsNotNone(code)
+
+        # pick a wrong code within valid range
+        wrong_code = code + 1 if code + 1 < MAX_SMS_CODE_VALUE else code - 1
+        resp = confirm_registration(self.client, phone_number=self.sample_phone, code=wrong_code)
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('code', resp.data)
+
+    def test_login_success_for_active_user(self):
+        # Create active user directly
+        user = create_active_user(
+            username=self.sample_username,
+            phone_number=self.sample_phone,
+            password=self.sample_password,
+            role=UserRoles.CLIENT,
+        )
+
+        resp = login_user(self.client, phone_number=self.sample_phone, password=self.sample_password)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        # Verify session by accessing protected endpoint
+        me_resp = self.client.get(self.me_url)
+        self.assertEqual(me_resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(me_resp.data.get('id'), str(user.id))
+
+    def test_login_fails_for_inactive_user(self):
+        # Create inactive user
+        create_inactive_user(
+            username=self.sample_username,
+            phone_number=self.sample_phone,
+            password=self.sample_password,
+            role=UserRoles.CLIENT,
+        )
+        resp = login_user(self.client, phone_number=self.sample_phone, password=self.sample_password)
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_login_fails_for_wrong_credentials(self):
+        # Active user
+        user = create_active_user(
+            username=self.sample_username,
+            phone_number=self.sample_phone,
+            password=self.sample_password,
+            role=UserRoles.CLIENT,
+        )
+
+        resp = login_user(self.client, phone_number=self.sample_phone, password='WrongPass123')
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
 
 
-    def test_register_misformatted_phone_number(self):
-        """
-        Ensure user can send a registration request
-        """
-        url = reverse('user_register')
-        data = {'phone_number': '+7777771234567', 'password': 'password', 'username': 'TestUser'}
-        response = self.client.post(url, data, format='json')
+    def test_me_returns_current_user_data_for_authenticated_user(self):
+        # Arrange: create and log in an active user
+        user = create_active_user(
+            username=self.sample_username,
+            phone_number=self.sample_phone,
+            password=self.sample_password,
+            role=UserRoles.CLIENT,
+        )
+        login_resp = login_user(self.client, phone_number=self.sample_phone, password=self.sample_password)
+        self.assertEqual(login_resp.status_code, status.HTTP_200_OK)
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(User.objects.count(), 0)
+        # Act
+        resp = self.client.get(self.me_url)
+
+        # Assert
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        # Response should contain serialized user data
+        for field in ('id', 'username', 'phone_number', 'created_at'):
+            self.assertIn(field, resp.data)
+        self.assertEqual(resp.data['id'], str(user.id))
+        self.assertEqual(resp.data['username'], user.username)
+        self.assertEqual(resp.data['phone_number'], User.objects.normalize_phone_number(self.sample_phone))
+
+    def test_me_unauthorized_returns_error(self):
+        # Without authentication, access to /user/me/ should be forbidden
+        resp = self.client.get(self.me_url)
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn('detail', resp.data)

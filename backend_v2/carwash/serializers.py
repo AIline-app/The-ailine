@@ -5,33 +5,51 @@ from carwash.models import Car
 from carwash.models.carwash import CarWash, CarWashSettings, CarWashDocuments
 
 
-class CarWashSettingsSerializer(serializers.ModelSerializer):
+class CarWashSettingsPrivateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarWashSettings
         exclude = ('car_wash',)
 
 
-class CarWashDocumentsSerializer(serializers.ModelSerializer):
+class CarWashSettingsPublicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CarWashSettings
+        fields = ('opens_at', 'closes_at')
+
+
+class CarWashDocumentsPrivateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarWashDocuments
         exclude = ('car_wash',)
 
 
-class CarWashReadSerializer(serializers.ModelSerializer):
+class CarWashPublicReadSerializer(serializers.ModelSerializer):
+    settings = CarWashSettingsPublicSerializer(read_only=True)
     class Meta:
         model = CarWash
-        fields = ['id','owner', 'name', 'address', 'created_at']
+        fields = ['id', 'name', 'address', 'created_at', 'is_active', 'settings']
+
+
+class CarWashPrivateReadSerializer(serializers.ModelSerializer):
+    settings = CarWashSettingsPrivateSerializer(many=False)
+    documents = CarWashDocumentsPrivateSerializer(many=False)
+    class Meta:
+        model = CarWash
+        exclude = ('owner',)
 
 
 class CarWashWriteSerializer(serializers.ModelSerializer):
-    settings = CarWashSettingsSerializer(many=False)
-    documents = CarWashDocumentsSerializer(many=False)
+    settings = CarWashSettingsPrivateSerializer(many=False)
+    documents = CarWashDocumentsPrivateSerializer(many=False)
 
     class Meta:
         model = CarWash
         fields = ['id','owner', 'name', 'address', 'created_at', 'settings', 'documents']
 
     def validate(self, attrs):
+        if 'is_active' in attrs:
+            attrs.pop('is_active')
+        # TODO validate
         return attrs
 
     def create(self, validated_data):
@@ -53,12 +71,14 @@ class CarWashWriteSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):
-        return CarWashReadSerializer(instance).data
+        if instance.owner == self.context['request'].user:
+            return CarWashPrivateReadSerializer(instance).data
+        return CarWashPublicReadSerializer(instance).data
 
 class CarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Car
-        fields = ['number', 'type']
+        fields = ['number']
 
     def validate(self, attrs):
         if Car.objects.filter(number=attrs['number']).exists():
