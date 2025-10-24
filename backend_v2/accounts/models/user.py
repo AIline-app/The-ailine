@@ -11,8 +11,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import RegexValidator
 
-from user_auth.utils.constants import MAX_USERNAME_LENGTH
-from user_auth.utils.choices import TypeSmsCode, UserRoles
+from accounts.utils.constants import MAX_USERNAME_LENGTH
+from accounts.utils.choices import TypeSmsCode, UserRoles
 
 
 class Roles(models.Model):

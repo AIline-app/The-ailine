@@ -6,9 +6,9 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 
-from user_auth.utils.constants import MAX_USERNAME_LENGTH, SMS_CODE_LENGTH, MIN_SMS_CODE_VALUE, MAX_SMS_CODE_VALUE
-from user_auth.models.user import User
-from user_auth.utils.choices import TypeSmsCode, UserRoles
+from accounts.utils.constants import MAX_USERNAME_LENGTH, SMS_CODE_LENGTH, MIN_SMS_CODE_VALUE, MAX_SMS_CODE_VALUE
+from accounts.models.user import User
+from accounts.utils.choices import TypeSmsCode, UserRoles
 
 
 class PhoneNumberValidationMixin:
@@ -76,6 +76,7 @@ class RegisterUserWriteSerializer(PhoneNumberValidationMixin, BaseRegisterUserSe
             user.save()
         else:
             # User registers with a new role. Skip SMS confirmation since already verified
+            # TODO check password?
             user.roles.add(validated_data['role'])
             return user
 

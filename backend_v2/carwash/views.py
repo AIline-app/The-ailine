@@ -6,7 +6,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from carwash.models import Car
 from carwash.models.carwash import CarWash
 from carwash.serializers import CarWashWriteSerializer, CarSerializer
-from user_auth.permissions import IsDirectorAndOwner
+from accounts.permissions import IsDirectorAndOwner
 
 
 class CarWashViewSet(viewsets.ModelViewSet):

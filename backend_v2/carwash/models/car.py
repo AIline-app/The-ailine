@@ -1,8 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from user_auth.models.user import User
-from user_auth.utils.choices import TypeAuto
+from accounts.models.user import User
+from accounts.utils.choices import TypeAuto
 
 
 class Car(models.Model):

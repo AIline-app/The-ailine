@@ -6,9 +6,9 @@ from django.db import models
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
-from user_auth.utils.constants import MIN_SMS_CODE_VALUE, MAX_SMS_CODE_VALUE
-from user_auth.models.user import User
-from user_auth.utils.choices import TypeSmsCode
+from accounts.utils.constants import MIN_SMS_CODE_VALUE, MAX_SMS_CODE_VALUE
+from accounts.models.user import User
+from accounts.utils.choices import TypeSmsCode
 
 
 def get_default_expires_at() -> datetime:

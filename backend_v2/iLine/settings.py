@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'user_auth.apps.UserAuthConfig',
     'carwash.apps.CarwashConfig'
+    'accounts.apps.AccountsConfig',
+    'carwash.apps.CarwashConfig',
 ]
 
 MIDDLEWARE = [
@@ -141,7 +143,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Use custom user model
-AUTH_USER_MODEL = 'user_auth.User'
+AUTH_USER_MODEL = 'accounts.User'
 
 SMS_LOGIN = env.str('SMS_LOGIN')
 SMS_PASSWORD = env.str('SMS_PASSWORD')

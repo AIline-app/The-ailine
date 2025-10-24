@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 
 def create_roles(apps, schema_editor):
-    Roles = apps.get_model("user_auth", "Roles")
+    Roles = apps.get_model("accounts", "Roles")
 
     Roles.objects.bulk_create([
         Roles(name=role) for role, _ in Roles._meta.local_fields[0].choices
@@ -13,13 +13,13 @@ def create_roles(apps, schema_editor):
 
 
 def remove_roles(apps, schema_editor):
-    Roles = apps.get_model("user_auth", "Roles")
+    Roles = apps.get_model("accounts", "Roles")
     Roles.objects.all().delete()
 
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('user_auth', '0001_initial'),
+        ('accounts', '0001_initial'),
     ]
 
     operations = [

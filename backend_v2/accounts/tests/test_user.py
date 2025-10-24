@@ -2,16 +2,16 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from user_auth.models.user import User
-from user_auth.utils.choices import UserRoles, TypeSmsCode
-from user_auth.tests.factories import (
+from accounts.models.user import User
+from accounts.utils.choices import UserRoles, TypeSmsCode
+from accounts.tests.factories import (
     create_active_user,
     create_inactive_user,
     register_user_and_get_sms,
     confirm_registration,
     login_user,
 )
-from user_auth.utils.constants import MAX_SMS_CODE_VALUE
+from accounts.utils.constants import MAX_SMS_CODE_VALUE
 
 
 class UserAuthEndpointsTests(APITestCase):

@@ -3,8 +3,8 @@ from typing import Tuple, Optional
 from django.urls import reverse
 from rest_framework.test import APIClient
 
-from user_auth.models.user import User
-from user_auth.utils.choices import UserRoles, TypeSmsCode
+from accounts.models.user import User
+from accounts.utils.choices import UserRoles, TypeSmsCode
 
 
 DEFAULT_PASSWORD = "S3cureP@ssw0rd"

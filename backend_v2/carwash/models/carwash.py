@@ -3,7 +3,7 @@ import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from user_auth.models.user import User
+from accounts.models.user import User
 
 
 class CarWash(models.Model):
