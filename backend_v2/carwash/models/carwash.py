@@ -19,8 +19,12 @@ class CarWash(models.Model):
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    owner = models.ForeignKey(User, verbose_name=_('Owner'),
-                             on_delete=models.CASCADE, related_name='car_wash')
+    owner = models.ForeignKey(
+        User,
+        verbose_name=_('Owner'),
+        on_delete=models.CASCADE,
+        related_name='car_wash',
+    )
     name = models.CharField(verbose_name=_('Name'), max_length=40, blank=False)
     address = models.CharField(verbose_name=_('Address'), max_length=300)
     created_at = models.DateTimeField(verbose_name=_('Creation Data'), auto_now_add=True)
@@ -39,17 +43,21 @@ class CarWash(models.Model):
 
 
 class CarWashSettings(models.Model):
-    car_wash = models.OneToOneField(CarWash,
-                                    verbose_name=_('CarWash'),
-                                    related_name='settings',
-                                    on_delete=models.CASCADE,
-                                    primary_key=True)
+    car_wash = models.OneToOneField(
+        CarWash,
+        verbose_name=_('CarWash'),
+        related_name='settings',
+        on_delete=models.CASCADE,
+        primary_key=True,
+    )
     opens_at = models.TimeField(verbose_name=_('Opens at'), null=False, blank=False, default='9:00')
     closes_at = models.TimeField(verbose_name=_('Closes at'), null=False, blank=False, default='21:00')
-    percent_washers = models.IntegerField(verbose_name=_('Washer Percent'),
-                                          null=False,
-                                          blank=True,
-                                          default=30,)
+    percent_washers = models.IntegerField(
+        verbose_name=_('Washer Percent'),
+        null=False,
+        blank=True,
+        default=30,
+    )
     car_types = ArrayField(models.CharField(max_length=30), size=20, default=list)
 
     class Meta:
@@ -57,11 +65,13 @@ class CarWashSettings(models.Model):
 
 
 class CarWashDocuments(models.Model):
-    car_wash = models.OneToOneField(CarWash,
-                                    verbose_name=_('CarWash'),
-                                    related_name='documents',
-                                    on_delete=models.CASCADE,
-                                    primary_key=True)
+    car_wash = models.OneToOneField(
+        CarWash,
+        verbose_name=_('CarWash'),
+        related_name='documents',
+        on_delete=models.CASCADE,
+        primary_key=True,
+    )
     iin = models.CharField(_('TOO/IIN'), max_length=12)
     # TODO add fields for relevant documents (e.g. paths at storage)
 
