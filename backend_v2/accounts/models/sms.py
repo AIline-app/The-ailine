@@ -1,27 +1,11 @@
-import random
-from datetime import datetime, timedelta
-
-from django.core.exceptions import ValidationError
 from django.db import models
-from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
-from accounts.utils.constants import MIN_SMS_CODE_VALUE, MAX_SMS_CODE_VALUE
 from accounts.models.user import User
-from accounts.utils.choices import TypeSmsCode
+from accounts.utils.enums import TypeSmsCode
+from accounts.utils.utils import generate_sms_code, get_default_expires_at
+from accounts.validators import validate_code
 
-
-def get_default_expires_at() -> datetime:
-    return now() + timedelta(minutes=5)
-
-def generate_sms_code() -> int:
-    return random.randint(MIN_SMS_CODE_VALUE, MAX_SMS_CODE_VALUE)
-
-def validate_code(value):
-    if not MIN_SMS_CODE_VALUE <= value <= MAX_SMS_CODE_VALUE:
-        raise ValidationError(
-            _('%(value)s is not %(SMS_CODE_LENGTH)s digits')
-        )
 
 class SMSCode(models.Model):
     """Модель смс-кода для регистрации."""

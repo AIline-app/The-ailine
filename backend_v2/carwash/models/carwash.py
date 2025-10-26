@@ -1,6 +1,7 @@
 import uuid
 
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 from django.utils.translation import gettext_lazy as _
 
 from accounts.models.user import User
@@ -49,6 +50,7 @@ class CarWashSettings(models.Model):
                                           null=False,
                                           blank=True,
                                           default=30,)
+    car_types = ArrayField(models.CharField(max_length=30), size=20, default=list)
 
     class Meta:
         verbose_name = _('Car Wash Settings')
