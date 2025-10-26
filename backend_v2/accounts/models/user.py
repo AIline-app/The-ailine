@@ -2,10 +2,8 @@ import logging
 import uuid
 
 import phonenumbers
-from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
-from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -34,7 +32,7 @@ class UserManager(BaseUserManager):
     def normalize_phone_number(self, phone_number):
         return phonenumbers.format_number(
             phonenumbers.parse(phone_number, None),
-            phonenumbers.PhoneNumberFormat.E164
+            phonenumbers.PhoneNumberFormat.E164,
         )
 
     def _create_user(self, username, phone_number, password, **extra_fields):
@@ -44,31 +42,23 @@ class UserManager(BaseUserManager):
         role = extra_fields.pop('role')
         phone_number = self.normalize_phone_number(phone_number)
 
-        GlobalUserModel = apps.get_model(
-            self.model._meta.app_label, self.model._meta.object_name
-        )
-        username = GlobalUserModel.normalize_username(username)
         user = self.model(username=username, phone_number=phone_number, **extra_fields)
-        user.password = make_password(password)
+        user.set_password(password)
         user.save(using=self._db)
         user.roles.add(role)
         return user
 
     def create_user(self, username, phone_number, password=None, **extra_fields):
-        extra_fields.setdefault("is_staff", False)
-        extra_fields.setdefault("is_superuser", False)
+        extra_fields["is_staff"] = False
+        extra_fields["is_superuser"] = False
         extra_fields.setdefault("role", (UserRoles.CLIENT,))
         return self._create_user(username, phone_number, password, **extra_fields)
 
     def create_superuser(self, username, phone_number, password=None, **extra_fields):
-        extra_fields.setdefault("is_staff", True)
-        extra_fields.setdefault("is_superuser", True)
-
-        if extra_fields.get("is_staff") is not True:
-            raise ValueError("Superuser must have is_staff=True.")
-        if extra_fields.get("is_superuser") is not True:
-            raise ValueError("Superuser must have is_superuser=True.")
-
+        extra_fields["is_staff"] = True
+        extra_fields["is_superuser"] = True
+        extra_fields["is_active"] = True
+        extra_fields.setdefault("role", (UserRoles.CLIENT,))
         return self._create_user(username, phone_number, password, **extra_fields)
 
 
@@ -109,7 +99,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(_("Staff Status"), default=False)
     is_superuser = models.BooleanField(_("Superuser Status"), default=False)
     is_active = models.BooleanField(_("Active"), default=False)
-    created_at = models.DateTimeField(_('Date create'), auto_now_add=True)
+    created_at = models.DateTimeField(_('Date created'), auto_now_add=True)
 
     USERNAME_FIELD = 'phone_number'
     REQUIRED_FIELDS = ['password']
@@ -118,13 +108,13 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name = _('User')
         verbose_name_plural = _('Users')
         db_table = 'user'
-        ordering = ['id']
+        ordering = ('id',)
 
     def __str__(self):
         return f'<User ({self.phone_number}, {self.id})>'
 
     def send_registration_code(self):
-        phone_number = self.phone_number.split('+')[1]
+        phone_number = self.phone_number.lstrip('+')
 
         sms = self.sms_codes.create(type=TypeSmsCode.REGISTER)
         # sms = self.sms_codes.create(user=self, type=TypeSmsCode.REGISTER)
