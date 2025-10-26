@@ -24,6 +24,9 @@ class Roles(models.Model):
             return self.name == other
         return super(Roles, self).__eq__(other)
 
+    def __str__(self):
+        return f'<Role ({self.name}, {self.user})>'
+
 
 class UserManager(BaseUserManager):
     """Менеджер кастомного пользователя, для которого телефон - уникальный идентификатор"""

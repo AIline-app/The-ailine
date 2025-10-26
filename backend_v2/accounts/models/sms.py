@@ -25,3 +25,6 @@ class SMSCode(models.Model):
     class Meta:
         verbose_name = _('SMS Code')
         verbose_name_plural = _('SMS Codes')
+
+    def __str__(self):
+        return f'<SMSCode ({self.type}, {self.code}, {self.user})>'

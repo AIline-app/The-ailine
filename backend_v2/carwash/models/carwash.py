@@ -63,6 +63,9 @@ class CarWashSettings(models.Model):
     class Meta:
         verbose_name = _('Car Wash Settings')
 
+    def __str__(self):
+        return f'<CarWashSettings ({self.car_wash})>'
+
 
 class CarWashDocuments(models.Model):
     car_wash = models.OneToOneField(
@@ -77,3 +80,6 @@ class CarWashDocuments(models.Model):
 
     class Meta:
         verbose_name = _('Car Wash Documents')
+
+    def __str__(self):
+        return f'<CarWashDocuments ({self.car_wash})>'

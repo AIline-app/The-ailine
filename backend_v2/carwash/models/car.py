@@ -13,3 +13,6 @@ class Car(models.Model):
         indexes = [
             models.Index(fields=['owner', 'number']),
         ]
+
+    def __str__(self):
+        return f'<Car ({self.number}, {self.owner})>'
