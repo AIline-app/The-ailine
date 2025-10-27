@@ -117,7 +117,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         phone_number = self.phone_number.lstrip('+')
 
         sms = self.sms_codes.create(type=TypeSmsCode.REGISTER)
-        # sms = self.sms_codes.create(user=self, type=TypeSmsCode.REGISTER)
         for _ in range(3):
             try:
                 # TODO Place in queue to be sent by another service

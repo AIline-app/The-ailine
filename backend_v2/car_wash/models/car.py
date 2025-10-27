@@ -1,7 +1,7 @@
 from django.db import models
 
 from accounts.models.user import User
-from carwash.utils.constants import MAX_CAR_NUMBER_LENGTH
+from car_wash.utils.constants import MAX_CAR_NUMBER_LENGTH
 
 
 class Car(models.Model):
