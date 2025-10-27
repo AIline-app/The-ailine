@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from accounts.models.user import User
-from accounts.utils.choices import UserRoles, TypeSmsCode
+from accounts.utils.enums import UserRoles, TypeSmsCode
 from accounts.tests.factories import (
     create_active_user,
     create_inactive_user,

@@ -1,6 +1,5 @@
 import phonenumbers
 from django.contrib.auth import authenticate, login
-from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
@@ -8,7 +7,7 @@ from rest_framework.exceptions import AuthenticationFailed
 
 from accounts.utils.constants import MAX_USERNAME_LENGTH, SMS_CODE_LENGTH, MIN_SMS_CODE_VALUE, MAX_SMS_CODE_VALUE
 from accounts.models.user import User
-from accounts.utils.choices import TypeSmsCode, UserRoles
+from accounts.utils.enums import TypeSmsCode, UserRoles
 
 
 class PhoneNumberValidationMixin:

@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.viewsets import GenericViewSet
 
-from .models import User
+from accounts.models import User
 from .serializers import (RegisterUserWriteSerializer, RegisterUserConfirmWriteSerializer, LoginUserSerializer,
                           UserSerializer, ExceptionSerializer)
 

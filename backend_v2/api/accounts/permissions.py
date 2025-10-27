@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-from accounts.utils.choices import UserRoles
+from accounts.utils.enums import UserRoles
 
 
 class IsDirector(permissions.BasePermission):

@@ -4,7 +4,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 
 from accounts.models.user import User
-from accounts.utils.choices import UserRoles, TypeSmsCode
+from accounts.utils.enums import UserRoles, TypeSmsCode
 
 
 DEFAULT_PASSWORD = "S3cureP@ssw0rd"
