@@ -40,7 +40,7 @@ class CarWash(models.Model):
         ]
 
     def __str__(self):
-        return f'CarWash <{self.name}, {self.id}>'
+        return f'<CarWash ({self.name}, {self.id})>'
 
     def create_boxes(self, amount: int):
         boxes = [

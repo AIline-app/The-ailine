@@ -24,3 +24,6 @@ class Box(models.Model):
         indexes = [
             models.Index(fields=['car_wash']),
         ]
+
+    def __str__(self):
+        return f'<Box ({self.name}, {self.id}, {self.car_wash})>'
