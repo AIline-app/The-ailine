@@ -15,7 +15,8 @@ class SMSCode(models.Model):
         default=generate_sms_code,
         blank=False,
         null=False,
-        validators=[validate_code])
+        validators=[validate_code],
+    )
     type = models.CharField(_('SMS Type'), choices=TypeSmsCode.choices)
     created_at = models.DateTimeField(_('Date created'), auto_now_add=True)
     expires_at = models.DateTimeField(_('Expiration date'), default=get_default_expires_at, null=False, blank=False)
@@ -24,3 +25,6 @@ class SMSCode(models.Model):
     class Meta:
         verbose_name = _('SMS Code')
         verbose_name_plural = _('SMS Codes')
+
+    def __str__(self):
+        return f'<SMSCode ({self.type}, {self.code}, {self.user})>'

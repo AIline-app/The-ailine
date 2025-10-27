@@ -1,11 +1,11 @@
 from django.db import models
 
 from accounts.models.user import User
+from carwash.utils.constants import MAX_CAR_NUMBER_LENGTH
 
 
 class Car(models.Model):
-    number = models.CharField(max_length=15)
-    # type = models.CharField(verbose_name=_('Car Type'), max_length=15, choices=TypeAuto.choices)
+    number = models.CharField(max_length=MAX_CAR_NUMBER_LENGTH)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cars')
 
     class Meta:
@@ -13,3 +13,6 @@ class Car(models.Model):
         indexes = [
             models.Index(fields=['owner', 'number']),
         ]
+
+    def __str__(self):
+        return f'<Car ({self.number}, {self.owner})>'
