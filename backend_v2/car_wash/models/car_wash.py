@@ -42,6 +42,15 @@ class CarWash(models.Model):
     def __str__(self):
         return f'<CarWash ({self.name}, {self.id})>'
 
+    def create_settings(self, settings_data):
+        car_types = settings_data.pop('car_types')
+        settings = CarWashSettings.objects.create(car_wash=self, **settings_data)
+        settings.set_car_types(car_types)
+        return settings
+
+    def create_documents(self, documents_data):
+        return CarWashDocuments.objects.create(car_wash=self, **documents_data)
+
     def create_boxes(self, amount: int):
         boxes = [
             Box(car_wash=self, name=_('Box #{num}').format(num=box_num))

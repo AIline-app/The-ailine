@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 
@@ -54,7 +55,7 @@ class CarWashWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CarWash
-        fields = ('id','owner', 'name', 'address', 'created_at', 'settings', 'documents', 'boxes_amount')
+        fields = ('id', 'name', 'address', 'created_at', 'settings', 'documents', 'boxes_amount')
 
     def validate(self, attrs):
         if 'is_active' in attrs:
@@ -62,19 +63,23 @@ class CarWashWriteSerializer(serializers.ModelSerializer):
         # TODO validate
         return attrs
 
+    @transaction.atomic
     def create(self, validated_data):
         settings_data = validated_data.pop('settings')
         documents_data = validated_data.pop('documents')
         boxes_amount = validated_data.pop('boxes_amount')
 
-        car_wash = CarWash.objects.create(**validated_data)
-        CarWashSettings.objects.create(car_wash=car_wash, **settings_data)
-        CarWashDocuments.objects.create(car_wash=car_wash, **documents_data)
+        car_wash = super().create(validated_data)
+        car_wash.create_settings(settings_data)
+        car_wash.create_documents(documents_data)
         car_wash.create_boxes(boxes_amount)
+
         return car_wash
 
+    @transaction.atomic
     def update(self, instance, validated_data):
-        for field in ('settings', 'documents'):
+        # TODO support car_types inside settings
+        for field in ('settings', 'documents', 'boxes_amount'):
             if field in validated_data:
                 data = validated_data.pop(field)
                 obj = getattr(instance, field)

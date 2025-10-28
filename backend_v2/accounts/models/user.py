@@ -127,3 +127,15 @@ class User(AbstractBaseUser, PermissionsMixin):
                 logging.error(f'Failed to send an SMS to {phone_number}: {error}')
         else:
             return False
+
+    @property
+    def is_director(self):
+        return self.roles.filter(name=UserRoles.DIRECTOR).exists()
+
+    @property
+    def is_manager(self):
+        return self.roles.filter(name=UserRoles.MANAGER).exists()
+
+    @property
+    def is_client(self):
+        return self.roles.filter(name=UserRoles.CLIENT).exists()
