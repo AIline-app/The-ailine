@@ -3,14 +3,14 @@ from django.db.models import Q
 from rest_framework import viewsets, filters
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
-from carwash.models import Car
-from carwash.models.carwash import CarWash
-from api.carwash.serializers import CarWashWriteSerializer, CarSerializer
+from car_wash.models import Car
+from car_wash.models.box import Box
+from car_wash.models.car_wash import CarWash
+from api.car_wash.serializers import CarWashWriteSerializer, CarSerializer, BoxSerializer
 from api.accounts.permissions import IsDirectorAndOwner
 
 
 class CarWashViewSet(viewsets.ModelViewSet):
-    queryset = CarWash.objects.all()
     serializer_class = CarWashWriteSerializer
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['name']
@@ -42,6 +42,22 @@ class CarWashViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         request.data['owner'] = request.user.id
         return super().update(request, *args, **kwargs)
+
+class BoxViewSet(viewsets.ModelViewSet):
+    serializer_class = BoxSerializer
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ['name']
+    permission_classes = [IsDirectorAndOwner]
+    lookup_url_kwarg='box_id'
+
+    def get_queryset(self):
+        carwash_id = self.kwargs.get('carwash_id')
+        queryset = Box.objects.select_related('car_wash').filter(car_wash__owner=self.request.user)
+
+        if carwash_id:
+            queryset = queryset.filter(car_wash=carwash_id)
+
+        return queryset
 
 
 class CarViewSet(viewsets.ModelViewSet):

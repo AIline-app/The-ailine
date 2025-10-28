@@ -5,6 +5,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.utils.translation import gettext_lazy as _
 
 from accounts.models.user import User
+from car_wash.models.box import Box
 
 
 class CarWash(models.Model):
@@ -39,7 +40,14 @@ class CarWash(models.Model):
         ]
 
     def __str__(self):
-        return f'CarWash <{self.name}, {self.id}>'
+        return f'<CarWash ({self.name}, {self.id})>'
+
+    def create_boxes(self, amount: int):
+        boxes = [
+            Box(car_wash=self, name=_('Box #{num}').format(num=box_num))
+            for box_num in range(amount)
+        ]
+        Box.objects.bulk_create(boxes)
 
 
 class CarWashSettings(models.Model):

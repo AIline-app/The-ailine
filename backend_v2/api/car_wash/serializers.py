@@ -1,8 +1,9 @@
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 
-from carwash.models import Car
-from carwash.models.carwash import CarWash, CarWashSettings, CarWashDocuments
+from car_wash.models import Car
+from car_wash.models.box import Box
+from car_wash.models.car_wash import CarWash, CarWashSettings, CarWashDocuments
 
 
 class CarWashSettingsPrivateSerializer(serializers.ModelSerializer):
@@ -41,10 +42,11 @@ class CarWashPrivateReadSerializer(serializers.ModelSerializer):
 class CarWashWriteSerializer(serializers.ModelSerializer):
     settings = CarWashSettingsPrivateSerializer(many=False)
     documents = CarWashDocumentsPrivateSerializer(many=False)
+    boxes_amount = serializers.IntegerField()
 
     class Meta:
         model = CarWash
-        fields = ['id','owner', 'name', 'address', 'created_at', 'settings', 'documents']
+        fields = ['id','owner', 'name', 'address', 'created_at', 'settings', 'documents', 'boxes_amount']
 
     def validate(self, attrs):
         if 'is_active' in attrs:
@@ -55,9 +57,12 @@ class CarWashWriteSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         settings_data = validated_data.pop('settings')
         documents_data = validated_data.pop('documents')
+        boxes_amount = validated_data.pop('boxes_amount')
+
         car_wash = CarWash.objects.create(**validated_data)
         CarWashSettings.objects.create(car_wash=car_wash, **settings_data)
         CarWashDocuments.objects.create(car_wash=car_wash, **documents_data)
+        car_wash.create_boxes(boxes_amount)
         return car_wash
 
     def update(self, instance, validated_data):
@@ -85,3 +90,9 @@ class CarSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'number': _('This car already exists')})
         # TODO validate car number
         return attrs
+
+
+class BoxSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Box
+        exclude = ('car_wash',)

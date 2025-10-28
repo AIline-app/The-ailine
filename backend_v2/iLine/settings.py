@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_spectacular',
     'accounts.apps.AccountsConfig',
-    'carwash.apps.CarwashConfig',
+    'car_wash.apps.CarwashConfig',
+    # 'services.apps.ServicesConfig'
 ]
 
 MIDDLEWARE = [

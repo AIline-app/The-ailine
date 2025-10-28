@@ -1,6 +1,7 @@
 from rest_framework import permissions
 
 from accounts.utils.enums import UserRoles
+from car_wash.models.box import Box
 
 
 class IsDirector(permissions.BasePermission):
@@ -10,6 +11,8 @@ class IsDirector(permissions.BasePermission):
 
 class IsDirectorAndOwner(IsDirector):
     def has_object_permission(self, request, view, obj):
+        if type(obj) == Box:
+            return obj.car_wash.owner == request.user
         return obj.owner == request.user
 
 class IsManager(permissions.BasePermission):
