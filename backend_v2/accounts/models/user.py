@@ -9,7 +9,12 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import RegexValidator
 
-from accounts.utils.constants import MAX_USERNAME_LENGTH, MAX_PHONE_NUMBER_LENGTH
+from accounts.utils.constants import (
+    MAX_USERNAME_LENGTH,
+    MAX_PHONE_NUMBER_LENGTH,
+    PHONE_VALIDATE_REGEX,
+    PHONE_VALIDATE_MESSAGE
+)
 from accounts.utils.enums import TypeSmsCode, UserRoles
 
 
@@ -84,10 +89,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     phone_validator = RegexValidator(
-        regex=r'^\+?1?\d{9,15}$',
-        message=_("Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed."),
+        regex=PHONE_VALIDATE_REGEX,
+        message=_(PHONE_VALIDATE_MESSAGE.format(MAX_PHONE_NUMBER_LENGTH=MAX_PHONE_NUMBER_LENGTH)),
     )
-
     username = models.CharField(verbose_name=_('Name'), max_length=MAX_USERNAME_LENGTH, blank=True, null=True)
     phone_number = models.CharField(
         _('Phone number'),

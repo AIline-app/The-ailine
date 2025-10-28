@@ -48,6 +48,21 @@ class CarWashPrivateReadSerializer(serializers.ModelSerializer):
         exclude = ('owner',)
 
 
+class CarWashReadSerializer(serializers.ModelSerializer):
+    settings = CarWashSettingsPrivateSerializer(many=False)
+    documents = CarWashDocumentsPrivateSerializer(many=False)
+    boxes_amount = serializers.IntegerField()
+
+    class Meta:
+        model = CarWash
+        fields = ('id', 'name', 'address', 'created_at', 'settings', 'documents', 'boxes_amount')
+
+    def to_representation(self, instance):
+        if instance.owner == self.context['request'].user:
+            return CarWashPrivateReadSerializer(instance).data
+        return CarWashPublicReadSerializer(instance).data
+
+
 class CarWashWriteSerializer(serializers.ModelSerializer):
     settings = CarWashSettingsPrivateSerializer(many=False)
     documents = CarWashDocumentsPrivateSerializer(many=False)
@@ -78,20 +93,26 @@ class CarWashWriteSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        # TODO support car_types inside settings
-        for field in ('settings', 'documents', 'boxes_amount'):
+        for field in ('settings', 'documents'):
             if field in validated_data:
                 data = validated_data.pop(field)
+
+                if 'car_types' in data:
+                    car_types = data.pop('car_types')
+                    instance.update_car_types(car_types)
+
                 obj = getattr(instance, field)
                 for k, v in data.items():
                     setattr(obj, k, v)
                 obj.save()
+        if 'boxes_amount' in validated_data:
+            boxes_amount = validated_data.pop('boxes_amount')
+
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):
-        if instance.owner == self.context['request'].user:
-            return CarWashPrivateReadSerializer(instance).data
-        return CarWashPublicReadSerializer(instance).data
+        return CarWashReadSerializer(instance, context=self.context).data
+
 
 class CarSerializer(serializers.ModelSerializer):
     class Meta:

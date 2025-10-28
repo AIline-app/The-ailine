@@ -53,10 +53,14 @@ class CarWash(models.Model):
 
     def create_boxes(self, amount: int):
         boxes = [
-            Box(car_wash=self, name=_('Box #{num}').format(num=box_num))
+            Box(car_wash=self, name=f'Box #{box_num+1}')
             for box_num in range(amount)
         ]
         Box.objects.bulk_create(boxes)
+
+    def update_car_types(self, car_types):
+        # TODO finish
+        return
 
 
 class CarWashSettings(models.Model):
@@ -106,6 +110,7 @@ class CarWashDocuments(models.Model):
 
 
 class CarTypes(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     settings = models.ForeignKey(CarWashSettings, on_delete=models.CASCADE, related_name='car_types')
     name = models.CharField(_('Car type'), )
 

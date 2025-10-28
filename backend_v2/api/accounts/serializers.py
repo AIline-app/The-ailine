@@ -19,7 +19,7 @@ class PhoneNumberValidationMixin:
 
         if not phonenumbers.is_valid_number(parsed_number):
             raise serializers.ValidationError({'phone_number': _('Incorrect phone number')})
-        return phone_number
+        return User.objects.normalize_phone_number(phone_number)
 
 
 class ExceptionSerializer(serializers.Serializer):
@@ -52,8 +52,6 @@ class RegisterUserWriteSerializer(PhoneNumberValidationMixin, BaseRegisterUserSe
     def validate(self, attrs):
         if attrs['role'] not in (UserRoles.CLIENT, UserRoles.DIRECTOR):
             raise serializers.ValidationError({'role': _('Unknown role')})
-
-        attrs['phone_number'] = User.objects.normalize_phone_number(attrs['phone_number'])
 
         user = self.get_user(attrs['phone_number'])
 

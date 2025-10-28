@@ -1,4 +1,3 @@
-from django.db import transaction
 from django.db.models import Q
 from rest_framework import viewsets, filters
 from rest_framework.permissions import AllowAny, IsAuthenticated, SAFE_METHODS
@@ -6,7 +5,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, SAFE_METHODS
 from car_wash.models import Car
 from car_wash.models.box import Box
 from car_wash.models.car_wash import CarWash
-from api.car_wash.serializers import CarWashWriteSerializer, CarSerializer, BoxSerializer
+from api.car_wash.serializers import CarWashWriteSerializer, CarSerializer, BoxSerializer, CarWashReadSerializer
 from api.car_wash.permissions import IsDirector
 
 
@@ -34,15 +33,22 @@ class CarWashViewSet(viewsets.ModelViewSet):
         else:
             return queryset.prefetch_related('documents').filter(owner=self.request.user)
 
-    @transaction.atomic
-    def create(self, request, *args, **kwargs):
-        request.data['owner'] = request.user.id
-        return super().create(request, *args, **kwargs)
+    def get_serializer_class(self):
+        return {
+            "create": CarWashWriteSerializer,
+            "update": CarWashWriteSerializer,
+            "list": CarWashReadSerializer,
+            "retrieve": CarWashReadSerializer,
+            "view": None,
+            "view_all": None,
+        }.get(self.action, self.serializer_class)
 
-    @transaction.atomic
-    def update(self, request, *args, **kwargs):
-        request.data['owner'] = request.user.id
-        return super().update(request, *args, **kwargs)
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(owner=self.request.user)
+
 
 class BoxViewSet(viewsets.ModelViewSet):
     serializer_class = BoxSerializer
