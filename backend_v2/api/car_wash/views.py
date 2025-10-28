@@ -58,11 +58,11 @@ class BoxViewSet(viewsets.ModelViewSet):
     lookup_url_kwarg='box_id'
 
     def get_queryset(self):
-        carwash_id = self.kwargs.get('carwash_id')
+        car_wash_id = self.kwargs.get('car_wash_id')
         queryset = Box.objects.select_related('car_wash').filter(car_wash__owner=self.request.user)
 
-        if carwash_id:
-            queryset = queryset.filter(car_wash=carwash_id)
+        if car_wash_id:
+            queryset = queryset.filter(car_wash=car_wash_id)
 
         return queryset
 
