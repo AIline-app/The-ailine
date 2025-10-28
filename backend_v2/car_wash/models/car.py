@@ -1,12 +1,13 @@
+from django.utils.translation import gettext_lazy as _
 from django.db import models
 
-from accounts.models.user import User
 from car_wash.utils.constants import MAX_CAR_NUMBER_LENGTH
+from iLine.settings import AUTH_USER_MODEL
 
 
 class Car(models.Model):
-    number = models.CharField(max_length=MAX_CAR_NUMBER_LENGTH)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cars')
+    number = models.CharField(_('Registration plate'), max_length=MAX_CAR_NUMBER_LENGTH)
+    owner = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='cars')
 
     class Meta:
         unique_together = ('owner', 'number')

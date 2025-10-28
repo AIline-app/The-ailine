@@ -66,13 +66,16 @@ class CarWashSettings(models.Model):
         blank=True,
         default=30,
     )
-    car_types = ArrayField(models.CharField(max_length=30), size=20, default=list)
 
     class Meta:
         verbose_name = _('Car Wash Settings')
 
     def __str__(self):
         return f'<CarWashSettings ({self.car_wash})>'
+
+    def set_car_types(self, car_types):
+        objects = [CarTypes(settings=self, name=car_type['name']) for car_type in car_types]
+        CarTypes.objects.bulk_create(objects)
 
 
 class CarWashDocuments(models.Model):
@@ -91,3 +94,14 @@ class CarWashDocuments(models.Model):
 
     def __str__(self):
         return f'<CarWashDocuments ({self.car_wash})>'
+
+
+class CarTypes(models.Model):
+    settings = models.ForeignKey(CarWashSettings, on_delete=models.CASCADE, related_name='car_types')
+    name = models.CharField(_('Car type'), )
+
+    class Meta:
+        unique_together = ('settings', 'name')
+        indexes = [
+            models.Index(fields=['settings']),
+        ]
