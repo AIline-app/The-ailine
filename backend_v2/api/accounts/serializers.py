@@ -19,7 +19,7 @@ class PhoneNumberValidationMixin:
 
         if not phonenumbers.is_valid_number(parsed_number):
             raise serializers.ValidationError({'phone_number': _('Incorrect phone number')})
-        return phone_number
+        return User.objects.normalize_phone_number(phone_number)
 
 
 class ExceptionSerializer(serializers.Serializer):
@@ -52,8 +52,6 @@ class RegisterUserWriteSerializer(PhoneNumberValidationMixin, BaseRegisterUserSe
     def validate(self, attrs):
         if attrs['role'] not in (UserRoles.CLIENT, UserRoles.DIRECTOR):
             raise serializers.ValidationError({'role': _('Unknown role')})
-
-        attrs['phone_number'] = User.objects.normalize_phone_number(attrs['phone_number'])
 
         user = self.get_user(attrs['phone_number'])
 
@@ -89,7 +87,7 @@ class RegisterUserWriteSerializer(PhoneNumberValidationMixin, BaseRegisterUserSe
 class RegisterUserConfirmWriteSerializer(PhoneNumberValidationMixin, BaseRegisterUserSerializer):
     """Сериализатор регистрации пользователя (по смс)"""
     phone_number = serializers.CharField()
-    code = serializers.IntegerField()
+    code = serializers.IntegerField(min_value=MIN_SMS_CODE_VALUE, max_value=MAX_SMS_CODE_VALUE)
 
     def validate(self, attrs):
         user = self.get_user(attrs['phone_number'])
@@ -99,17 +97,12 @@ class RegisterUserConfirmWriteSerializer(PhoneNumberValidationMixin, BaseRegiste
         if user.is_active:
             raise serializers.ValidationError({'phone_number': _('This number is already registered')})
 
-        if not MIN_SMS_CODE_VALUE <= attrs['code'] <= MAX_SMS_CODE_VALUE:
-            raise serializers.ValidationError(
-                {'code': _('Must be {sms_code_length} digits').format(sms_code_length=SMS_CODE_LENGTH)}
-            )
-
         sms = user.sms_codes.filter(code=attrs['code'], type=TypeSmsCode.REGISTER).first()
         if not sms:
             raise serializers.ValidationError({'code': _('Incorrect code')})
 
         if sms.expires_at < timezone.now():
-            sms.delete()
+            # sms.delete()
             raise serializers.ValidationError({'code': _('Code has expired')})
 
         attrs['user'] = user
@@ -121,7 +114,7 @@ class RegisterUserConfirmWriteSerializer(PhoneNumberValidationMixin, BaseRegiste
         sms = validated_data['sms']
 
         user.is_active = True
-        user.save()
+        user.save(update_fields=['is_active'])
         login(self.context['request'], user)
 
         sms.delete()

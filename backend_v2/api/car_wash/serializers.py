@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 
@@ -47,6 +48,21 @@ class CarWashPrivateReadSerializer(serializers.ModelSerializer):
         exclude = ('owner',)
 
 
+class CarWashReadSerializer(serializers.ModelSerializer):
+    settings = CarWashSettingsPrivateSerializer(many=False)
+    documents = CarWashDocumentsPrivateSerializer(many=False)
+    boxes_amount = serializers.IntegerField()
+
+    class Meta:
+        model = CarWash
+        fields = ('id', 'name', 'address', 'created_at', 'settings', 'documents', 'boxes_amount')
+
+    def to_representation(self, instance):
+        if instance.owner == self.context['request'].user:
+            return CarWashPrivateReadSerializer(instance).data
+        return CarWashPublicReadSerializer(instance).data
+
+
 class CarWashWriteSerializer(serializers.ModelSerializer):
     settings = CarWashSettingsPrivateSerializer(many=False)
     documents = CarWashDocumentsPrivateSerializer(many=False)
@@ -54,7 +70,7 @@ class CarWashWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CarWash
-        fields = ('id','owner', 'name', 'address', 'created_at', 'settings', 'documents', 'boxes_amount')
+        fields = ('id', 'name', 'address', 'created_at', 'settings', 'documents', 'boxes_amount')
 
     def validate(self, attrs):
         if 'is_active' in attrs:
@@ -62,31 +78,41 @@ class CarWashWriteSerializer(serializers.ModelSerializer):
         # TODO validate
         return attrs
 
+    @transaction.atomic
     def create(self, validated_data):
         settings_data = validated_data.pop('settings')
         documents_data = validated_data.pop('documents')
         boxes_amount = validated_data.pop('boxes_amount')
 
-        car_wash = CarWash.objects.create(**validated_data)
-        CarWashSettings.objects.create(car_wash=car_wash, **settings_data)
-        CarWashDocuments.objects.create(car_wash=car_wash, **documents_data)
+        car_wash = super().create(validated_data)
+        car_wash.create_settings(settings_data)
+        car_wash.create_documents(documents_data)
         car_wash.create_boxes(boxes_amount)
+
         return car_wash
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         for field in ('settings', 'documents'):
             if field in validated_data:
                 data = validated_data.pop(field)
+
+                if 'car_types' in data:
+                    car_types = data.pop('car_types')
+                    instance.update_car_types(car_types)
+
                 obj = getattr(instance, field)
                 for k, v in data.items():
                     setattr(obj, k, v)
                 obj.save()
+        if 'boxes_amount' in validated_data:
+            boxes_amount = validated_data.pop('boxes_amount')
+
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):
-        if instance.owner == self.context['request'].user:
-            return CarWashPrivateReadSerializer(instance).data
-        return CarWashPublicReadSerializer(instance).data
+        return CarWashReadSerializer(instance, context=self.context).data
+
 
 class CarSerializer(serializers.ModelSerializer):
     class Meta:
