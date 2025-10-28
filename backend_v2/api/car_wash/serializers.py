@@ -3,19 +3,27 @@ from django.utils.translation import gettext_lazy as _
 
 from car_wash.models import Car
 from car_wash.models.box import Box
-from car_wash.models.car_wash import CarWash, CarWashSettings, CarWashDocuments
+from car_wash.models.car_wash import CarWash, CarWashSettings, CarWashDocuments, CarTypes
+
+
+class CarWashCarTypesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CarTypes
+        exclude = ('settings',)
 
 
 class CarWashSettingsPrivateSerializer(serializers.ModelSerializer):
+    car_types = CarWashCarTypesSerializer(many=True, read_only=False)
     class Meta:
         model = CarWashSettings
         exclude = ('car_wash',)
 
 
 class CarWashSettingsPublicSerializer(serializers.ModelSerializer):
+    car_types = CarWashCarTypesSerializer(many=True, read_only=True)
     class Meta:
         model = CarWashSettings
-        fields = ('opens_at', 'closes_at')
+        fields = ('opens_at', 'closes_at', 'car_types')
 
 
 class CarWashDocumentsPrivateSerializer(serializers.ModelSerializer):
@@ -28,7 +36,7 @@ class CarWashPublicReadSerializer(serializers.ModelSerializer):
     settings = CarWashSettingsPublicSerializer(read_only=True)
     class Meta:
         model = CarWash
-        fields = ['id', 'name', 'address', 'created_at', 'is_active', 'settings']
+        fields = ('id', 'name', 'address', 'created_at', 'is_active', 'settings')
 
 
 class CarWashPrivateReadSerializer(serializers.ModelSerializer):
@@ -46,7 +54,7 @@ class CarWashWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CarWash
-        fields = ['id','owner', 'name', 'address', 'created_at', 'settings', 'documents', 'boxes_amount']
+        fields = ('id','owner', 'name', 'address', 'created_at', 'settings', 'documents', 'boxes_amount')
 
     def validate(self, attrs):
         if 'is_active' in attrs:
@@ -83,7 +91,7 @@ class CarWashWriteSerializer(serializers.ModelSerializer):
 class CarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Car
-        fields = ['number']
+        fields = ('number',)
 
     def validate(self, attrs):
         if Car.objects.filter(number=attrs['number']).exists():
