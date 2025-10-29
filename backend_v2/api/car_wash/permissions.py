@@ -1,25 +1,30 @@
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, SAFE_METHODS, BasePermission
 
-from car_wash.models import Box
-from services.models import Services
+
+class ReadOnly(BasePermission):
+    def has_permission(self, request, view):
+        return request.method in SAFE_METHODS
+
+    def has_object_permission(self, request, view, obj):
+        return request.method in SAFE_METHODS
 
 
 class IsDirector(IsAuthenticated):
-    """Is user an authorized director"""
     def has_permission(self, request, view):
         return (super().has_permission(request, view)
                 and request.user.is_director)
 
     def has_object_permission(self, request, view, obj):
-        match obj:
-            case Box():
-                obj = obj.car_wash
-            case Services():
-                obj = obj.car_wash
-            case _:
-                pass
-        return (super().has_object_permission(request, view, obj)
-                and obj.owner == request.user)
+        return obj.owner == request.user
+
+class IsCarWashOwner(IsDirector):
+    def has_permission(self, request, view):
+        return (super().has_permission(request, view)
+                and hasattr(view, 'car_wash')
+                and request.user == view.car_wash.owner)
+
+    def has_object_permission(self, request, view, obj):
+        return super().has_object_permission(request, view, obj.car_wash)
 
 
 class IsManager(IsAuthenticated):

@@ -1,11 +1,13 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 from car_wash.models import CarTypes
 from services.models import Services
 
 
 class ServicesReadSerializer(serializers.ModelSerializer):
-    car_type = serializers.PrimaryKeyRelatedField(many=False, read_only=True)
+    car_type = serializers.ReadOnlyField(source='car_type_id')
 
     class Meta:
         model = Services
@@ -13,24 +15,19 @@ class ServicesReadSerializer(serializers.ModelSerializer):
 
 
 class ServicesWriteSerializer(serializers.ModelSerializer):
-    car_type = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=CarTypes.objects.none())
+    car_type = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=CarTypes.objects.all())
 
     class Meta:
         model = Services
         exclude = ('id', 'car_wash')
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        car_wash = self.context.get('car_wash')
-        if car_wash:
-            self.fields['car_type'].queryset = CarTypes.objects.filter(settings__car_wash=car_wash)
-
     def validate(self, attrs):
         # TODO validate
-        attrs['car_wash'] = self.context['car_wash']
+        if attrs['car_type'].settings.car_wash != self.context['car_wash']:
+            raise ValidationError(
+                {'car_type': _('Invalid pk "{pk_value}" - object does not exist.').format(pk_value=attrs['car_type'].pk)}
+            )
         return attrs
 
     def to_representation(self, instance):
         return ServicesReadSerializer(instance, context=self.context).data
-
-

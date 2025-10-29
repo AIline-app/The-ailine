@@ -1,12 +1,27 @@
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, filters
-from rest_framework.permissions import AllowAny, IsAuthenticated, SAFE_METHODS
+from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 
 from car_wash.models import Car
 from car_wash.models.box import Box
 from car_wash.models.car_wash import CarWash
 from api.car_wash.serializers import CarWashWriteSerializer, CarSerializer, BoxSerializer, CarWashReadSerializer
-from api.car_wash.permissions import IsDirector
+from api.car_wash.permissions import IsDirector, ReadOnly, IsCarWashOwner
+
+
+class CarWashInRouteMixin:
+    @property
+    def car_wash(self):
+        return get_object_or_404(CarWash, pk=self.kwargs['car_wash_id'])
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['car_wash'] = self.car_wash
+        return context
+
+    def perform_create(self, serializer):
+        return serializer.save(car_wash=self.car_wash)
 
 
 class CarWashViewSet(viewsets.ModelViewSet):
@@ -14,13 +29,7 @@ class CarWashViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['name']
     lookup_url_kwarg='car_wash_id'
-
-    def get_permissions(self):
-        if self.request.method in SAFE_METHODS:
-            permission_classes = [AllowAny]
-        else:
-            permission_classes = [IsDirector]
-        return [permission() for permission in permission_classes]
+    permission_classes = (ReadOnly | IsDirector,)
 
     def get_queryset(self):
         queryset = CarWash.objects.prefetch_related('settings')
@@ -51,26 +60,20 @@ class CarWashViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 
-class BoxViewSet(viewsets.ModelViewSet):
+class BoxViewSet(CarWashInRouteMixin, viewsets.ModelViewSet):
     serializer_class = BoxSerializer
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['name']
-    permission_classes = [IsDirector]
-    lookup_url_kwarg='box_id'
+    permission_classes = (IsCarWashOwner,)
+    lookup_url_kwarg = 'box_id'
 
     def get_queryset(self):
-        car_wash_id = self.kwargs.get('car_wash_id')
-        queryset = Box.objects.select_related('car_wash').filter(car_wash__owner=self.request.user)
-
-        if car_wash_id:
-            queryset = queryset.filter(car_wash=car_wash_id)
-
-        return queryset
+        return Box.objects.filter(car_wash__owner=self.request.user, car_wash=self.car_wash)
 
 
 class CarViewSet(viewsets.ModelViewSet):
     serializer_class = CarSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
     lookup_field='number'
 
     def get_queryset(self):
