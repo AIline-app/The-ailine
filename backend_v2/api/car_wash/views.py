@@ -28,7 +28,7 @@ class CarWashViewSet(viewsets.ModelViewSet):
     serializer_class = CarWashWriteSerializer
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['name']
-    lookup_url_kwarg='car_wash_id'
+    lookup_url_kwarg = 'car_wash_id'
     permission_classes = (ReadOnly | IsDirector,)
 
     def get_queryset(self):

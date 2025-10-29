@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 
-from accounts.utils.constants import MAX_USERNAME_LENGTH, SMS_CODE_LENGTH, MIN_SMS_CODE_VALUE, MAX_SMS_CODE_VALUE
+from accounts.utils.constants import MAX_USERNAME_LENGTH, MIN_SMS_CODE_VALUE, MAX_SMS_CODE_VALUE
 from accounts.models.user import User
 from accounts.utils.enums import TypeSmsCode, UserRoles
 
@@ -47,12 +47,9 @@ class RegisterUserWriteSerializer(PhoneNumberValidationMixin, BaseRegisterUserSe
     username =  serializers.CharField(max_length=MAX_USERNAME_LENGTH)
     phone_number = serializers.CharField()
     password = serializers.CharField()
-    role = serializers.CharField(default=UserRoles.CLIENT)
+    role = serializers.ChoiceField(default=UserRoles.CLIENT, choices=UserRoles.choices)
 
     def validate(self, attrs):
-        if attrs['role'] not in (UserRoles.CLIENT, UserRoles.DIRECTOR):
-            raise serializers.ValidationError({'role': _('Unknown role')})
-
         user = self.get_user(attrs['phone_number'])
 
         if user and user.is_active and attrs['role'] in user.roles.all():
@@ -73,7 +70,7 @@ class RegisterUserWriteSerializer(PhoneNumberValidationMixin, BaseRegisterUserSe
             user.save()
         else:
             # User registers with a new role. Skip SMS confirmation since already verified
-            # TODO check password?
+            # TODO check password
             user.roles.add(validated_data['role'])
             return user
 

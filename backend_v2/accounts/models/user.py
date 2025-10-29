@@ -13,7 +13,7 @@ from accounts.utils.constants import (
     MAX_USERNAME_LENGTH,
     MAX_PHONE_NUMBER_LENGTH,
     PHONE_VALIDATE_REGEX,
-    PHONE_VALIDATE_MESSAGE
+    PHONE_VALIDATE_MESSAGE, MAX_PASSWORD_LENGTH
 )
 from accounts.utils.enums import TypeSmsCode, UserRoles
 
@@ -84,9 +84,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         whatsapp: Оповещать в ватсапп (недоступно)
         chat_id_telegram: ID пользователя в телеграмм
     """
-
-    objects: UserManager = UserManager()
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     phone_validator = RegexValidator(
         regex=PHONE_VALIDATE_REGEX,
@@ -99,14 +96,25 @@ class User(AbstractBaseUser, PermissionsMixin):
         validators=[phone_validator],
         max_length=MAX_PHONE_NUMBER_LENGTH,
     )
-    password = models.CharField(_('Password'), max_length=128)
+    password = models.CharField(_('Password'), max_length=MAX_PASSWORD_LENGTH)
     is_staff = models.BooleanField(_("Staff Status"), default=False)
     is_superuser = models.BooleanField(_("Superuser Status"), default=False)
     is_active = models.BooleanField(_("Active"), default=False)
     created_at = models.DateTimeField(_('Date created'), auto_now_add=True)
+    managed_car_wash = models.ForeignKey(
+        'car_wash.CarWash',
+        verbose_name=_('Manager of car wash'),
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        default=None,
+        related_name='managers'
+    )
 
     USERNAME_FIELD = 'phone_number'
     REQUIRED_FIELDS = ['password']
+
+    objects: UserManager = UserManager()
 
     class Meta:
         verbose_name = _('User')
