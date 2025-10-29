@@ -21,13 +21,13 @@ class ServicesWriteSerializer(serializers.ModelSerializer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        car_wash = self.context.get('car_wash_id')
+        car_wash = self.context.get('car_wash')
         if car_wash:
             self.fields['car_type'].queryset = CarTypes.objects.filter(settings__car_wash=car_wash)
 
     def validate(self, attrs):
         # TODO validate
-        attrs['car_wash_id'] = self.context['car_wash_id']
+        attrs['car_wash'] = self.context['car_wash']
         return attrs
 
     def to_representation(self, instance):

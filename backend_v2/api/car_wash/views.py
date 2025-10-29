@@ -13,6 +13,7 @@ class CarWashViewSet(viewsets.ModelViewSet):
     serializer_class = CarWashWriteSerializer
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['name']
+    lookup_url_kwarg='car_wash_id'
 
     def get_permissions(self):
         if self.request.method in SAFE_METHODS:
