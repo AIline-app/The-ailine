@@ -1,6 +1,7 @@
 from rest_framework.permissions import IsAuthenticated
 
-from car_wash.models.box import Box
+from car_wash.models import Box
+from services.models import Services
 
 
 class IsDirector(IsAuthenticated):
@@ -10,8 +11,13 @@ class IsDirector(IsAuthenticated):
                 and request.user.is_director)
 
     def has_object_permission(self, request, view, obj):
-        if isinstance(obj, Box):
-            obj = obj.car_wash
+        match obj:
+            case Box():
+                obj = obj.car_wash
+            case Services():
+                obj = obj.car_wash
+            case _:
+                pass
         return (super().has_object_permission(request, view, obj)
                 and obj.owner == request.user)
 
