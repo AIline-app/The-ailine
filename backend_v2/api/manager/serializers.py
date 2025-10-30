@@ -1,25 +1,20 @@
+from django.db import transaction
 from rest_framework import serializers
-from django.utils.translation import gettext_lazy as _
 
-from accounts.models import User
-from api.accounts.serializers import RegisterUserWriteSerializer
-
-
-class ManagerReadSerializer(serializers.ModelSerializer):
-    managed_car_wash = serializers.ReadOnlyField(source='car_wash_id')
-
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'phone_number', 'created_at', 'managed_car_wash']
+from api.accounts.serializers import RegisterUserWriteSerializer, UserSerializer
 
 
 class ManagerWriteSerializer(serializers.Serializer):
     manager = RegisterUserWriteSerializer(many=False)
 
+    class Meta:
+        exclude = ('manager__role',)
+
     def validate(self, attrs):
         # TODO validate
         return attrs
 
+    @transaction.atomic
     def create(self, validated_data):
         user = self.fields['manager'].create(validated_data.pop('manager'))
         user.managed_car_wash = validated_data.pop('car_wash')
@@ -27,4 +22,4 @@ class ManagerWriteSerializer(serializers.Serializer):
         return user
 
     def to_representation(self, instance):
-        return ManagerReadSerializer(instance).data
+        return UserSerializer(instance).data

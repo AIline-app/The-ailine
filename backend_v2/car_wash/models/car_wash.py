@@ -24,7 +24,7 @@ class CarWash(models.Model):
         User,
         verbose_name=_('Owner'),
         on_delete=models.CASCADE,
-        related_name='car_wash',
+        related_name='owned_car_washes',
     )
     name = models.CharField(verbose_name=_('Name'), max_length=40, blank=False)
     address = models.CharField(verbose_name=_('Address'), max_length=300)
