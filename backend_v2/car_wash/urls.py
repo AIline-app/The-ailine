@@ -1,7 +1,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from api.car_wash.views import CarWashViewSet, CarViewSet, BoxViewSet, ManagerViewSet
+from api.car_wash.views import CarWashViewSet, CarViewSet, BoxViewSet
+from api.manager.views import ManagerViewSet
 from iLine.constants import UUID_REGEX
 
 router = DefaultRouter()

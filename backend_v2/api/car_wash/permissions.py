@@ -2,6 +2,7 @@ from rest_framework.permissions import IsAuthenticated, SAFE_METHODS, BasePermis
 
 
 class ReadOnly(BasePermission):
+    """Allow safe methods (e.g., GET, HEAD, OPTIONS)"""
     def has_permission(self, request, view):
         return request.method in SAFE_METHODS
 
@@ -10,6 +11,7 @@ class ReadOnly(BasePermission):
 
 
 class IsDirector(IsAuthenticated):
+    """Check if the user is an authenticated director"""
     def has_permission(self, request, view):
         return (super().has_permission(request, view)
                 and request.user.is_director)
@@ -17,7 +19,9 @@ class IsDirector(IsAuthenticated):
     def has_object_permission(self, request, view, obj):
         return obj.owner == request.user
 
+
 class IsCarWashOwner(IsDirector):
+    """Check if the user is an authenticated director and owns the requested car wash"""
     def has_permission(self, request, view):
         return (super().has_permission(request, view)
                 and hasattr(view, 'car_wash')
@@ -32,10 +36,3 @@ class IsManager(IsAuthenticated):
     def has_permission(self, request, view):
         return (super().has_permission(request, view)
                 and request.user.is_manager)
-
-
-class IsClient(IsAuthenticated):
-    """Is user an authorized client"""
-    def has_permission(self, request, view):
-        return (super().has_permission(request, view)
-                and request.user.is_client)
