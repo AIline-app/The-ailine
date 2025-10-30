@@ -34,10 +34,3 @@ class IsCarWashOwner(IsDirector):
 class IsManagerSuperior(IsCarWashOwner):
     def has_object_permission(self, request, view, obj):
         return super(IsCarWashOwner, self).has_object_permission(request, view, obj.managed_car_wash)
-
-
-class IsManager(IsAuthenticated):
-    """Is user an authorized manager"""
-    def has_permission(self, request, view):
-        return (super().has_permission(request, view)
-                and request.user.is_manager)

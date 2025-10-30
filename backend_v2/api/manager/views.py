@@ -13,6 +13,9 @@ class ManagerViewSet(CarWashInRouteMixin, viewsets.ModelViewSet):
     permission_classes = (IsManagerSuperior,)
     lookup_url_kwarg = 'user_id'
 
+    def get_queryset(self):
+        return User.objects.filter(managed_car_wash=self.car_wash)
+
     def get_serializer_class(self):
         return {
             "create": ManagerWriteSerializer,
@@ -25,6 +28,3 @@ class ManagerViewSet(CarWashInRouteMixin, viewsets.ModelViewSet):
         instance.managed_car_wash = None
         instance.roles.remove(UserRoles.MANAGER)
         instance.save(update_fields=('managed_car_wash',))
-
-    def get_queryset(self):
-        return User.objects.filter(managed_car_wash=self.car_wash)
