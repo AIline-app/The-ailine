@@ -13,7 +13,8 @@ from accounts.utils.constants import (
     MAX_USERNAME_LENGTH,
     MAX_PHONE_NUMBER_LENGTH,
     PHONE_VALIDATE_REGEX,
-    PHONE_VALIDATE_MESSAGE, MAX_PASSWORD_LENGTH
+    PHONE_VALIDATE_MESSAGE,
+    MAX_PASSWORD_LENGTH,
 )
 from accounts.utils.enums import TypeSmsCode, UserRoles
 
@@ -108,7 +109,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         null=True,
         blank=True,
         default=None,
-        related_name='managers'
+        related_name='managers',
     )
 
     USERNAME_FIELD = 'phone_number'
