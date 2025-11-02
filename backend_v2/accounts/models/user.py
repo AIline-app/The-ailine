@@ -16,20 +16,7 @@ from accounts.utils.constants import (
     PHONE_VALIDATE_MESSAGE,
     MAX_PASSWORD_LENGTH,
 )
-from accounts.utils.enums import TypeSmsCode, UserRoles
-
-
-class Roles(models.Model):
-    name = models.CharField(_('Role name'), choices=UserRoles.choices, primary_key=True)
-    user = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='roles', related_query_name='users')
-
-    def __eq__(self, other):
-        if type(other) in (str, UserRoles):
-            return self.name == other
-        return super(Roles, self).__eq__(other)
-
-    def __str__(self):
-        return f'<Role ({self.name}, {self.user})>'
+from accounts.utils.enums import TypeSmsCode
 
 
 class UserManager(BaseUserManager):
@@ -45,26 +32,22 @@ class UserManager(BaseUserManager):
         """
         Create and save a user with the given phone_number and password.
         """
-        role = extra_fields.pop('role')
         phone_number = self.normalize_phone_number(phone_number)
 
         user = self.model(username=username, phone_number=phone_number, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
-        user.roles.add(role)
         return user
 
     def create_user(self, username, phone_number, password=None, **extra_fields):
         extra_fields["is_staff"] = False
         extra_fields["is_superuser"] = False
-        extra_fields.setdefault("role", (UserRoles.CLIENT,))
         return self._create_user(username, phone_number, password, **extra_fields)
 
     def create_superuser(self, username, phone_number, password=None, **extra_fields):
         extra_fields["is_staff"] = True
         extra_fields["is_superuser"] = True
         extra_fields["is_active"] = True
-        extra_fields.setdefault("role", (UserRoles.CLIENT,))
         return self._create_user(username, phone_number, password, **extra_fields)
 
 
@@ -77,7 +60,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         password: Пароль
         type_auto: Тип авто
         number_auto: Номер авто
-        role: Роль юзера (пользователь/администратор автомойки)
         notification: За какое время присылать оповещение о мойке
         user_code: Одноразовый код для вода в аккаунт
         is_phone_verified: True - телефон подтверждён, False - не подтверждён
@@ -136,15 +118,3 @@ class User(AbstractBaseUser, PermissionsMixin):
         # TODO Place in queue to send invitation for a manager
         #  "You were added as a manager to the car wash. Register at {link_to_app}"
         pass
-
-    @property
-    def is_director(self):
-        return self.roles.filter(name=UserRoles.DIRECTOR).exists()
-
-    @property
-    def is_manager(self):
-        return self.roles.filter(name=UserRoles.MANAGER).exists()
-
-    @property
-    def is_client(self):
-        return self.roles.filter(name=UserRoles.CLIENT).exists()

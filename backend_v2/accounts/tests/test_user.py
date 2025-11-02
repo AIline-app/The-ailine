@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from accounts.models.user import User
-from accounts.utils.enums import UserRoles, TypeSmsCode
+from accounts.utils.enums import TypeSmsCode
 from accounts.tests.factories import (
     create_active_user,
     create_inactive_user,
@@ -31,7 +31,6 @@ class UserAuthEndpointsTests(APITestCase):
             'username': self.sample_username,
             'phone_number': self.sample_phone,
             'password': self.sample_password,
-            'role': UserRoles.CLIENT,
         }
         resp = self.client.post(self.register_url, data=payload, format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
@@ -45,20 +44,18 @@ class UserAuthEndpointsTests(APITestCase):
         # SMS code for registration should be created
         self.assertTrue(user.sms_codes.filter(type=TypeSmsCode.REGISTER).exists())
 
-    def test_register_existing_active_same_role_fails(self):
+    def test_register_existing_active_fails(self):
         # Prepare existing active user with CLIENT role
         create_active_user(
             username=self.sample_username,
             phone_number=self.sample_phone,
             password=self.sample_password,
-            role=UserRoles.CLIENT,
         )
 
         payload = {
             'username': 'Another Name',
             'phone_number': self.sample_phone,
             'password': 'AnotherPass123',
-            'role': UserRoles.CLIENT,
         }
         resp = self.client.post(self.register_url, data=payload, format='json')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
@@ -71,7 +68,6 @@ class UserAuthEndpointsTests(APITestCase):
             username=self.sample_username,
             phone_number=self.sample_phone,
             password=self.sample_password,
-            role=UserRoles.CLIENT,
         )
         self.assertEqual(reg_resp.status_code, status.HTTP_201_CREATED)
         self.assertIsNotNone(code)
@@ -96,7 +92,6 @@ class UserAuthEndpointsTests(APITestCase):
             username=self.sample_username,
             phone_number=self.sample_phone,
             password=self.sample_password,
-            role=UserRoles.CLIENT,
         )
         self.assertEqual(reg_resp.status_code, status.HTTP_201_CREATED)
         self.assertIsNotNone(code)
@@ -113,7 +108,6 @@ class UserAuthEndpointsTests(APITestCase):
             username=self.sample_username,
             phone_number=self.sample_phone,
             password=self.sample_password,
-            role=UserRoles.CLIENT,
         )
 
         resp = login_user(self.client, phone_number=self.sample_phone, password=self.sample_password)
@@ -129,7 +123,6 @@ class UserAuthEndpointsTests(APITestCase):
             username=self.sample_username,
             phone_number=self.sample_phone,
             password=self.sample_password,
-            role=UserRoles.CLIENT,
         )
         resp = login_user(self.client, phone_number=self.sample_phone, password=self.sample_password)
         self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
@@ -140,7 +133,6 @@ class UserAuthEndpointsTests(APITestCase):
             username=self.sample_username,
             phone_number=self.sample_phone,
             password=self.sample_password,
-            role=UserRoles.CLIENT,
         )
 
         resp = login_user(self.client, phone_number=self.sample_phone, password='WrongPass123')
@@ -153,7 +145,6 @@ class UserAuthEndpointsTests(APITestCase):
             username=self.sample_username,
             phone_number=self.sample_phone,
             password=self.sample_password,
-            role=UserRoles.CLIENT,
         )
         login_resp = login_user(self.client, phone_number=self.sample_phone, password=self.sample_password)
         self.assertEqual(login_resp.status_code, status.HTTP_200_OK)

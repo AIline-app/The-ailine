@@ -3,7 +3,6 @@ from rest_framework import serializers
 
 from accounts.models import User
 from accounts.utils.constants import MAX_USERNAME_LENGTH
-from accounts.utils.enums import UserRoles
 from api.accounts.serializers import PhoneNumberValidationMixin, BaseRegisterUserSerializer
 
 
@@ -14,7 +13,6 @@ class BaseInviteRegisterUserSerializer(PhoneNumberValidationMixin, BaseRegisterU
 
 class ManagerWriteSerializer(BaseInviteRegisterUserSerializer):
     def validate(self, attrs):
-        attrs['role'] = UserRoles.MANAGER
         attrs['user'] = self.get_user(attrs['phone_number'])
         return attrs
 
@@ -25,7 +23,6 @@ class ManagerWriteSerializer(BaseInviteRegisterUserSerializer):
         if not user:
             user = User.objects.create_user(**validated_data)
             user.send_manager_invitation()
-        user.roles.add(UserRoles.MANAGER)
         car_wash.managers.add(user)
         return user
 
@@ -33,7 +30,6 @@ class ManagerWriteSerializer(BaseInviteRegisterUserSerializer):
 class WasherWriteSerializer(BaseInviteRegisterUserSerializer):
     def validate(self, attrs):
         # TODO validate
-        attrs['role'] = UserRoles.WASHER
         attrs['user'] = self.get_user(attrs['phone_number'])
         return attrs
 
@@ -43,6 +39,5 @@ class WasherWriteSerializer(BaseInviteRegisterUserSerializer):
         car_wash = validated_data.pop('car_wash')
         if not user:
             user = User.objects.create_user(**validated_data)
-        user.roles.add(UserRoles.WASHER)
         car_wash.washers.add(user)
         return user

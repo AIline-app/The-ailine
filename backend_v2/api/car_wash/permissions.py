@@ -12,10 +12,6 @@ class ReadOnly(BasePermission):
 
 class IsDirector(IsAuthenticated):
     """Check if the user is an authenticated director"""
-    def has_permission(self, request, view):
-        return (super().has_permission(request, view)
-                and request.user.is_director)
-
     def has_object_permission(self, request, view, obj):
         return obj.owner == request.user
 

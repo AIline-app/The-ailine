@@ -4,20 +4,18 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 
 from accounts.models.user import User
-from accounts.utils.enums import UserRoles, TypeSmsCode
+from accounts.utils.enums import TypeSmsCode
 
 
 DEFAULT_PASSWORD = "S3cureP@ssw0rd"
 
 
-def create_inactive_user(*, username: str, phone_number: str, password: str = DEFAULT_PASSWORD,
-                         role: str = UserRoles.CLIENT) -> User:
+def create_inactive_user(*, username: str, phone_number: str, password: str = DEFAULT_PASSWORD) -> User:
     """Create a user with is_active=False (default in model)."""
     user = User.objects.create_user(
         username=username,
         phone_number=phone_number,
         password=password,
-        role=role,
     )
     # Ensure inactive (model default is False, but be explicit)
     if user.is_active:
@@ -26,10 +24,9 @@ def create_inactive_user(*, username: str, phone_number: str, password: str = DE
     return user
 
 
-def create_active_user(*, username: str, phone_number: str, password: str = DEFAULT_PASSWORD,
-                       role: str = UserRoles.CLIENT) -> User:
+def create_active_user(*, username: str, phone_number: str, password: str = DEFAULT_PASSWORD) -> User:
     """Create a user and activate it."""
-    user = create_inactive_user(username=username, phone_number=phone_number, password=password, role=role)
+    user = create_inactive_user(username=username, phone_number=phone_number, password=password)
     if not user.is_active:
         user.is_active = True
         user.save(update_fields=["is_active"])
@@ -42,7 +39,6 @@ def register_user_and_get_sms(
     username: str,
     phone_number: str,
     password: str = DEFAULT_PASSWORD,
-    role: str = UserRoles.CLIENT,
 ):
     """Register via API and return (response, user, sms_code) for confirmation tests."""
     register_url = reverse("user_register")
@@ -50,7 +46,6 @@ def register_user_and_get_sms(
         "username": username,
         "phone_number": phone_number,
         "password": password,
-        "role": role,
     }, format="json")
     # Caller can assert status codes; we still fetch objects for convenience
     normalized = User.objects.normalize_phone_number(phone_number)

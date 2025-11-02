@@ -1,6 +1,5 @@
 from rest_framework import viewsets
 
-from accounts.utils.enums import UserRoles
 from api.accounts.serializers import UserSerializer
 from api.car_wash.views import CarWashInRouteMixin
 from api.car_wash.permissions import IsManagerSuperior
@@ -26,9 +25,6 @@ class ManagerViewSet(CarWashInRouteMixin, viewsets.ModelViewSet):
 
     def perform_destroy(self, instance):
         self.car_wash.managers.remove(instance)
-        # TODO do not remove role?
-        if not instance.manager_car_washes:
-            instance.roles.remove(UserRoles.MANAGER)
 
 
 class WasherViewSet(CarWashInRouteMixin, viewsets.ModelViewSet):
@@ -49,6 +45,3 @@ class WasherViewSet(CarWashInRouteMixin, viewsets.ModelViewSet):
 
     def perform_destroy(self, instance):
         self.car_wash.washers.remove(instance)
-        # TODO do not remove role?
-        if not instance.washer_car_washes:
-            instance.roles.remove(UserRoles.WASHER)

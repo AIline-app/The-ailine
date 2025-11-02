@@ -6,8 +6,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 
 from accounts.utils.constants import MAX_USERNAME_LENGTH, MIN_SMS_CODE_VALUE, MAX_SMS_CODE_VALUE
-from accounts.models.user import User
-from accounts.utils.enums import TypeSmsCode, UserRoles
+from accounts.models import User
+from accounts.utils.enums import TypeSmsCode
 
 
 class PhoneNumberValidationMixin:
@@ -51,16 +51,12 @@ class RegisterUserWriteSerializer(PhoneNumberValidationMixin, BaseRegisterUserSe
     """Сериализатор регистрации пользователя (по смс)"""
     username =  serializers.CharField(max_length=MAX_USERNAME_LENGTH)
     password = serializers.CharField()
-    role = serializers.ChoiceField(default=UserRoles.CLIENT, choices=(UserRoles.CLIENT, UserRoles.DIRECTOR))
 
     def validate(self, attrs):
         user = self.get_user(attrs['phone_number'])
 
         if user and user.is_active:
-            if attrs['role'] in user.roles.all():
-                raise serializers.ValidationError({'phone_number': _('This number is already registered')})
-            if not user.check_password(attrs['password']):
-                raise serializers.ValidationError({'password': _('Incorrect password')})
+            raise serializers.ValidationError({'phone_number': _('This number is already registered')})
 
         attrs['user'] = user
         return attrs
@@ -69,16 +65,12 @@ class RegisterUserWriteSerializer(PhoneNumberValidationMixin, BaseRegisterUserSe
         user = validated_data.pop('user')
         if not user:
             user = User.objects.create_user(**validated_data)
-        elif not user.is_active:
+        else:
             # Set new values (user might change them between registration attempts) and delete old SMS
             user.set_password(validated_data['password'])
             user.username = validated_data['username']
             user.sms_codes.filter(type=TypeSmsCode.REGISTER).delete()  # TODO don't delete, set as invalid
             user.save()
-        else:
-            # User registers with a new role. Skip SMS confirmation since already verified
-            user.roles.add(validated_data['role'])
-            return user
 
         user.send_registration_code()
         return user

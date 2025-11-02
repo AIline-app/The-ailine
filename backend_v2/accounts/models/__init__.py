@@ -1,2 +1,2 @@
-from .user import User, Roles
+from .user import User
 from .sms import SMSCode
