@@ -102,15 +102,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(_("Superuser Status"), default=False)
     is_active = models.BooleanField(_("Active"), default=False)
     created_at = models.DateTimeField(_('Date created'), auto_now_add=True)
-    managed_car_wash = models.ForeignKey(
-        'car_wash.CarWash',
-        verbose_name=_('Manager of car wash'),
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        default=None,
-        related_name='managers',
-    )
 
     USERNAME_FIELD = 'phone_number'
     REQUIRED_FIELDS = ['password']
@@ -140,6 +131,11 @@ class User(AbstractBaseUser, PermissionsMixin):
                 logging.error(f'Failed to send an SMS to {phone_number}: {error}')
         else:
             return False
+
+    def send_manager_invitation(self):
+        # TODO Place in queue to send invitation for a manager
+        #  "You were added as a manager to the car wash. Register at {link_to_app}"
+        pass
 
     @property
     def is_director(self):

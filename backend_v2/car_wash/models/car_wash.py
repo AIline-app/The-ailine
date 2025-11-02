@@ -1,10 +1,9 @@
 import uuid
 
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
 from django.utils.translation import gettext_lazy as _
 
-from accounts.models.user import User
+from iLine.settings import AUTH_USER_MODEL
 from car_wash.models.box import Box
 
 
@@ -21,10 +20,22 @@ class CarWash(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     owner = models.ForeignKey(
-        User,
+        AUTH_USER_MODEL,
         verbose_name=_('Owner'),
         on_delete=models.CASCADE,
-        related_name='owned_car_washes',
+        related_name='owner_car_washes',
+    )
+    managers = models.ManyToManyField(
+        AUTH_USER_MODEL,
+        verbose_name=_('Managers'),
+        related_name='manager_car_washes',
+        related_query_name='managers',
+    )
+    washers = models.ManyToManyField(
+        AUTH_USER_MODEL,
+        verbose_name=_('Washers'),
+        related_name='washer_car_washes',
+        related_query_name='washers',
     )
     name = models.CharField(verbose_name=_('Name'), max_length=40, blank=False)
     address = models.CharField(verbose_name=_('Address'), max_length=300)

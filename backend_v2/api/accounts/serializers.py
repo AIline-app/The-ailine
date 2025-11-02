@@ -27,6 +27,8 @@ class ExceptionSerializer(serializers.Serializer):
 
 
 class BaseRegisterUserSerializer(serializers.Serializer):
+    phone_number = serializers.CharField()
+
     @staticmethod
     def get_user(phone_number):
         return User.objects.prefetch_related(
@@ -34,6 +36,9 @@ class BaseRegisterUserSerializer(serializers.Serializer):
         ).filter(
             phone_number=phone_number,
         ).first()
+
+    def to_representation(self, instance):
+        return UserSerializer(instance).data
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -45,15 +50,17 @@ class UserSerializer(serializers.ModelSerializer):
 class RegisterUserWriteSerializer(PhoneNumberValidationMixin, BaseRegisterUserSerializer):
     """Сериализатор регистрации пользователя (по смс)"""
     username =  serializers.CharField(max_length=MAX_USERNAME_LENGTH)
-    phone_number = serializers.CharField()
     password = serializers.CharField()
-    role = serializers.ChoiceField(default=UserRoles.CLIENT, choices=UserRoles.choices)
+    role = serializers.ChoiceField(default=UserRoles.CLIENT, choices=(UserRoles.CLIENT, UserRoles.DIRECTOR))
 
     def validate(self, attrs):
         user = self.get_user(attrs['phone_number'])
 
-        if user and user.is_active and attrs['role'] in user.roles.all():
-            raise serializers.ValidationError({'phone_number': _('This number is already registered')})
+        if user and user.is_active:
+            if attrs['role'] in user.roles.all():
+                raise serializers.ValidationError({'phone_number': _('This number is already registered')})
+            if not user.check_password(attrs['password']):
+                raise serializers.ValidationError({'password': _('Incorrect password')})
 
         attrs['user'] = user
         return attrs
@@ -66,24 +73,19 @@ class RegisterUserWriteSerializer(PhoneNumberValidationMixin, BaseRegisterUserSe
             # Set new values (user might change them between registration attempts) and delete old SMS
             user.set_password(validated_data['password'])
             user.username = validated_data['username']
-            user.sms_codes.filter(type=TypeSmsCode.REGISTER).delete()
+            user.sms_codes.filter(type=TypeSmsCode.REGISTER).delete()  # TODO don't delete, set as invalid
             user.save()
         else:
             # User registers with a new role. Skip SMS confirmation since already verified
-            # TODO check password
             user.roles.add(validated_data['role'])
             return user
 
         user.send_registration_code()
         return user
 
-    def to_representation(self, instance):
-        return UserSerializer(instance).data
-
 
 class RegisterUserConfirmWriteSerializer(PhoneNumberValidationMixin, BaseRegisterUserSerializer):
     """Сериализатор регистрации пользователя (по смс)"""
-    phone_number = serializers.CharField()
     code = serializers.IntegerField(min_value=MIN_SMS_CODE_VALUE, max_value=MAX_SMS_CODE_VALUE)
 
     def validate(self, attrs):
@@ -116,9 +118,6 @@ class RegisterUserConfirmWriteSerializer(PhoneNumberValidationMixin, BaseRegiste
 
         sms.delete()
         return user
-
-    def to_representation(self, instance):
-        return UserSerializer(instance).data
 
 
 class LoginUserSerializer(PhoneNumberValidationMixin, serializers.ModelSerializer):

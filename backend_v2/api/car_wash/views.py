@@ -12,7 +12,7 @@ from api.car_wash.permissions import IsDirector, ReadOnly, IsCarWashOwner
 
 class CarWashInRouteMixin:
     @property
-    def car_wash(self):
+    def car_wash(self) -> CarWash:
         return get_object_or_404(CarWash, pk=self.kwargs['car_wash_id'])
 
     def get_serializer_context(self):

@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('address', models.CharField(max_length=300, verbose_name='Address')),
                 ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Creation Data')),
                 ('is_active', models.BooleanField(default=False, verbose_name='Is active')),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='owned_car_washes', to=settings.AUTH_USER_MODEL, verbose_name='Owner')),
+                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='car_washes', to=settings.AUTH_USER_MODEL, verbose_name='Owner')),
             ],
             options={
                 'verbose_name': 'Car Wash',
