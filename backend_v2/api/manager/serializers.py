@@ -1,17 +1,10 @@
 from django.db import transaction
-from rest_framework import serializers
 
 from accounts.models import User
-from accounts.utils.constants import MAX_USERNAME_LENGTH
-from api.accounts.serializers import PhoneNumberValidationMixin, BaseRegisterUserSerializer
+from api.accounts.serializers import BaseRegisterUserSerializer
 
 
-class BaseInviteRegisterUserSerializer(PhoneNumberValidationMixin, BaseRegisterUserSerializer):
-    username =  serializers.CharField(max_length=MAX_USERNAME_LENGTH)
-    password = serializers.CharField()
-
-
-class ManagerWriteSerializer(BaseInviteRegisterUserSerializer):
+class ManagerWriteSerializer(BaseRegisterUserSerializer):
     def validate(self, attrs):
         attrs['user'] = self.get_user(attrs['phone_number'])
         return attrs
@@ -27,7 +20,7 @@ class ManagerWriteSerializer(BaseInviteRegisterUserSerializer):
         return user
 
 
-class WasherWriteSerializer(BaseInviteRegisterUserSerializer):
+class WasherWriteSerializer(BaseRegisterUserSerializer):
     def validate(self, attrs):
         # TODO validate
         attrs['user'] = self.get_user(attrs['phone_number'])

@@ -22,13 +22,7 @@ class PhoneNumberValidationMixin:
         return User.objects.normalize_phone_number(phone_number)
 
 
-class ExceptionSerializer(serializers.Serializer):
-    detail = serializers.CharField()
-
-
-class BaseRegisterUserSerializer(serializers.Serializer):
-    phone_number = serializers.CharField()
-
+class RegisterUserSerializerMixin:
     @staticmethod
     def get_user(phone_number):
         return User.objects.prefetch_related(
@@ -41,17 +35,24 @@ class BaseRegisterUserSerializer(serializers.Serializer):
         return UserSerializer(instance).data
 
 
+class ExceptionSerializer(serializers.Serializer):
+    detail = serializers.CharField()
+
+
+class BaseRegisterUserSerializer(PhoneNumberValidationMixin, RegisterUserSerializerMixin, serializers.Serializer):
+    phone_number = serializers.CharField()
+    username =  serializers.CharField(max_length=MAX_USERNAME_LENGTH)
+    password = serializers.CharField()
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'phone_number', 'created_at']
 
 
-class RegisterUserWriteSerializer(PhoneNumberValidationMixin, BaseRegisterUserSerializer):
+class RegisterUserWriteSerializer(BaseRegisterUserSerializer):
     """Сериализатор регистрации пользователя (по смс)"""
-    username =  serializers.CharField(max_length=MAX_USERNAME_LENGTH)
-    password = serializers.CharField()
-
     def validate(self, attrs):
         user = self.get_user(attrs['phone_number'])
 
@@ -76,8 +77,9 @@ class RegisterUserWriteSerializer(PhoneNumberValidationMixin, BaseRegisterUserSe
         return user
 
 
-class RegisterUserConfirmWriteSerializer(PhoneNumberValidationMixin, BaseRegisterUserSerializer):
+class RegisterUserConfirmWriteSerializer(PhoneNumberValidationMixin, RegisterUserSerializerMixin, serializers.Serializer):
     """Сериализатор регистрации пользователя (по смс)"""
+    phone_number = serializers.CharField()
     code = serializers.IntegerField(min_value=MIN_SMS_CODE_VALUE, max_value=MAX_SMS_CODE_VALUE)
 
     def validate(self, attrs):
