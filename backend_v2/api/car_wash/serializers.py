@@ -119,22 +119,32 @@ class CarWashWriteSerializer(serializers.ModelSerializer):
 
 
 class CarWashQueueSerializer(serializers.Serializer):
-    # car_wash = serializers.PrimaryKeyRelatedField(queryset=CarWash.objects.all())
     wait_time = serializers.DurationField(read_only=True)
     car_amount = serializers.IntegerField(read_only=True)
 
     def create(self, validated_data):
-        car_wash = CarWash.objects.prefetch_related('boxes').filter(id=validated_data.pop('car_wash_id')).first()
+        car_wash = self.get_car_wash(validated_data.pop('car_wash_id'))
         boxes_amount = car_wash.boxes.count()
 
-        orders = Orders.objects.prefetch_related(
+        orders = self.get_orders_query(car_wash)
+
+        combined_duration = self.get_total_duration(orders)
+        return {'wait_time': combined_duration/boxes_amount, 'car_amount': len(orders)}
+
+    def get_car_wash(self, car_wash_id):
+        return CarWash.objects.prefetch_related('boxes').filter(id=car_wash_id).first()
+
+    def get_orders_query(self, car_wash, *args, **kwargs):
+        query = Orders.objects.prefetch_related(
             'services',
         ).filter(
             car_wash=car_wash,
             status__in=(OrderStatus.EN_ROUTE, OrderStatus.ON_SITE),
-        ).all()
+        )
+        return query
 
-        combined_duration = sum(
+    def get_total_duration(self, orders):
+        return sum(
             (
                 sum(
                     (service.duration for service in order.services.all()),
@@ -143,10 +153,6 @@ class CarWashQueueSerializer(serializers.Serializer):
             ),
             timedelta(0)
         )
-        return {'wait_time': combined_duration/boxes_amount, 'car_amount': len(orders)}
-
-
-
 
 class CarSerializer(serializers.ModelSerializer):
     class Meta:

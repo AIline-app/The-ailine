@@ -6,15 +6,12 @@ from rest_framework import serializers
 
 from accounts.models import User
 from accounts.utils.constants import MAX_USERNAME_LENGTH
-from api.accounts.serializers import UserSerializer, PhoneNumberValidationMixin, RegisterUserSerializerMixin
-from api.car_wash.serializers import CarSerializer, BoxSerializer
-from api.services.serializers import ServicesReadSerializer, ServicesWriteSerializer
-from car_wash.models import Car
+from api.accounts.serializers import UserSerializer, PhoneNumberValidationMixin
+from api.car_wash.serializers import CarSerializer, BoxSerializer, CarWashQueueSerializer
+from api.services.serializers import ServicesReadSerializer
 from car_wash.utils.constants import MAX_CAR_NUMBER_LENGTH
-from iLine.settings import AUTH_USER_MODEL
 from orders.models import Orders
 from orders.utils.enums import OrderStatus
-from services.models import Services
 
 
 class BaseOrderSerializer(serializers.ModelSerializer):
@@ -52,7 +49,6 @@ class OrdersCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Orders
         fields = ('user', 'car', 'status', 'services')
-        # exclude = ('id', 'box', 'washer', 'car_wash', 'created_at', 'started_at', 'finished_at', 'total_price')
 
     def validate(self, attrs):
         attrs['car_wash'] = self.context['car_wash']
@@ -200,3 +196,17 @@ class OrdersUpdateServicesSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         return OrdersReadSerializer(instance, context=self.context).data
+
+
+class CarWashOrderQueueSerializer(CarWashQueueSerializer):
+    def update(self, instance, validated_data):
+        car_wash = validated_data.pop('car_wash')
+        boxes_amount = car_wash.boxes.count()
+
+        orders = self.get_orders_query(car_wash, order=instance)
+
+        combined_duration = self.get_total_duration(orders)
+        return {'wait_time': combined_duration/boxes_amount, 'car_amount': len(orders)}
+
+    def get_orders_query(self, car_wash, *args, **kwargs):
+        return super().get_orders_query(car_wash).filter(created_at__lt=kwargs['order'].created_at)

@@ -15,7 +15,7 @@ from api.orders.serializers import (
     OrdersReadSerializer,
     OrdersManualCreateSerializer,
     OrdersStartSerializer,
-    OrdersFinishSerializer, OrdersUpdateServicesSerializer,
+    OrdersFinishSerializer, OrdersUpdateServicesSerializer, CarWashOrderQueueSerializer,
 )
 from orders.utils.enums import OrderStatus
 
@@ -48,6 +48,7 @@ class OrdersViewSet(CarWashInRouteMixin,
             "start": OrdersStartSerializer,
             "finish": OrdersFinishSerializer,
             "update_services": OrdersUpdateServicesSerializer,
+            "queue": CarWashOrderQueueSerializer,
         }.get(self.action, self.serializer_class)
 
     def perform_destroy(self, instance):
@@ -63,9 +64,13 @@ class OrdersViewSet(CarWashInRouteMixin,
         return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
 
     @action(detail=False, methods=[HTTPMethod.POST], permission_classes=(IsCarWashManager,))
-    def manual(self, request, car_wash_id):
-        request.data['car_wash_id'] = car_wash_id
-        return super().create(request)
+    def manual(self, request, car_wash_id, *args, **kwargs):
+        request.data['car_wash_id'] = car_wash_id  # TODO remove?
+        return self.create(request, *args, **kwargs)
+
+    @action(detail=True, methods=[HTTPMethod.GET])
+    def queue(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
 
     @action(detail=True, methods=[HTTPMethod.PUT], permission_classes=(IsCarWashManager,))
     def start(self, request, *args, **kwargs):
