@@ -1,7 +1,9 @@
 import logging
 import uuid
+import json
 
 import phonenumbers
+from kafka import KafkaProducer
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
@@ -103,16 +105,24 @@ class User(AbstractBaseUser, PermissionsMixin):
         phone_number = self.phone_number.lstrip('+')
 
         sms = self.sms_codes.create(type=TypeSmsCode.REGISTER)
-        for _ in range(3):
-            try:
-                # TODO Place in queue to be sent by another service
-                # requests.get(f'http://kazinfoteh.org:9507/api?action=sendmessage&username={settings.SMS_LOGIN}&password={settings.SMS_PASSWORD}&recipient={phone}&messagetype=SMS:TEXT&originator=TEXT_MSG&messagedata=Registration code - {str(sms.code)}')
-                print(f'http://kazinfoteh.org:9507/api?action=sendmessage&username={settings.SMS_LOGIN}&password={settings.SMS_PASSWORD}&recipient={phone_number}&messagetype=SMS:TEXT&originator=TEXT_MSG&messagedata=Registration code - {str(sms.code)}')
-                return True
-            except Exception as error:
-                logging.error(f'Failed to send an SMS to {phone_number}: {error}')
-        else:
-            return False
+
+        try:
+            # KafkaProducer = importlib.import_module('kafka').KafkaProducer  # lazy import to avoid hard dependency at import time
+            producer = KafkaProducer(
+                bootstrap_servers=getattr(settings, 'KAFKA_BROKER', 'localhost:9092'),
+                value_serializer=lambda v: json.dumps(v).encode('utf-8'),
+            )
+            payload = {"phone": phone_number, "code": int(sms.code)}
+            topic = getattr(settings, 'KAFKA_REGISTER_TOPIC', 'register-sms')
+            # Send with retries
+            future = producer.send(topic, payload)
+            future.get(timeout=10)
+            producer.flush()
+            producer.close()
+            return True
+        except Exception as error:
+            # TODO notify admin?
+            logging.error(f"Kafka not available for sending SMS to {phone_number}: {error}")
 
     def send_manager_invitation(self):
         # TODO Place in queue to send invitation for a manager

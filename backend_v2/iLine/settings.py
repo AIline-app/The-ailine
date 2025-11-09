@@ -148,3 +148,7 @@ AUTH_USER_MODEL = 'accounts.User'
 
 SMS_LOGIN = env.str('SMS_LOGIN')
 SMS_PASSWORD = env.str('SMS_PASSWORD')
+
+# Kafka configuration
+KAFKA_BROKER = os.environ.get('KAFKA_BROKER', 'localhost:9092')
+KAFKA_REGISTER_TOPIC = os.environ.get('KAFKA_REGISTER_TOPIC', 'register-sms')

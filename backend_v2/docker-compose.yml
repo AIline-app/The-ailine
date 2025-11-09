@@ -9,6 +9,37 @@ services:
       - "5678:5432"
     restart: always
 
+  kafka:
+    image: apache/kafka:4.1.1-rc2
+    ports:
+      - "9092:9092"
+    environment:
+      # Required for single-node KRaft mode (Apache image uses KAFKA_* vars)
+      - KAFKA_NODE_ID=0
+      - KAFKA_PROCESS_ROLES=controller,broker
+      - KAFKA_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+      # Recommended single-node defaults so internal topics can be created
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+      - KAFKA_MIN_INSYNC_REPLICAS=1
+      - KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0
+      # Persist cluster id to allow safe restarts without data loss
+      - KAFKA_CLUSTER_ID=kcN0b2tlbi1jbHVzdGVyLWlkLWJhc2U2NA
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD", "/opt/kafka/bin/kafka-topics.sh", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    restart: always
+
   web:
     build: .
     command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
@@ -16,13 +47,36 @@ services:
       - .:/app
     env_file:
       - .env
+    environment:
+      - KAFKA_BROKER=kafka:9092
+      - KAFKA_REGISTER_TOPIC=register-sms
     ports:
       - "8000:8000"
     links:
       - db
+      - kafka
     depends_on:
       - db
+      - kafka
+    restart: always
+
+  sms-worker:
+    container_name: sms-worker
+    build:
+      context: standalone/sms_worker
+    command: python worker.py
+    volumes:
+      - ./standalone/sms_worker:/app
+    env_file:
+      - .env
+    environment:
+      - KAFKA_BROKER=kafka:9092
+      - KAFKA_REGISTER_TOPIC=register-sms
+    depends_on:
+      kafka:
+        condition: service_healthy
     restart: always
 
 volumes:
   postgres_data:
+  kafka_data:
