@@ -66,8 +66,10 @@ class ServicesEndpointsTests(APITestCase):
         self.client.login(phone_number=self.other.phone_number, password=DEFAULT_PASSWORD)
         car_type = self.cw.settings.car_types.first()
         payload = self._service_payload(car_type_id=car_type.id)
+        count_before = Services.objects.count()
         resp = self.client.post(self.list_url, data=payload, format='json')
         self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(Services.objects.count(), count_before)
 
     def test_cannot_use_car_type_from_another_car_wash(self):
         # Set up another car wash with a different car type
@@ -85,6 +87,8 @@ class ServicesEndpointsTests(APITestCase):
 
         login_user(self.client, phone_number=self.owner.phone_number, password=DEFAULT_PASSWORD)
         payload = self._service_payload(car_type_id=foreign_car_type.id)
+        count_before = Services.objects.count()
         resp = self.client.post(self.list_url, data=payload, format='json')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('car_type', resp.data)
+        self.assertEqual(Services.objects.count(), count_before)

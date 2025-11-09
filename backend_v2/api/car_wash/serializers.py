@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.db import transaction
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
@@ -5,6 +7,8 @@ from django.utils.translation import gettext_lazy as _
 from car_wash.models import Car
 from car_wash.models.box import Box
 from car_wash.models.car_wash import CarWash, CarWashSettings, CarWashDocuments, CarTypes
+from orders.models import Orders
+from orders.utils.enums import OrderStatus
 
 
 class CarWashCarTypesSerializer(serializers.ModelSerializer):
@@ -114,10 +118,40 @@ class CarWashWriteSerializer(serializers.ModelSerializer):
         return CarWashReadSerializer(instance, context=self.context).data
 
 
+class CarWashQueueSerializer(serializers.Serializer):
+    # car_wash = serializers.PrimaryKeyRelatedField(queryset=CarWash.objects.all())
+    wait_time = serializers.DurationField(read_only=True)
+    car_amount = serializers.IntegerField(read_only=True)
+
+    def create(self, validated_data):
+        car_wash = CarWash.objects.prefetch_related('boxes').filter(id=validated_data.pop('car_wash_id')).first()
+        boxes_amount = car_wash.boxes.count()
+
+        orders = Orders.objects.prefetch_related(
+            'services',
+        ).filter(
+            car_wash=car_wash,
+            status__in=(OrderStatus.EN_ROUTE, OrderStatus.ON_SITE),
+        ).all()
+
+        combined_duration = sum(
+            (
+                sum(
+                    (service.duration for service in order.services.all()),
+                    timedelta(0)
+                ) for order in orders
+            ),
+            timedelta(0)
+        )
+        return {'wait_time': combined_duration/boxes_amount, 'car_amount': len(orders)}
+
+
+
+
 class CarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Car
-        fields = ('number',)
+        fields = ('id', 'number')
 
     def validate(self, attrs):
         if Car.objects.filter(number=attrs['number']).exists():

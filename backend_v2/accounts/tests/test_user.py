@@ -51,6 +51,7 @@ class UserAuthEndpointsTests(APITestCase):
             phone_number=self.sample_phone,
             password=self.sample_password,
         )
+        users_before = User.objects.count()
 
         payload = {
             'username': 'Another Name',
@@ -60,6 +61,10 @@ class UserAuthEndpointsTests(APITestCase):
         resp = self.client.post(self.register_url, data=payload, format='json')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('phone_number', resp.data)
+        # Ensure no new user or sms was created
+        self.assertEqual(User.objects.count(), users_before)
+        user = User.objects.get(phone_number=User.objects.normalize_phone_number(self.sample_phone))
+        self.assertFalse(user.sms_codes.filter(type=TypeSmsCode.REGISTER).exists())
 
     def test_register_confirm_success_activates_user_and_logs_in(self):
         # Register first to create user and SMS
@@ -101,6 +106,12 @@ class UserAuthEndpointsTests(APITestCase):
         resp = confirm_registration(self.client, phone_number=self.sample_phone, code=wrong_code)
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('code', resp.data)
+        # Ensure user remains inactive and SMS not deleted; also no session established
+        user.refresh_from_db()
+        self.assertFalse(user.is_active)
+        self.assertTrue(user.sms_codes.filter(type=TypeSmsCode.REGISTER).exists())
+        me_resp = self.client.get(self.me_url)
+        self.assertEqual(me_resp.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_login_success_for_active_user(self):
         # Create active user directly
@@ -126,6 +137,9 @@ class UserAuthEndpointsTests(APITestCase):
         )
         resp = login_user(self.client, phone_number=self.sample_phone, password=self.sample_password)
         self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        # Ensure session not established
+        me_resp = self.client.get(self.me_url)
+        self.assertEqual(me_resp.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_login_fails_for_wrong_credentials(self):
         # Active user
@@ -137,6 +151,9 @@ class UserAuthEndpointsTests(APITestCase):
 
         resp = login_user(self.client, phone_number=self.sample_phone, password='WrongPass123')
         self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        # Ensure session not established
+        me_resp = self.client.get(self.me_url)
+        self.assertEqual(me_resp.status_code, status.HTTP_403_FORBIDDEN)
 
 
     def test_me_returns_current_user_data_for_authenticated_user(self):

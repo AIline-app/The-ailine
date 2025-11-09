@@ -120,8 +120,10 @@ class BoxEndpointsTests(APITestCase):
     def test_non_owner_forbidden(self):
         self.client.login(phone_number=self.other.phone_number, password=DEFAULT_PASSWORD)
         list_url = reverse('car-wash-boxes-list', kwargs={'car_wash_id': self.cw.id})
+        count_before = Box.objects.filter(car_wash=self.cw).count()
         resp = self.client.get(list_url)
         self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(Box.objects.filter(car_wash=self.cw).count(), count_before)
 
 
 class CarEndpointsTests(APITestCase):
@@ -147,6 +149,8 @@ class CarEndpointsTests(APITestCase):
         self.client.login(phone_number=self.user.phone_number, password=DEFAULT_PASSWORD)
         self.client.post(self.list_url, data={'number': 'AAA111'}, format='json')
         # Same number again should be rejected by serializer
+        count_before = Car.objects.filter(owner=self.user).count()
         resp_dup = self.client.post(self.list_url, data={'number': 'AAA111'}, format='json')
         self.assertEqual(resp_dup.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('number', resp_dup.data)
+        self.assertEqual(Car.objects.filter(owner=self.user).count(), count_before)

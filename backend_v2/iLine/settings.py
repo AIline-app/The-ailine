@@ -39,10 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'django_filters',
     'drf_spectacular',
     'accounts.apps.AccountsConfig',
     'car_wash.apps.CarwashConfig',
-    'services.apps.ServicesConfig'
+    'services.apps.ServicesConfig',
+    'orders.apps.OrdersConfig',
 ]
 
 MIDDLEWARE = [

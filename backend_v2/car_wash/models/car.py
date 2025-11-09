@@ -1,3 +1,5 @@
+import uuid
+
 from django.utils.translation import gettext_lazy as _
 from django.db import models
 
@@ -6,6 +8,7 @@ from iLine.settings import AUTH_USER_MODEL
 
 
 class Car(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     number = models.CharField(_('Registration plate'), max_length=MAX_CAR_NUMBER_LENGTH)
     owner = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='cars')
 

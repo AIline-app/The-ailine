@@ -14,7 +14,7 @@ class Services(models.Model):
     name = models.CharField(blank=False, null=False, max_length=CHAR_MAX_LENGTH)
     description = models.CharField(max_length=CHAR_MAX_LENGTH)
     price = models.PositiveIntegerField(blank=False, null=False)
-    duration = models.TimeField(blank=False, null=False)  # TODO DurationField
+    duration = models.DurationField(blank=False, null=False)
     is_extra = models.BooleanField(default=False, blank=False, null=False)
 
     class Meta:
