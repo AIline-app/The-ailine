@@ -47,9 +47,6 @@ services:
       - .:/app
     env_file:
       - .env
-    environment:
-      - KAFKA_BROKER=kafka:9092
-      - KAFKA_REGISTER_TOPIC=register-sms
     ports:
       - "8000:8000"
     links:

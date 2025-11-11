@@ -17,8 +17,12 @@ from accounts.utils.constants import (
     PHONE_VALIDATE_REGEX,
     PHONE_VALIDATE_MESSAGE,
     MAX_PASSWORD_LENGTH,
+    SMS_REGISTRATION_MESSAGE,
+    MANAGER_REGISTRATION_MESSAGE,
 )
 from accounts.utils.enums import TypeSmsCode
+from accounts.utils.kafka import Kafka
+from iLine.settings import APP_LINK
 
 
 class UserManager(BaseUserManager):
@@ -102,29 +106,21 @@ class User(AbstractBaseUser, PermissionsMixin):
         return f'<User ({self.phone_number}, {self.id})>'
 
     def send_registration_code(self):
-        phone_number = self.phone_number.lstrip('+')
-
         sms = self.sms_codes.create(type=TypeSmsCode.REGISTER)
+        return self.__send_to_kafka(_(SMS_REGISTRATION_MESSAGE).format(code=sms.code))
 
+    def send_manager_invitation(self):
+        return self.__send_to_kafka(_(MANAGER_REGISTRATION_MESSAGE).format(app_link=APP_LINK))
+
+    def __send_to_kafka(self, message: str):
+        # TODO deleted user will have no phone number
         try:
-            # KafkaProducer = importlib.import_module('kafka').KafkaProducer  # lazy import to avoid hard dependency at import time
-            producer = KafkaProducer(
-                bootstrap_servers=getattr(settings, 'KAFKA_BROKER', 'localhost:9092'),
-                value_serializer=lambda v: json.dumps(v).encode('utf-8'),
+            Kafka().send(
+                topic=settings.KAFKA_SMS_TOPIC,
+                payload={"phone": self.phone_number.lstrip('+'), "message": message},
             )
-            payload = {"phone": phone_number, "code": int(sms.code)}
-            topic = getattr(settings, 'KAFKA_REGISTER_TOPIC', 'register-sms')
-            # Send with retries
-            future = producer.send(topic, payload)
-            future.get(timeout=10)
-            producer.flush()
-            producer.close()
             return True
         except Exception as error:
             # TODO notify admin?
-            logging.error(f"Kafka not available for sending SMS to {phone_number}: {error}")
-
-    def send_manager_invitation(self):
-        # TODO Place in queue to send invitation for a manager
-        #  "You were added as a manager to the car wash. Register at {link_to_app}"
-        pass
+            logging.error(f"Kafka not available for sending SMS for user {self.id}: {error}")
+        return False

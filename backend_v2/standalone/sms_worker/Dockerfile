@@ -14,8 +14,4 @@ WORKDIR /app
 COPY worker.py /app/worker.py
 COPY .env /app/.env
 
-# Default environment (can be overridden by compose)
-ENV KAFKA_BROKER=localhost:9092 \
-    KAFKA_REGISTER_TOPIC=register-sms
-
 CMD ["python", "worker.py"]

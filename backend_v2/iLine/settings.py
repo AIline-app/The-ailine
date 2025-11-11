@@ -146,9 +146,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Use custom user model
 AUTH_USER_MODEL = 'accounts.User'
 
-SMS_LOGIN = env.str('SMS_LOGIN')
-SMS_PASSWORD = env.str('SMS_PASSWORD')
+APP_LINK = os.environ.get('APP_LINK', 'localhost:8000')
+
+SMS_LOGIN = os.environ.get('SMS_LOGIN')
+SMS_PASSWORD = os.environ.get('SMS_PASSWORD')
 
 # Kafka configuration
 KAFKA_BROKER = os.environ.get('KAFKA_BROKER', 'localhost:9092')
-KAFKA_REGISTER_TOPIC = os.environ.get('KAFKA_REGISTER_TOPIC', 'register-sms')
+KAFKA_SMS_TOPIC = os.environ.get('KAFKA_SMS_TOPIC', 'register-sms')
