@@ -55,6 +55,7 @@ services:
     depends_on:
       - db
       - kafka
+      - sms-worker
     restart: always
 
   sms-worker:

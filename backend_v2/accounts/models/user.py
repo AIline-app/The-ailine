@@ -6,7 +6,7 @@ import phonenumbers
 from kafka import KafkaProducer
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
-from django.contrib.auth.models import PermissionsMixin
+from django.contrib.auth.models import PermissionsMixin, AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import RegexValidator
@@ -57,7 +57,7 @@ class UserManager(BaseUserManager):
         return self._create_user(username, phone_number, password, **extra_fields)
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(AbstractUser):
     """Модель пользователя (общая).
 
     Attributes
@@ -74,16 +74,18 @@ class User(AbstractBaseUser, PermissionsMixin):
         chat_id_telegram: ID пользователя в телеграмм
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    phone_validator = RegexValidator(
-        regex=PHONE_VALIDATE_REGEX,
-        message=_(PHONE_VALIDATE_MESSAGE.format(MAX_PHONE_NUMBER_LENGTH=MAX_PHONE_NUMBER_LENGTH)),
-    )
+    # phone_validator = RegexValidator(
+    #     regex=PHONE_VALIDATE_REGEX,
+    #     message=_(PHONE_VALIDATE_MESSAGE.format(MAX_PHONE_NUMBER_LENGTH=MAX_PHONE_NUMBER_LENGTH)),
+    # )
     username = models.CharField(verbose_name=_('Name'), max_length=MAX_USERNAME_LENGTH, blank=True, null=True)
     phone_number = models.CharField(
         _('Phone number'),
         unique=True,
-        validators=[phone_validator],
+        # validators=[phone_validator],
         max_length=MAX_PHONE_NUMBER_LENGTH,
+        blank=False,
+        null=True,
     )
     password = models.CharField(_('Password'), max_length=MAX_PASSWORD_LENGTH)
     is_staff = models.BooleanField(_("Staff Status"), default=False)
@@ -105,14 +107,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return f'<User ({self.phone_number}, {self.id})>'
 
-    def send_registration_code(self):
+    def send_registration_code(self) -> bool:
         sms = self.sms_codes.create(type=TypeSmsCode.REGISTER)
         return self.__send_to_kafka(_(SMS_REGISTRATION_MESSAGE).format(code=sms.code))
 
-    def send_manager_invitation(self):
+    def send_manager_invitation(self) -> bool:
         return self.__send_to_kafka(_(MANAGER_REGISTRATION_MESSAGE).format(app_link=APP_LINK))
 
-    def __send_to_kafka(self, message: str):
+    def __send_to_kafka(self, message: str) -> bool:
         # TODO deleted user will have no phone number
         try:
             Kafka().send(

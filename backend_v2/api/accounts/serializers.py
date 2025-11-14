@@ -12,13 +12,13 @@ from accounts.utils.enums import TypeSmsCode
 
 class PhoneNumberValidationMixin:
     def validate_phone_number(self, phone_number):
-        try:
-            parsed_number = phonenumbers.parse(phone_number)
-        except phonenumbers.NumberParseException:
-            raise serializers.ValidationError({'phone_number': _('Incorrect phone number')})
-
-        if not phonenumbers.is_valid_number(parsed_number):
-            raise serializers.ValidationError({'phone_number': _('Incorrect phone number')})
+        # try:
+        #     parsed_number = phonenumbers.parse(phone_number)
+        # except phonenumbers.NumberParseException:
+        #     raise serializers.ValidationError({'phone_number': _('Incorrect phone number')})
+        #
+        # if not phonenumbers.is_valid_number(parsed_number):
+        #     raise serializers.ValidationError({'phone_number': _('Incorrect phone number')})
         return User.objects.normalize_phone_number(phone_number)
 
 

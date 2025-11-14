@@ -10,6 +10,5 @@ PHONE_VALIDATE_MESSAGE = ("Phone number must be entered in the format: '+9999999
 SMS_CODE_LENGTH = 4
 MIN_SMS_CODE_VALUE = 10 ** (SMS_CODE_LENGTH - 1)
 MAX_SMS_CODE_VALUE = 10 ** SMS_CODE_LENGTH - 1
-SMS_EXPIRES_IN_MINS = 5
 SMS_REGISTRATION_MESSAGE = "Registration code - {code}"
 MANAGER_REGISTRATION_MESSAGE = "You were added as a manager to the car wash. Register at {app_link}"

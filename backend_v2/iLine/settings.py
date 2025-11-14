@@ -26,8 +26,9 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 
 DEBUG = bool(os.environ.get("DEBUG", default=0))
 
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(",")
+APP_LINK = os.environ.get('APP_LINK', 'http://localhost:8000/')
 
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(",")
 
 # Application definition
 
@@ -38,24 +39,74 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.headless',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.apple',
+    'allauth.usersessions',
     'rest_framework',
     'django_filters',
     'drf_spectacular',
     'accounts.apps.AccountsConfig',
-    'car_wash.apps.CarwashConfig',
-    'services.apps.ServicesConfig',
-    'orders.apps.OrdersConfig',
+    # 'car_wash.apps.CarwashConfig',
+    # 'services.apps.ServicesConfig',
+    # 'orders.apps.OrdersConfig',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'iLine.middleware.AllauthHeadlessCSRFBypassMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "allauth.account.middleware.AccountMiddleware",
 ]
+
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         # For each OAuth based provider, either add a ``SocialApp``
+#         # (``socialaccount`` app) containing the required client
+#         # credentials, or list them here:
+#         'APP': {
+#             'client_id': '123',
+#             'secret': '456',
+#             'key': ''
+#         }
+#     }
+# }
+
+ACCOUNT_LOGIN_METHODS = {"phone"}
+
+ACCOUNT_SIGNUP_FIELDS = [
+  'phone*', 'password1*', 'username*'
+]
+ACCOUNT_ADAPTER = 'accounts.adapters.AccountAdapter'
+ACCOUNT_PHONE_VERIFICATION_TIMEOUT = 300
+ACCOUNT_PHONE_VERIFICATION_SUPPORTS_RESEND = True
+ACCOUNT_SIGNUP_FORM_HONEYPOT_FIELD = 'email'  # for bot protection
+
+# HEADLESS_FRONTEND_URLS = {
+#     "account_confirm_email": f"{APP_LINK}/account/verify-email/{key}",
+#     "account_reset_password_from_key": f"{APP_LINK}/account/password/reset/key/{key}",
+#     "account_signup": f"https://app.org/account/signup",
+# }
+HEADLESS_ONLY = True
+HEADLESS_SERVE_SPECIFICATION = True
+
+# django.contrib.sites is required by allauth
+SITE_ID = int(os.environ.get('SITE_ID', 1))
+
+# We use phone for auth, not email
+ACCOUNT_EMAIL_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+# Keep username if you want to collect it at signup (as configured below)
+ACCOUNT_USERNAME_REQUIRED = True
 
 ROOT_URLCONF = 'iLine.urls'
 
@@ -74,15 +125,40 @@ TEMPLATES = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by email
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
 WSGI_APPLICATION = 'iLine.wsgi.application'
 
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:8000').split(',')
+# Cookie domain must be a plain domain without scheme. For localhost it's best to leave unset.
+# In production, set these via environment variables to your actual domain.
+if not DEBUG:
+    CSRF_COOKIE_DOMAIN = env.str('CSRF_COOKIE_DOMAIN', default=None)
+    SESSION_COOKIE_DOMAIN = env.str('SESSION_COOKIE_DOMAIN', default=None)
+
+if DEBUG:
+    # CSRF and session cookie settings suitable for local development
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_SAMESITE = 'Lax'
+
+CSRF_USE_SESSIONS = False
+CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read the cookie
+CSRF_COOKIE_NAME = 'csrftoken'  # Explicitly set the cookie name
+CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': env.str('POSTGRES_DB', 'POSTGRES_DB'),
-        'USER': env.str('POSTGRES_USER', 'POSTGRES_USER'),
-        'PASSWORD': env.str('POSTGRES_PASSWORD', 'POSTGRES_PASSWORD'),
+        'NAME': env.str('POSTGRES_DB', 'postgres'),
+        'USER': env.str('POSTGRES_USER', 'postgres'),
+        'PASSWORD': env.str('POSTGRES_PASSWORD', 'postgres'),
         'HOST': env.str('HOST', 'localhost'),
         'PORT': env.int('PORT', 5432),
     }
@@ -145,8 +221,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Use custom user model
 AUTH_USER_MODEL = 'accounts.User'
-
-APP_LINK = os.environ.get('APP_LINK', 'localhost:8000')
 
 SMS_LOGIN = os.environ.get('SMS_LOGIN')
 SMS_PASSWORD = os.environ.get('SMS_PASSWORD')
