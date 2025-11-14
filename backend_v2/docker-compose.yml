@@ -66,9 +66,6 @@ services:
       - ./standalone/sms_worker:/app
     env_file:
       - .env
-    environment:
-      - KAFKA_BROKER=kafka:9092
-      - KAFKA_REGISTER_TOPIC=register-sms
     depends_on:
       kafka:
         condition: service_healthy

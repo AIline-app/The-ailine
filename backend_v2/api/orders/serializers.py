@@ -37,7 +37,16 @@ class OrdersReadPublicSerializer(BaseOrderSerializer):
 
 class OrdersReadSerializer(BaseOrderSerializer):
     def to_representation(self, instance):
-        if instance.car_wash.managers.contains(self.context['request'].user):
+        is_manager = self.context.get('is_manager')
+        if is_manager is None:
+            request = self.context.get('request')
+            user = getattr(request, 'user', None)
+            if user is not None:
+                # Fallback check if context hint is missing
+                is_manager = instance.car_wash.managers.filter(id=user.id).exists()
+            else:
+                is_manager = False
+        if is_manager:
             return OrdersReadPrivateSerializer(instance, context=self.context).data
         return OrdersReadPublicSerializer(instance, context=self.context).data
 

@@ -153,4 +153,4 @@ SMS_PASSWORD = os.environ.get('SMS_PASSWORD')
 
 # Kafka configuration
 KAFKA_BROKER = os.environ.get('KAFKA_BROKER', 'localhost:9092')
-KAFKA_SMS_TOPIC = os.environ.get('KAFKA_SMS_TOPIC', 'register-sms')
+KAFKA_SMS_TOPIC = os.environ.get('KAFKA_SMS_TOPIC', 'sms')

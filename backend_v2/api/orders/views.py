@@ -39,16 +39,21 @@ class OrdersViewSet(CarWashInRouteMixin,
             queryset = queryset.filter(user=self.request.user)
         return queryset
 
+    def get_serializer_context(self):
+        ctx = super().get_serializer_context()
+        ctx['is_manager'] = self.car_wash.managers.contains(self.request.user)
+        return ctx
+
     def get_serializer_class(self):
         return {
             "create": OrdersCreateSerializer,
             "list": OrdersReadSerializer,
             "retrieve": OrdersReadSerializer,
             "manual": OrdersManualCreateSerializer,
+            "queue": CarWashOrderQueueSerializer,
             "start": OrdersStartSerializer,
             "finish": OrdersFinishSerializer,
             "update_services": OrdersUpdateServicesSerializer,
-            "queue": CarWashOrderQueueSerializer,
         }.get(self.action, self.serializer_class)
 
     def perform_destroy(self, instance):
