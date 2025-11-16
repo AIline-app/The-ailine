@@ -18,18 +18,18 @@ def create_inactive_user(*, username: str, phone_number: str, password: str = DE
         password=password,
     )
     # Ensure inactive (model default is False, but be explicit)
-    if user.is_active:
-        user.is_active = False
-        user.save(update_fields=["is_active"])
+    if user.is_verified:
+        user.is_verified = False
+        user.save(update_fields=["is_verified"])
     return user
 
 
 def create_active_user(*, username: str, phone_number: str, password: str = DEFAULT_PASSWORD) -> User:
     """Create a user and activate it."""
     user = create_inactive_user(username=username, phone_number=phone_number, password=password)
-    if not user.is_active:
-        user.is_active = True
-        user.save(update_fields=["is_active"])
+    if not user.is_verified:
+        user.is_verified = True
+        user.save(update_fields=["is_verified"])
     return user
 
 

@@ -69,7 +69,7 @@ class RegisterUserWriteSerializer(BaseRegisterUserSerializer):
         else:
             # Set new values (user might change them between registration attempts) and delete old SMS
             user.set_password(validated_data['password'])
-            user.username = validated_data['username']
+            user.name = validated_data['username']
             user.sms_codes.filter(type=TypeSmsCode.REGISTER).delete()  # TODO don't delete, set as invalid
             user.save()
 
@@ -106,7 +106,7 @@ class RegisterUserConfirmWriteSerializer(PhoneNumberValidationMixin, RegisterUse
         user = validated_data['user']
         sms = validated_data['sms']
 
-        user.is_active = True
+        user.is_verified = True
         user.save(update_fields=['is_active'])
         login(self.context['request'], user)
 
@@ -132,7 +132,7 @@ class LoginUserSerializer(PhoneNumberValidationMixin, serializers.ModelSerialize
         if user is None:
             raise AuthenticationFailed(_('Invalid username/password.'))
 
-        if not user.is_active:
+        if not user.is_verified:
             raise AuthenticationFailed(_('User inactive or deleted.'))
 
         attrs['user'] = user

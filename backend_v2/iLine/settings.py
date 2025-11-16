@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 
 DEBUG = bool(os.environ.get("DEBUG", default=0))
 
-APP_LINK = os.environ.get('APP_LINK', 'http://localhost:8000/')
+APP_HOST = os.environ.get('APP_LINK', 'http://localhost:8000/')
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(",")
 
@@ -60,7 +60,6 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'iLine.middleware.AllauthHeadlessCSRFBypassMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -84,29 +83,41 @@ MIDDLEWARE = [
 ACCOUNT_LOGIN_METHODS = {"phone"}
 
 ACCOUNT_SIGNUP_FIELDS = [
-  'phone*', 'password1*', 'username*'
+  'phone*', 'password1*', 'name*'
 ]
 ACCOUNT_ADAPTER = 'accounts.adapters.AccountAdapter'
+ACCOUNT_USER_MODEL_USERNAME_FIELD = 'phone_number'
 ACCOUNT_PHONE_VERIFICATION_TIMEOUT = 300
 ACCOUNT_PHONE_VERIFICATION_SUPPORTS_RESEND = True
-ACCOUNT_SIGNUP_FORM_HONEYPOT_FIELD = 'email'  # for bot protection
+# ACCOUNT_SIGNUP_FORM_HONEYPOT_FIELD = 'email'  # for bot protection
 
 # HEADLESS_FRONTEND_URLS = {
-#     "account_confirm_email": f"{APP_LINK}/account/verify-email/{key}",
-#     "account_reset_password_from_key": f"{APP_LINK}/account/password/reset/key/{key}",
-#     "account_signup": f"https://app.org/account/signup",
+    # "account_confirm_email": f"{APP_HOST}/account/verify-email/{key}",
+    # "account_reset_password_from_key": f"{APP_HOST}/account/password/reset/key/{key}",
+    # "account_signup": f"{APP_HOST}account/registration",
+    # "account_login": f"{APP_HOST}account/login",
+    # "account_logout": f"{APP_HOST}account/logout",
 # }
+
 HEADLESS_ONLY = True
 HEADLESS_SERVE_SPECIFICATION = True
+
+# # Allauth JWT configuration
+# ALLAUTH_JWT = {
+#     # Default settings should work; override minimal essentials
+#     "JWT_AUTH_HEADER_PREFIX": "Bearer",
+#     # Lifetimes can be tuned via environment; set sensible defaults
+#     "JWT_ACCESS_TOKEN_LIFETIME": 300,  # seconds (5 minutes)
+#     "JWT_REFRESH_TOKEN_LIFETIME": 60 * 60 * 24 * 7,  # 7 days
+# }
 
 # django.contrib.sites is required by allauth
 SITE_ID = int(os.environ.get('SITE_ID', 1))
 
-# We use phone for auth, not email
-ACCOUNT_EMAIL_REQUIRED = False
-ACCOUNT_EMAIL_VERIFICATION = 'none'
-# Keep username if you want to collect it at signup (as configured below)
-ACCOUNT_USERNAME_REQUIRED = True
+# ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_UNIQUE_USERNAME = False
+ACCOUNT_USER_MODEL_EMAIL_FIELD = None
+# USER_MODEL_EMAIL_FIELD = 'phone_number'
 
 ROOT_URLCONF = 'iLine.urls'
 
@@ -127,8 +138,6 @@ TEMPLATES = [
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-
-    # `allauth` specific authentication methods, such as login by email
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
@@ -222,9 +231,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Use custom user model
 AUTH_USER_MODEL = 'accounts.User'
 
-SMS_LOGIN = os.environ.get('SMS_LOGIN')
-SMS_PASSWORD = os.environ.get('SMS_PASSWORD')
-
 # Kafka configuration
-KAFKA_BROKER = os.environ.get('KAFKA_BROKER', 'localhost:9092')
+KAFKA_BOOTSTRAP_SERVERS = os.environ.get('KAFKA_BOOTSTRAP_SERVERS', 'localhost:9092')
 KAFKA_SMS_TOPIC = os.environ.get('KAFKA_SMS_TOPIC', 'sms')

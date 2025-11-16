@@ -10,7 +10,7 @@ import requests
 
 load_dotenv()
 
-KAFKA_BROKER = os.getenv("KAFKA_BROKER")
+KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
 KAFKA_SMS_TOPIC = os.getenv("KAFKA_SMS_TOPIC")
 SMS_LOGIN = os.getenv("SMS_LOGIN")
 SMS_PASSWORD = os.getenv("SMS_PASSWORD")
@@ -31,7 +31,7 @@ def send_telegram(message: str) -> bool:
 
     url = f"https://api.telegram.org/bot{BOT_ID}/sendMessage"
     try:
-        resp = requests.post(url, json={"chat_id": CHAT_ID, "message": message}, timeout=10)
+        resp = requests.post(url, json={"chat_id": CHAT_ID, "text": message}, headers={"Content-Type": "application/json"}, timeout=10)
         if not resp.ok:
             logging.warning(f'Telegram send failed: {resp.status_code} {resp.text[:200]}')
         return resp.ok
@@ -72,13 +72,13 @@ def main():
         try:
             consumer = KafkaConsumer(
                 KAFKA_SMS_TOPIC,
-                bootstrap_servers=KAFKA_BROKER,
+                bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
                 value_deserializer=lambda m: json.loads(m.decode('utf-8')),
                 enable_auto_commit=True,
                 auto_offset_reset='earliest',
                 group_id='sms-worker-group',
             )
-            logging.info(f'Connected to Kafka at {KAFKA_BROKER}, listening topic {KAFKA_SMS_TOPIC}')
+            logging.info(f'Connected to Kafka at {KAFKA_BOOTSTRAP_SERVERS}, listening topic {KAFKA_SMS_TOPIC}')
             for msg in consumer:
                 payload = msg.value or {}
                 phone = payload.get('phone')

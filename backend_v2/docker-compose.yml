@@ -67,6 +67,8 @@ services:
       - ./standalone/sms_worker:/app
     env_file:
       - .env
+    links:
+      - kafka
     depends_on:
       kafka:
         condition: service_healthy

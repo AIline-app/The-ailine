@@ -20,7 +20,7 @@ class Kafka(metaclass=Singleton):
     def producer(self):
         if self.__producer is None:
             self.__producer = KafkaProducer(
-                bootstrap_servers=getattr(settings, 'KAFKA_BROKER', 'localhost:9092'),
+                bootstrap_servers=getattr(settings, 'KAFKA_BOOTSTRAP_SERVERS', 'localhost:9092'),
                 value_serializer=lambda v: json.dumps(v).encode('utf-8'),
             )
         return self.__producer

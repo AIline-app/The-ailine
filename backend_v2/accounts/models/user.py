@@ -22,7 +22,7 @@ from accounts.utils.constants import (
 )
 from accounts.utils.enums import TypeSmsCode
 from accounts.utils.kafka import Kafka
-from iLine.settings import APP_LINK
+from iLine.settings import APP_HOST
 
 
 class UserManager(BaseUserManager):
@@ -48,16 +48,19 @@ class UserManager(BaseUserManager):
     def create_user(self, username, phone_number, password=None, **extra_fields):
         extra_fields["is_staff"] = False
         extra_fields["is_superuser"] = False
+        extra_fields["is_active"] = True
+        extra_fields["is_verified"] = False
         return self._create_user(username, phone_number, password, **extra_fields)
 
     def create_superuser(self, username, phone_number, password=None, **extra_fields):
         extra_fields["is_staff"] = True
         extra_fields["is_superuser"] = True
         extra_fields["is_active"] = True
+        extra_fields["is_verified"] = True
         return self._create_user(username, phone_number, password, **extra_fields)
 
 
-class User(AbstractUser):
+class User(AbstractBaseUser, PermissionsMixin):
     """Модель пользователя (общая).
 
     Attributes
@@ -78,7 +81,7 @@ class User(AbstractUser):
     #     regex=PHONE_VALIDATE_REGEX,
     #     message=_(PHONE_VALIDATE_MESSAGE.format(MAX_PHONE_NUMBER_LENGTH=MAX_PHONE_NUMBER_LENGTH)),
     # )
-    username = models.CharField(verbose_name=_('Name'), max_length=MAX_USERNAME_LENGTH, blank=True, null=True)
+    name = models.CharField(verbose_name=_('Name'), max_length=MAX_USERNAME_LENGTH, blank=True, null=True)
     phone_number = models.CharField(
         _('Phone number'),
         unique=True,
@@ -90,7 +93,7 @@ class User(AbstractUser):
     password = models.CharField(_('Password'), max_length=MAX_PASSWORD_LENGTH)
     is_staff = models.BooleanField(_("Staff Status"), default=False)
     is_superuser = models.BooleanField(_("Superuser Status"), default=False)
-    is_active = models.BooleanField(_("Active"), default=False)
+    is_verified = models.BooleanField(_("Active"), default=False)
     created_at = models.DateTimeField(_('Date created'), auto_now_add=True)
 
     USERNAME_FIELD = 'phone_number'
@@ -107,12 +110,11 @@ class User(AbstractUser):
     def __str__(self):
         return f'<User ({self.phone_number}, {self.id})>'
 
-    def send_registration_code(self) -> bool:
-        sms = self.sms_codes.create(type=TypeSmsCode.REGISTER)
-        return self.__send_to_kafka(_(SMS_REGISTRATION_MESSAGE).format(code=sms.code))
+    def send_registration_code(self, code: str) -> bool:
+        return self.__send_to_kafka(_(SMS_REGISTRATION_MESSAGE).format(code=code))
 
     def send_manager_invitation(self) -> bool:
-        return self.__send_to_kafka(_(MANAGER_REGISTRATION_MESSAGE).format(app_link=APP_LINK))
+        return self.__send_to_kafka(_(MANAGER_REGISTRATION_MESSAGE).format(app_link=APP_HOST))
 
     def __send_to_kafka(self, message: str) -> bool:
         # TODO deleted user will have no phone number

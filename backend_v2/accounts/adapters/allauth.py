@@ -1,27 +1,30 @@
 import typing
 
 from allauth.account.adapter import DefaultAccountAdapter
+from allauth.core.internal.cryptokit import generate_user_code
 
 from accounts.models import User
 
 
 class AccountAdapter(DefaultAccountAdapter):
+    def generate_phone_verification_code(self, *, user, phone: str) -> str:
+        return generate_user_code(length=4)
 
     def set_phone(self, user: User, phone_number: str, verified: bool):
         user.phone_number = phone_number
-        user.is_active = verified
-        user.save(update_fields=["phone_number", "is_active"])
+        user.is_verified = verified
+        user.save(update_fields=["phone_number", "is_verified"])
 
     def get_phone(self, user: User) -> typing.Optional[typing.Tuple[str, bool]]:
         if user.phone_number:
-            return user.phone_number, user.is_active
+            return user.phone_number, user.is_verified
         return None
 
     def set_phone_verified(self, user: User, phone_number: str):
         self.set_phone(user, phone_number, True)
 
     def send_verification_code_sms(self, user: User, phone: str, code: str, **kwargs):
-        user.send_registration_code()
+        user.send_registration_code(code=code)
 
     def send_unknown_account_sms(self, phone_number: str, **kwargs):
         # TODO raise error?
