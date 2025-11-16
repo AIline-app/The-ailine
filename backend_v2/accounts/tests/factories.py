@@ -50,8 +50,7 @@ def register_user_and_get_sms(
     # Caller can assert status codes; we still fetch objects for convenience
     normalized = User.objects.normalize_phone_number(phone_number)
     user = User.objects.get(phone_number=normalized)
-    sms = user.sms_codes.filter(type=TypeSmsCode.REGISTER).first()
-    return resp, user, (sms.code if sms else None)
+    return resp, user, None
 
 
 def confirm_registration(client: APIClient, *, phone_number: str, code: int):

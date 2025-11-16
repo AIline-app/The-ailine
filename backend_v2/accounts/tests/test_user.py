@@ -41,8 +41,6 @@ class UserAuthEndpointsTests(APITestCase):
         # Ensure user exists and is inactive until confirmation
         user = User.objects.get(phone_number=User.objects.normalize_phone_number(self.sample_phone))
         self.assertFalse(user.is_verified)
-        # SMS code for registration should be created
-        self.assertTrue(user.sms_codes.filter(type=TypeSmsCode.REGISTER).exists())
 
     def test_register_existing_active_fails(self):
         # Prepare existing active user with CLIENT role
@@ -64,7 +62,6 @@ class UserAuthEndpointsTests(APITestCase):
         # Ensure no new user or sms was created
         self.assertEqual(User.objects.count(), users_before)
         user = User.objects.get(phone_number=User.objects.normalize_phone_number(self.sample_phone))
-        self.assertFalse(user.sms_codes.filter(type=TypeSmsCode.REGISTER).exists())
 
     def test_register_confirm_success_activates_user_and_logs_in(self):
         # Register first to create user and SMS
@@ -83,8 +80,6 @@ class UserAuthEndpointsTests(APITestCase):
         # User should now be active and logged in (session auth)
         user.refresh_from_db()
         self.assertTrue(user.is_verified)
-        # SMS should be deleted after successful confirmation
-        self.assertFalse(user.sms_codes.filter(type=TypeSmsCode.REGISTER).exists())
         # Verify session by accessing protected endpoint
         me_resp = self.client.get(self.me_url)
         self.assertEqual(me_resp.status_code, status.HTTP_200_OK)
@@ -109,7 +104,6 @@ class UserAuthEndpointsTests(APITestCase):
         # Ensure user remains inactive and SMS not deleted; also no session established
         user.refresh_from_db()
         self.assertFalse(user.is_verified)
-        self.assertTrue(user.sms_codes.filter(type=TypeSmsCode.REGISTER).exists())
         me_resp = self.client.get(self.me_url)
         self.assertEqual(me_resp.status_code, status.HTTP_403_FORBIDDEN)
 

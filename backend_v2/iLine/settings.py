@@ -89,35 +89,15 @@ ACCOUNT_ADAPTER = 'accounts.adapters.AccountAdapter'
 ACCOUNT_USER_MODEL_USERNAME_FIELD = 'phone_number'
 ACCOUNT_PHONE_VERIFICATION_TIMEOUT = 300
 ACCOUNT_PHONE_VERIFICATION_SUPPORTS_RESEND = True
-# ACCOUNT_SIGNUP_FORM_HONEYPOT_FIELD = 'email'  # for bot protection
-
-# HEADLESS_FRONTEND_URLS = {
-    # "account_confirm_email": f"{APP_HOST}/account/verify-email/{key}",
-    # "account_reset_password_from_key": f"{APP_HOST}/account/password/reset/key/{key}",
-    # "account_signup": f"{APP_HOST}account/registration",
-    # "account_login": f"{APP_HOST}account/login",
-    # "account_logout": f"{APP_HOST}account/logout",
-# }
+ACCOUNT_SIGNUP_FORM_HONEYPOT_FIELD = 'email'  # for bot protection
 
 HEADLESS_ONLY = True
 HEADLESS_SERVE_SPECIFICATION = True
 
-# # Allauth JWT configuration
-# ALLAUTH_JWT = {
-#     # Default settings should work; override minimal essentials
-#     "JWT_AUTH_HEADER_PREFIX": "Bearer",
-#     # Lifetimes can be tuned via environment; set sensible defaults
-#     "JWT_ACCESS_TOKEN_LIFETIME": 300,  # seconds (5 minutes)
-#     "JWT_REFRESH_TOKEN_LIFETIME": 60 * 60 * 24 * 7,  # 7 days
-# }
-
-# django.contrib.sites is required by allauth
 SITE_ID = int(os.environ.get('SITE_ID', 1))
 
-# ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_UNIQUE_USERNAME = False
 ACCOUNT_USER_MODEL_EMAIL_FIELD = None
-# USER_MODEL_EMAIL_FIELD = 'phone_number'
 
 ROOT_URLCONF = 'iLine.urls'
 
