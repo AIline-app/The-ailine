@@ -1,6 +1,9 @@
+import dataclasses
 import typing
+import uuid
 
 from allauth.account.adapter import DefaultAccountAdapter
+from allauth.headless.adapter import DefaultHeadlessAdapter
 from allauth.core.internal.cryptokit import generate_user_code
 
 from accounts.models import User
@@ -36,3 +39,54 @@ class AccountAdapter(DefaultAccountAdapter):
 
     def get_user_by_phone(self, phone_number: str) -> typing.Optional[User]:
         return User.objects.filter(phone_number=phone_number).first()
+
+
+class HeadlessAdapter(DefaultHeadlessAdapter):
+    def get_user_dataclass(self):
+        fields = []
+        id_type = str
+        id_example = str(uuid.uuid4())
+
+        def dc_field(attr, typ, description, example):
+            return (
+                attr,
+                typ,
+                dataclasses.field(
+                    metadata={
+                        "description": description,
+                        "example": example,
+                    }
+                ),
+            )
+
+        fields.extend(
+            [
+                dc_field("id", id_type, "The user ID.", id_example),
+                dc_field(
+                    "name", str, "The display name for the user.", "Magic Wizard"
+                ),
+                dc_field(
+                    "phone_number", typing.Optional[str], "The phone number.", "+77771234567"
+                ),
+                dc_field(
+                    "has_usable_password",
+                    bool,
+                    "Whether or not the account has a password set.",
+                    True,
+                ),
+            ]
+        )
+        return dataclasses.make_dataclass("User", fields)
+
+    def user_as_dataclass(self, user):
+        UserDc = self.get_user_dataclass()
+        kwargs = {}
+        kwargs.update(
+            {
+                "id": str(user.pk),
+                "phone_number": str(user.phone_number),
+                "name": str(user.name),
+                "has_usable_password": user.has_usable_password(),
+            }
+        )
+        return UserDc(**kwargs)

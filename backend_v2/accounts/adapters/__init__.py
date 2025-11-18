@@ -1,1 +1,1 @@
-from .allauth import AccountAdapter
+from .allauth import AccountAdapter, HeadlessAdapter

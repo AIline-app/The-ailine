@@ -83,14 +83,15 @@ MIDDLEWARE = [
 ACCOUNT_LOGIN_METHODS = {"phone"}
 
 ACCOUNT_SIGNUP_FIELDS = [
-  'phone*', 'password1*', 'name*'
+  'phone*', 'password1*', 'username*'
 ]
 ACCOUNT_ADAPTER = 'accounts.adapters.AccountAdapter'
-ACCOUNT_USER_MODEL_USERNAME_FIELD = 'phone_number'
+ACCOUNT_USER_MODEL_USERNAME_FIELD = 'name'
 ACCOUNT_PHONE_VERIFICATION_TIMEOUT = 300
 ACCOUNT_PHONE_VERIFICATION_SUPPORTS_RESEND = True
 ACCOUNT_SIGNUP_FORM_HONEYPOT_FIELD = 'email'  # for bot protection
 
+HEADLESS_ADAPTER = 'accounts.adapters.HeadlessAdapter'
 HEADLESS_ONLY = True
 HEADLESS_SERVE_SPECIFICATION = True
 
