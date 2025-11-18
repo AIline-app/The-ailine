@@ -24,7 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
     path("_allauth/", include("allauth.headless.urls")),
-    # path('', include('accounts.urls')),
+    path('', include('accounts.urls')),
     # path('', include('car_wash.urls')),
     # path('', include('services.urls')),
     # path('', include('orders.urls')),

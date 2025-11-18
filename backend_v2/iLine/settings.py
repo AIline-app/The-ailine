@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 
 DEBUG = bool(os.environ.get("DEBUG", default=0))
 
-APP_HOST = os.environ.get('APP_LINK', 'http://localhost:8000/')
+APP_HOST = os.environ.get('APP_HOST', 'http://localhost:8000/')
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(",")
 
