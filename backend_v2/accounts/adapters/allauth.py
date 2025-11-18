@@ -80,7 +80,7 @@ class HeadlessAdapter(DefaultHeadlessAdapter):
             [
                 dc_field("id", id_type, "The user ID.", id_example),
                 dc_field(
-                    "name", str, "The display name for the user.", "Magic Wizard"
+                    "username", str, "The display name for the user.", "Magic Wizard"
                 ),
                 dc_field(
                     "phone_number", typing.Optional[str], "The phone number.", "+77771234567"
@@ -102,7 +102,7 @@ class HeadlessAdapter(DefaultHeadlessAdapter):
             {
                 "id": str(user.pk),
                 "phone_number": str(user.phone_number),
-                "name": str(user.name),
+                "username": str(user.username),
                 "has_usable_password": user.has_usable_password(),
             }
         )

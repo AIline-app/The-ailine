@@ -45,11 +45,11 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_user(self, username, phone_number, password=None, **extra_fields):
+    def create_user(self, username, phone_number, password=None, is_verified=False, **extra_fields):
         extra_fields["is_staff"] = False
         extra_fields["is_superuser"] = False
         extra_fields["is_active"] = True
-        extra_fields["is_verified"] = False
+        extra_fields["is_verified"] = is_verified
         return self._create_user(username, phone_number, password, **extra_fields)
 
     def create_superuser(self, username, phone_number, password=None, **extra_fields):
@@ -81,7 +81,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     #     regex=PHONE_VALIDATE_REGEX,
     #     message=_(PHONE_VALIDATE_MESSAGE.format(MAX_PHONE_NUMBER_LENGTH=MAX_PHONE_NUMBER_LENGTH)),
     # )
-    name = models.CharField(verbose_name=_('Name'), max_length=MAX_USERNAME_LENGTH, blank=True, null=True)
+    username = models.CharField(verbose_name=_('Name'), max_length=MAX_USERNAME_LENGTH, blank=True, null=True)
     phone_number = models.CharField(
         _('Phone number'),
         unique=True,
@@ -94,6 +94,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(_("Staff Status"), default=False)
     is_superuser = models.BooleanField(_("Superuser Status"), default=False)
     is_verified = models.BooleanField(_("Active"), default=False)
+    is_active = models.BooleanField(_("Active"), default=True)
     created_at = models.DateTimeField(_('Date created'), auto_now_add=True)
 
     USERNAME_FIELD = 'phone_number'

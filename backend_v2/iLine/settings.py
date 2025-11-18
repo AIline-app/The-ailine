@@ -51,9 +51,9 @@ INSTALLED_APPS = [
     'django_filters',
     'drf_spectacular',
     'accounts.apps.AccountsConfig',
-    # 'car_wash.apps.CarwashConfig',
-    # 'services.apps.ServicesConfig',
-    # 'orders.apps.OrdersConfig',
+    'car_wash.apps.CarwashConfig',
+    'services.apps.ServicesConfig',
+    'orders.apps.OrdersConfig',
 ]
 
 MIDDLEWARE = [
@@ -86,7 +86,7 @@ ACCOUNT_SIGNUP_FIELDS = [
   'phone*', 'password1*', 'username*'
 ]
 ACCOUNT_ADAPTER = 'accounts.adapters.AccountAdapter'
-ACCOUNT_USER_MODEL_USERNAME_FIELD = 'name'
+ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
 ACCOUNT_PHONE_VERIFICATION_TIMEOUT = 300
 ACCOUNT_PHONE_VERIFICATION_SUPPORTS_RESEND = True
 ACCOUNT_SIGNUP_FORM_HONEYPOT_FIELD = 'email'  # for bot protection
