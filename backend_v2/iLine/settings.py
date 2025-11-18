@@ -120,7 +120,6 @@ TEMPLATES = [
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
-    'accounts.backends.PhoneBasicAuthBackend',
 ]
 
 WSGI_APPLICATION = 'iLine.wsgi.application'
@@ -168,19 +167,6 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'Online car wash queue application',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
-    'APPEND_COMPONENTS': {
-        'securitySchemes': {
-            'basicAuth': {
-                'type': 'http',
-                'scheme': 'basic',
-                'description': 'Use phone as username and password'
-            }
-        }
-    },
-    'SECURITY': [{'basicAuth': []}],
-    'SWAGGER_UI_SETTINGS': {
-        'persistAuthorization': True,
-    },
 }
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
