@@ -5,6 +5,7 @@ import uuid
 from allauth.account.adapter import DefaultAccountAdapter
 from allauth.headless.adapter import DefaultHeadlessAdapter
 from allauth.core.internal.cryptokit import generate_user_code
+from allauth.account import app_settings
 
 from accounts.models import User
 
@@ -39,6 +40,22 @@ class AccountAdapter(DefaultAccountAdapter):
 
     def get_user_by_phone(self, phone_number: str) -> typing.Optional[User]:
         return User.objects.filter(phone_number=phone_number).first()
+
+    def clean_username(self, username, shallow=False):
+        """
+        Validates the username. You can hook into this if you want to
+        (dynamically) restrict what usernames can be chosen.
+        """
+        for validator in app_settings.USERNAME_VALIDATORS:
+            validator(username)
+
+        username_blacklist_lower = [
+            ub.lower() for ub in app_settings.USERNAME_BLACKLIST
+        ]
+        if username.lower() in username_blacklist_lower:
+            raise self.validation_error("username_blacklisted")
+        # Uniqueness check was removed
+        return username
 
 
 class HeadlessAdapter(DefaultHeadlessAdapter):
