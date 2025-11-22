@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -9,6 +11,11 @@ from accounts.models.user import User
 
 class ManagerEndpointsTests(APITestCase):
     def setUp(self):
+        # Disable Kafka sending in tests
+        self._kafka_patcher = patch('accounts.utils.kafka.Kafka.send', return_value=None)
+        self.mock_kafka_send = self._kafka_patcher.start()
+        self.addCleanup(self._kafka_patcher.stop)
+
         self.owner = create_active_user(username='Owner', phone_number='+77072220001', password=DEFAULT_PASSWORD)
         self.other = create_active_user(username='Other', phone_number='+77072220002', password=DEFAULT_PASSWORD)
         # Car wash with relations so manager/washer routes have a car_wash context
