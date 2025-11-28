@@ -2,13 +2,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import action, api_view
 from rest_framework.viewsets import GenericViewSet
-from drf_spectacular.utils import extend_schema
+from api.accounts.docs import UserViewSetDocs, SwaggerLoginDocs
 import requests
 
 from accounts.models import User
 from api.accounts.serializers import UserSerializer
 
 
+@UserViewSetDocs
 class UserViewSet(GenericViewSet):
     serializer_class = UserSerializer
     permission_classes = (IsAuthenticated,)
@@ -23,20 +24,7 @@ class UserViewSet(GenericViewSet):
         return Response(serializer.data)
 
 
-@extend_schema(
-    request={
-        'application/json': {
-            'type': 'object',
-            'properties': {
-                'phone': {'type': 'string'},
-                'password': {'type': 'string'},
-            },
-            'required': ['phone', 'password']
-        }
-    },
-    responses={200: {'description': 'Login successful'}},
-    tags=['Authentication']
-)
+@SwaggerLoginDocs
 @api_view(['POST'])
 def swagger_login(request):
     """

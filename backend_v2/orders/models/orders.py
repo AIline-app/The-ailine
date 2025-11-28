@@ -49,7 +49,6 @@ class Orders(models.Model):
         Services,
         verbose_name=_('Services'),
         blank=False,
-        null=False,
         related_name='orders',
     )
     washer = models.ForeignKey(

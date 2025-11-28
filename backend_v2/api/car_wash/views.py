@@ -1,7 +1,9 @@
 from http import HTTPMethod
+from datetime import datetime
 
-from django.db.models import Q
+from django.db.models import Q, Sum, Count
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
@@ -11,8 +13,11 @@ from api.manager.permissions import IsCarWashManager
 from car_wash.models import Car
 from car_wash.models.car_wash import CarWash
 from api.car_wash.serializers import CarWashWriteSerializer, CarSerializer, BoxSerializer, CarWashReadSerializer, \
-    CarWashQueueSerializer
+    CarWashQueueSerializer, CarWashEarningsSerializer
+from api.car_wash.docs import CarWashViewSetDocs, BoxViewSetDocs, CarViewSetDocs
 from api.car_wash.permissions import IsDirector, ReadOnly, IsCarWashOwner
+from orders.models import Orders
+from orders.utils.enums import OrderStatus
 
 
 class CarWashInRouteMixin:
@@ -29,6 +34,7 @@ class CarWashInRouteMixin:
         return serializer.save(car_wash=self.car_wash)
 
 
+@CarWashViewSetDocs
 class CarWashViewSet(viewsets.ModelViewSet):
     serializer_class = CarWashWriteSerializer
     lookup_url_kwarg = 'car_wash_id'
@@ -69,6 +75,7 @@ class CarWashViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+@BoxViewSetDocs
 class BoxViewSet(CarWashInRouteMixin, viewsets.ModelViewSet):
     serializer_class = BoxSerializer
     lookup_url_kwarg = 'box_id'
@@ -82,6 +89,7 @@ class BoxViewSet(CarWashInRouteMixin, viewsets.ModelViewSet):
             permissions_classes[0] |= IsCarWashManager
         return [permission() for permission in permissions_classes]
 
+@CarViewSetDocs
 class CarViewSet(viewsets.ModelViewSet):
     serializer_class = CarSerializer
     permission_classes = (IsAuthenticated,)

@@ -3,9 +3,11 @@ from rest_framework import viewsets
 from api.car_wash.permissions import ReadOnly, IsCarWashOwner
 from api.car_wash.views import CarWashInRouteMixin
 from api.services.serializers import ServicesWriteSerializer, ServicesReadSerializer
+from api.services.docs import ServicesViewSetDocs
 from services.models import Services
 
 
+@ServicesViewSetDocs
 class ServicesViewSet(CarWashInRouteMixin, viewsets.ModelViewSet):
     serializer_class = ServicesReadSerializer
     lookup_url_kwarg='service_id'

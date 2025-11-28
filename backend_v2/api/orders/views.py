@@ -17,9 +17,11 @@ from api.orders.serializers import (
     OrdersStartSerializer,
     OrdersFinishSerializer, OrdersUpdateServicesSerializer, CarWashOrderQueueSerializer,
 )
+from api.orders.docs import OrdersViewSetDocs
 from orders.utils.enums import OrderStatus
 
 
+@OrdersViewSetDocs
 class OrdersViewSet(CarWashInRouteMixin,
                     mixins.CreateModelMixin,
                     mixins.RetrieveModelMixin,

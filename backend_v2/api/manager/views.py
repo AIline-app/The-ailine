@@ -5,8 +5,10 @@ from api.car_wash.views import CarWashInRouteMixin
 from api.car_wash.permissions import IsManagerSuperior
 from api.manager.permissions import IsCarWashManager
 from api.manager.serializers import ManagerWriteSerializer, WasherWriteSerializer
+from api.manager.docs import ManagerViewSetDocs, WasherViewSetDocs
 
 
+@ManagerViewSetDocs
 class ManagerViewSet(CarWashInRouteMixin, viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = (IsManagerSuperior,)
@@ -27,6 +29,7 @@ class ManagerViewSet(CarWashInRouteMixin, viewsets.ModelViewSet):
         self.car_wash.managers.remove(instance)
 
 
+@WasherViewSetDocs
 class WasherViewSet(CarWashInRouteMixin, viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = (IsCarWashManager,)

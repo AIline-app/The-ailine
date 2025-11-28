@@ -123,6 +123,34 @@ class CarWashQueueSerializer(serializers.Serializer):
     car_amount = serializers.IntegerField(read_only=True)
 
     def create(self, validated_data):
+        car_wash = validated_data.pop('car_wash')
+        boxes_amount = car_wash.boxes.count()
+
+        orders = car_wash.orders.prefetch_related(
+            'services',
+        ).filter(
+            status__in=(OrderStatus.EN_ROUTE, OrderStatus.ON_SITE),
+        )
+
+        combined_duration = self.get_total_duration(orders)
+        return {'wait_time': combined_duration/boxes_amount, 'car_amount': len(orders)}
+
+    def get_total_duration(self, orders):
+        return sum(
+            (
+                sum(
+                    (service.duration for service in order.services),
+                    timedelta(0)
+                ) for order in orders
+            ),
+            timedelta(0)
+        )
+
+class CarWashEarningsSerializer(serializers.Serializer):
+    wait_time = serializers.DurationField(read_only=True)
+    car_amount = serializers.IntegerField(read_only=True)
+
+    def create(self, validated_data):
         car_wash = self.get_car_wash(validated_data.pop('car_wash_id'))
         boxes_amount = car_wash.boxes.count()
 

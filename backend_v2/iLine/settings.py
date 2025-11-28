@@ -22,13 +22,13 @@ environ.Env.read_env(env_file=BASE_DIR('.env'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = env.str("SECRET_KEY")
 
-DEBUG = bool(os.environ.get("DEBUG", default=0))
+DEBUG = env.bool("DEBUG", False)
 
-APP_HOST = os.environ.get('APP_HOST', 'http://localhost:8000/')
+APP_HOST = env.str('APP_HOST', 'http://localhost:8000/')
 
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(",")
+ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", str, '*')
 
 # Application definition
 
@@ -95,7 +95,7 @@ HEADLESS_ADAPTER = 'accounts.adapters.HeadlessAdapter'
 HEADLESS_ONLY = True
 HEADLESS_SERVE_SPECIFICATION = True
 
-SITE_ID = int(os.environ.get('SITE_ID', 1))
+SITE_ID = env.int('SITE_ID', 1)
 
 ACCOUNT_UNIQUE_USERNAME = False
 ACCOUNT_USER_MODEL_EMAIL_FIELD = None
@@ -124,19 +124,17 @@ AUTHENTICATION_BACKENDS = [
 
 WSGI_APPLICATION = 'iLine.wsgi.application'
 
-CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:8000').split(',')
-# Cookie domain must be a plain domain without scheme. For localhost it's best to leave unset.
-# In production, set these via environment variables to your actual domain.
-if not DEBUG:
-    CSRF_COOKIE_DOMAIN = env.str('CSRF_COOKIE_DOMAIN', default=None)
-    SESSION_COOKIE_DOMAIN = env.str('SESSION_COOKIE_DOMAIN', default=None)
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', str, 'http://localhost:8000')
 
 if DEBUG:
     # CSRF and session cookie settings suitable for local development
-    CSRF_COOKIE_SECURE = False
-    SESSION_COOKIE_SECURE = False
+    # CSRF_COOKIE_SECURE = False
+    # SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SAMESITE = 'Lax'
     SESSION_COOKIE_SAMESITE = 'Lax'
+else:
+    CSRF_COOKIE_DOMAIN = env.str('CSRF_COOKIE_DOMAIN', default=None)
+    SESSION_COOKIE_DOMAIN = env.str('SESSION_COOKIE_DOMAIN', default=None)
 
 CSRF_USE_SESSIONS = False
 CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read the cookie
@@ -149,8 +147,8 @@ DATABASES = {
         'NAME': env.str('POSTGRES_DB', 'postgres'),
         'USER': env.str('POSTGRES_USER', 'postgres'),
         'PASSWORD': env.str('POSTGRES_PASSWORD', 'postgres'),
-        'HOST': env.str('HOST', 'localhost'),
-        'PORT': env.int('PORT', 5432),
+        'HOST': env.str('POSTGRES_HOST', 'localhost'),
+        'PORT': env.int('POSTGRES_PORT', 5432),
     }
 }
 
@@ -203,9 +201,44 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+# Security & proxy settings for production
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# SESSION_COOKIE_SECURE = not DEBUG
+# CSRF_COOKIE_SECURE = not DEBUG
+# SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', '0' if DEBUG else '31536000'))
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
+# SECURE_HSTS_PRELOAD = not DEBUG
+# SECURE_CONTENT_TYPE_NOSNIFF = True
+# SECURE_BROWSER_XSS_FILTER = True
+# X_FRAME_OPTIONS = 'DENY'
+# USE_X_FORWARDED_HOST = True
+
+# Logging to stdout/stderr for containerized deployments
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': env.str('DJANGO_LOG_LEVEL', 'DEBUG' if DEBUG else 'INFO'),
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': env.str('DJANGO_LOG_LEVEL', 'DEBUG' if DEBUG else 'INFO'),
+            'propagate': False,
+        },
+    },
+}
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
