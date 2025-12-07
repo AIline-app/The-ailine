@@ -2,10 +2,10 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResp
 
 from api.car_wash.serializers import (
     CarWashWriteSerializer,
+    CarWashChangeSerializer,
     CarSerializer,
     BoxSerializer,
     CarWashReadSerializer,
-    CarWashQueueSerializer,
     CarWashEarningsWriteSerializer,
     CarWashEarningsReadSerializer,
 )
@@ -34,13 +34,13 @@ CarWashViewSetDocs = extend_schema_view(
     update=extend_schema(
         summary="Update a car wash",
         description="Update existing car wash fields, nested settings/documents and boxes amount.",
-        request=CarWashWriteSerializer,
+        request=CarWashChangeSerializer,
         responses={200: CarWashReadSerializer, 400: OpenApiResponse(description="Validation error")},
         tags=["Car wash"],
     ),
     partial_update=extend_schema(
         summary="Partially update a car wash",
-        request=CarWashWriteSerializer,
+        request=CarWashChangeSerializer,
         responses={200: CarWashReadSerializer},
         tags=["Car wash"],
     ),
@@ -52,7 +52,7 @@ CarWashViewSetDocs = extend_schema_view(
     queue=extend_schema(
         summary="Get car wash queue data",
         description="Returns approximate wait time and cars amount in queue for a car wash.",
-        responses={200: CarWashQueueSerializer},
+        # responses={200: CarWashQueueSerializer},
         tags=["Car wash"],
     ),
     earnings=extend_schema(

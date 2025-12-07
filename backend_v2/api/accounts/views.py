@@ -1,9 +1,9 @@
+import requests
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import action, api_view
 from rest_framework.viewsets import GenericViewSet
 from api.accounts.docs import UserViewSetDocs, SwaggerLoginDocs
-import requests
 
 from accounts.models import User
 from api.accounts.serializers import UserSerializer
@@ -11,11 +11,9 @@ from api.accounts.serializers import UserSerializer
 
 @UserViewSetDocs
 class UserViewSet(GenericViewSet):
+
     serializer_class = UserSerializer
     permission_classes = (IsAuthenticated,)
-
-    def get_queryset(self):
-        return User.objects.filter(id=self.request.user.id)
 
     @action(detail=False, methods=["get"], url_path="me")
     def me(self, request):

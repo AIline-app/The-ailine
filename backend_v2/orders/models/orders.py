@@ -11,6 +11,18 @@ from orders.utils.enums import OrderStatus
 from services.models import Services
 
 
+class OrdersQuerySet(models.QuerySet):
+
+    def get_active(self, current_order=None):
+
+        active_orders = self.filter(status__in=(OrderStatus.EN_ROUTE, OrderStatus.ON_SITE))
+
+        if current_order:
+            active_orders = active_orders.filter(created_at__lt=current_order.created_at)
+
+        return active_orders
+
+
 class Orders(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(
@@ -64,6 +76,8 @@ class Orders(models.Model):
     finished_at = models.DateTimeField(verbose_name=_('Finished at'), blank=True, null=True)
     total_price = models.PositiveIntegerField(verbose_name=_('Final total price'), blank=True, null=True, default=None)
     status = models.CharField(verbose_name=_('Status'), choices=OrderStatus.choices, default=OrderStatus.EN_ROUTE)
+
+    objects: OrdersQuerySet = OrdersQuerySet.as_manager()
 
     class Meta:
         verbose_name = _('Order')

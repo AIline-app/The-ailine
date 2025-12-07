@@ -10,13 +10,14 @@ from rest_framework.response import Response
 from api.manager.permissions import IsCarWashManager
 from car_wash.models import Car
 from car_wash.models.car_wash import CarWash
-from api.car_wash.serializers import CarWashWriteSerializer, CarSerializer, BoxSerializer, CarWashReadSerializer, \
-    CarWashQueueSerializer, CarWashEarningsWriteSerializer
+from api.car_wash.serializers import (CarWashWriteSerializer, CarSerializer, BoxSerializer, CarWashReadSerializer,
+                                      CarWashEarningsWriteSerializer, CarWashChangeSerializer)
 from api.car_wash.docs import CarWashViewSetDocs, BoxViewSetDocs, CarViewSetDocs
 from api.car_wash.permissions import IsDirector, ReadOnly, IsCarWashOwner
 
 
 class CarWashInRouteMixin:
+
     @property
     def car_wash(self) -> CarWash:
         return get_object_or_404(CarWash, pk=self.kwargs['car_wash_id'])
@@ -51,10 +52,9 @@ class CarWashViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         return {
             "create": CarWashWriteSerializer,
-            "update": CarWashWriteSerializer,
+            "update": CarWashChangeSerializer,
             "list": CarWashReadSerializer,
             "retrieve": CarWashReadSerializer,
-            "queue": CarWashQueueSerializer,
             "earnings": CarWashEarningsWriteSerializer,
         }.get(self.action, self.serializer_class)
 
@@ -70,10 +70,8 @@ class CarWashViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=[HTTPMethod.GET])
     def queue(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(car_wash=self.car_wash)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(self.car_wash.get_queue_data(), status=status.HTTP_200_OK)
 
     @action(detail=True, methods=[HTTPMethod.POST], permission_classes=[IsCarWashOwner])
     def earnings(self, request, *args, **kwargs):
@@ -85,13 +83,16 @@ class CarWashViewSet(viewsets.ModelViewSet):
 
 @BoxViewSetDocs
 class BoxViewSet(CarWashInRouteMixin, viewsets.ModelViewSet):
+
     serializer_class = BoxSerializer
     lookup_url_kwarg = 'box_id'
 
     def get_queryset(self):
-        return self.car_wash.boxes
+
+        return self.car_wash.boxes.all()
 
     def get_permissions(self):
+
         permissions_classes = [IsCarWashOwner]
         if self.request.method in SAFE_METHODS:
             permissions_classes[0] |= IsCarWashManager

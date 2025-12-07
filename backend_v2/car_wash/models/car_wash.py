@@ -1,8 +1,12 @@
 import uuid
+from datetime import timedelta
 
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from django.db.models import Sum, DurationField, Value, ExpressionWrapper
 from django.utils.translation import gettext_lazy as _
 
+from car_wash.utils.constants import DEFAULT_WASHER_PERCENT, MIN_WASHER_PERCENT, MAX_WASHER_PERCENT
 from iLine.settings import AUTH_USER_MODEL
 from car_wash.models.box import Box
 
@@ -39,6 +43,7 @@ class CarWash(models.Model):
     )
     name = models.CharField(verbose_name=_('Name'), max_length=40, blank=False)
     address = models.CharField(verbose_name=_('Address'), max_length=300)
+    location = models.CharField(verbose_name=_('Location'), null=True, default=None, max_length=300)
     created_at = models.DateTimeField(verbose_name=_('Creation Data'), auto_now_add=True)
     is_active = models.BooleanField(verbose_name=_('Is active'), default=False)
 
@@ -63,11 +68,29 @@ class CarWash(models.Model):
         return CarWashDocuments.objects.create(car_wash=self, **documents_data)
 
     def create_boxes(self, amount: int):
-        boxes = [
-            Box(car_wash=self, name=f'Box #{box_num+1}')
-            for box_num in range(amount)
-        ]
-        Box.objects.bulk_create(boxes)
+
+        Box.objects.bulk_create(Box(car_wash=self, name=f'Box #{box_num + 1}') for box_num in range(amount))
+
+    def __get_boxes_amount(self):
+
+        return self.boxes.count()
+
+    def __get_orders(self, current_order=None):
+
+        return self.orders.get_active(current_order)
+
+    def get_queue_data(self, current_order=None):
+
+        boxes_amount = self.__get_boxes_amount()
+        orders = self.__get_orders(current_order)
+        queue_duration = orders.aggregate(
+            sum_duration=ExpressionWrapper(
+                Sum("services__duration", default=timedelta(0)) / Value(boxes_amount),
+                output_field=DurationField(),
+            ),
+        )["sum_duration"]
+
+        return {'wait_time': str(queue_duration), 'car_amount': len(orders)}
 
     def update_car_types(self, car_types):
         # TODO finish
@@ -88,7 +111,8 @@ class CarWashSettings(models.Model):
         verbose_name=_('Washer Percent'),
         null=False,
         blank=True,
-        default=30,
+        default=DEFAULT_WASHER_PERCENT,
+        validators = [MinValueValidator(MIN_WASHER_PERCENT), MaxValueValidator(MAX_WASHER_PERCENT)],
     )
 
     class Meta:
@@ -98,8 +122,7 @@ class CarWashSettings(models.Model):
         return f'<CarWashSettings ({self.car_wash})>'
 
     def set_car_types(self, car_types):
-        objects = [CarType(settings=self, name=car_type['name']) for car_type in car_types]
-        CarType.objects.bulk_create(objects)
+        CarType.objects.bulk_create(CarType(settings=self, name=car_type['name']) for car_type in car_types)
 
 
 class CarWashDocuments(models.Model):

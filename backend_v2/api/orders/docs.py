@@ -7,7 +7,6 @@ from api.orders.serializers import (
     OrdersStartSerializer,
     OrdersFinishSerializer,
     OrdersUpdateServicesSerializer,
-    CarWashOrderQueueSerializer,
 )
 
 
@@ -45,7 +44,7 @@ OrdersViewSetDocs = extend_schema_view(
     queue=extend_schema(
         summary="Get queue info for order",
         description="Returns updated order with computed queue-related data.",
-        request=CarWashOrderQueueSerializer,
+        # request=CarWashOrderQueueSerializer,
         responses={200: OrdersReadSerializer},
         tags=["Orders"],
     ),

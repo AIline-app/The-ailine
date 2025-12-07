@@ -15,7 +15,8 @@ from api.orders.serializers import (
     OrdersReadSerializer,
     OrdersManualCreateSerializer,
     OrdersStartSerializer,
-    OrdersFinishSerializer, OrdersUpdateServicesSerializer, CarWashOrderQueueSerializer,
+    OrdersFinishSerializer,
+    OrdersUpdateServicesSerializer,
 )
 from api.orders.docs import OrdersViewSetDocs
 from orders.utils.enums import OrderStatus
@@ -52,7 +53,6 @@ class OrdersViewSet(CarWashInRouteMixin,
             "list": OrdersReadSerializer,
             "retrieve": OrdersReadSerializer,
             "manual": OrdersManualCreateSerializer,
-            "queue": CarWashOrderQueueSerializer,
             "start": OrdersStartSerializer,
             "finish": OrdersFinishSerializer,
             "update_services": OrdersUpdateServicesSerializer,
@@ -77,7 +77,8 @@ class OrdersViewSet(CarWashInRouteMixin,
 
     @action(detail=True, methods=[HTTPMethod.GET])
     def queue(self, request, *args, **kwargs):
-        return self._update(request, *args, **kwargs)
+
+        return Response(self.car_wash.get_queue_data(self.get_object()), status=status.HTTP_200_OK)
 
     @action(detail=True, methods=[HTTPMethod.PUT], permission_classes=(IsCarWashManager,))
     def start(self, request, *args, **kwargs):

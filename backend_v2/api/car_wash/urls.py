@@ -11,7 +11,6 @@ router.register(fr"car-wash/(?P<car_wash_id>{UUID_REGEX})/manager", ManagerViewS
 router.register(fr"car-wash/(?P<car_wash_id>{UUID_REGEX})/washer", WasherViewSet, basename="car-wash-washers")
 router.register(r'car-wash', CarWashViewSet, basename='car-wash')
 router.register(r"user/car", CarViewSet, basename="user-car")
-
 urlpatterns = [
     path("", include(router.urls)),
 ]

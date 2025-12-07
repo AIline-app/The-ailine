@@ -1,26 +1,20 @@
 import logging
 import uuid
-import json
 
 import phonenumbers
-from kafka import KafkaProducer
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
-from django.contrib.auth.models import PermissionsMixin, AbstractUser
+from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import RegexValidator
 
 from accounts.utils.constants import (
     MAX_USERNAME_LENGTH,
     MAX_PHONE_NUMBER_LENGTH,
-    PHONE_VALIDATE_REGEX,
-    PHONE_VALIDATE_MESSAGE,
     MAX_PASSWORD_LENGTH,
     SMS_REGISTRATION_MESSAGE,
     MANAGER_REGISTRATION_MESSAGE,
 )
-from accounts.utils.enums import TypeSmsCode
 from accounts.utils.kafka import Kafka
 from iLine.settings import APP_HOST
 

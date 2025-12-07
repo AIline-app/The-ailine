@@ -18,24 +18,28 @@ class PhoneNumberValidationMixin:
         return User.objects.normalize_phone_number(phone_number)
 
 
-class RegisterUserSerializerMixin:
+class BaseRegisterUserSerializer(
+    PhoneNumberValidationMixin,
+    serializers.Serializer,
+):
+
+    phone_number = serializers.CharField()
+    username = serializers.CharField(max_length=MAX_USERNAME_LENGTH)
+    password = serializers.CharField()
+
     @staticmethod
     def get_user(phone_number):
-        return User.objects.filter(
-            phone_number=phone_number,
-        ).first()
+
+        return User.objects.filter(phone_number=phone_number).first()
 
     def to_representation(self, instance):
-        return UserSerializer(instance).data
 
-
-class BaseRegisterUserSerializer(PhoneNumberValidationMixin, RegisterUserSerializerMixin, serializers.Serializer):
-    phone_number = serializers.CharField()
-    username =  serializers.CharField(max_length=MAX_USERNAME_LENGTH)
-    password = serializers.CharField()
+        return UserSerializer(instance, context=self.context).data
 
 
 class UserSerializer(serializers.ModelSerializer):
+
     class Meta:
+
         model = User
-        fields = ['id', 'username', 'phone_number', 'created_at']
+        fields = ('id', 'username', 'phone_number', 'created_at')

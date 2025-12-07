@@ -16,7 +16,6 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from django.http import JsonResponse
 
 
@@ -26,14 +25,8 @@ def healthz(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('allauth.urls')),
+    path('_allauth/', include('allauth.urls')),
     path("_allauth/", include("allauth.headless.urls")),
-    path('', include('accounts.urls')),
-    path('', include('car_wash.urls')),
-    path('', include('services.urls')),
-    path('', include('orders.urls')),
-    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path('api/v1/', include('api.urls')),
     path('healthz/', healthz, name='healthz'),
 ]
