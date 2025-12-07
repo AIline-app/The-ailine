@@ -1,10 +1,22 @@
+version: "3.9"
+
 services:
   db:
     image: postgres:15-alpine
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
     env_file:
       - .env
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     ports:
       - "5678:5432"
     restart: always
@@ -42,20 +54,24 @@ services:
 
   web:
     build: .
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
-    volumes:
-      - .:/app
     env_file:
       - .env
+    command: ["gunicorn", "iLine.wsgi:application", "-c", "/app/gunicorn.conf.py"]
     ports:
       - "8000:8000"
-    links:
-      - db
-      - kafka
     depends_on:
-      - db
-      - kafka
-      - sms-worker
+      db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      sms-worker:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/healthz/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: always
 
   sms-worker:
@@ -63,12 +79,8 @@ services:
     build:
       context: standalone/sms_worker
     command: python worker.py
-    volumes:
-      - ./standalone/sms_worker:/app
     env_file:
       - .env
-    links:
-      - kafka
     depends_on:
       kafka:
         condition: service_healthy

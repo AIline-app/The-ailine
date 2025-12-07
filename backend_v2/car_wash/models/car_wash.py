@@ -98,8 +98,8 @@ class CarWashSettings(models.Model):
         return f'<CarWashSettings ({self.car_wash})>'
 
     def set_car_types(self, car_types):
-        objects = [CarTypes(settings=self, name=car_type['name']) for car_type in car_types]
-        CarTypes.objects.bulk_create(objects)
+        objects = [CarType(settings=self, name=car_type['name']) for car_type in car_types]
+        CarType.objects.bulk_create(objects)
 
 
 class CarWashDocuments(models.Model):
@@ -120,7 +120,7 @@ class CarWashDocuments(models.Model):
         return f'<CarWashDocuments ({self.car_wash})>'
 
 
-class CarTypes(models.Model):
+class CarType(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     settings = models.ForeignKey(CarWashSettings, on_delete=models.CASCADE, related_name='car_types')
     name = models.CharField(_('Car type'), )

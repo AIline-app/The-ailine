@@ -1,19 +1,19 @@
 from datetime import timedelta
 
 from django.db import transaction
+from django.db.models import Sum, Count
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 
 from car_wash.models import Car
 from car_wash.models.box import Box
-from car_wash.models.car_wash import CarWash, CarWashSettings, CarWashDocuments, CarTypes
-from orders.models import Orders
+from car_wash.models.car_wash import CarWash, CarWashSettings, CarWashDocuments, CarType
 from orders.utils.enums import OrderStatus
 
 
 class CarWashCarTypesSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CarTypes
+        model = CarType
         exclude = ('settings',)
 
 
@@ -146,41 +146,67 @@ class CarWashQueueSerializer(serializers.Serializer):
             timedelta(0)
         )
 
-class CarWashEarningsSerializer(serializers.Serializer):
-    wait_time = serializers.DurationField(read_only=True)
-    car_amount = serializers.IntegerField(read_only=True)
+
+class CarWashEarningsByCarTypesReadSerializer(CarWashCarTypesSerializer):
+    orders_count = serializers.IntegerField(read_only=True)
+
+
+class CarWashEarningsReadSerializer(serializers.Serializer):
+    total_revenue = serializers.IntegerField(read_only=True)
+    orders_count = serializers.IntegerField(read_only=True)
+    by_car_types = CarWashEarningsByCarTypesReadSerializer(many=True, read_only=True)
+
+
+class CarWashEarningsWriteSerializer(serializers.Serializer):
+    date_from = serializers.DateField(required=True)
+    date_to = serializers.DateField(required=False, default=None)
 
     def create(self, validated_data):
-        car_wash = self.get_car_wash(validated_data.pop('car_wash_id'))
-        boxes_amount = car_wash.boxes.count()
+        car_wash = validated_data.pop('car_wash')
+        date_from = validated_data.pop('date_from')
+        date_to = validated_data.pop('date_to')
 
-        orders = self.get_orders_query(car_wash)
-
-        combined_duration = self.get_total_duration(orders)
-        return {'wait_time': combined_duration/boxes_amount, 'car_amount': len(orders)}
-
-    def get_car_wash(self, car_wash_id):
-        return CarWash.objects.prefetch_related('boxes').filter(id=car_wash_id).first()
-
-    def get_orders_query(self, car_wash, *args, **kwargs):
-        query = Orders.objects.prefetch_related(
-            'services',
-        ).filter(
-            car_wash=car_wash,
-            status__in=(OrderStatus.EN_ROUTE, OrderStatus.ON_SITE),
+        qs = car_wash.orders.filter(
+            status=OrderStatus.COMPLETED,
         )
-        return query
 
-    def get_total_duration(self, orders):
-        return sum(
-            (
-                sum(
-                    (service.duration for service in order.services.all()),
-                    timedelta(0)
-                ) for order in orders
-            ),
-            timedelta(0)
+        if date_to is not None:
+            qs = qs.filter(
+                finished_at__date__range=(date_from, date_to),
+            )
+        else:
+            qs = qs.filter(
+                finished_at__date=date_from,
+            )
+
+        agg = qs.aggregate(total_revenue=Sum('total_price'), orders_count=Count('id'))
+        total_revenue = agg['total_revenue'] or 0
+        orders_count = agg['orders_count'] or 0
+
+        # Counts by car type via services relationship
+        car_type_rows = (
+            qs.values('services__car_type__id', 'services__car_type__name')
+              .annotate(orders_count=Count('id', distinct=True))
+              .filter(services__car_type__id__isnull=False)
+              .order_by('-orders_count')
         )
+        car_types = [
+            {
+                'id': row['services__car_type__id'],
+                'name': row['services__car_type__name'],
+                'orders_count': row['orders_count'],
+            }
+            for row in car_type_rows
+        ]
+        return {
+            'total_revenue': total_revenue,
+            'orders_count': orders_count,
+            'by_car_types': car_types,
+        }
+
+    def to_representation(self, instance):
+        return CarWashEarningsReadSerializer(instance, context=self.context).data
+
 
 class CarSerializer(serializers.ModelSerializer):
     class Meta:

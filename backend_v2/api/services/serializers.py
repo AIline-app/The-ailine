@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from car_wash.models import CarTypes
+from car_wash.models import CarType
 from services.models import Services
 from services.utils.constants import PRICE_MINIMUM_VALUE
 
@@ -16,7 +16,7 @@ class ServicesReadSerializer(serializers.ModelSerializer):
 
 
 class ServicesWriteSerializer(serializers.ModelSerializer):
-    car_type = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=CarTypes.objects.all())
+    car_type = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=CarType.objects.all())
     price = serializers.IntegerField(min_value=PRICE_MINIMUM_VALUE)
 
     class Meta:

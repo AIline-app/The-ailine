@@ -163,6 +163,7 @@ coverage.xml
 *.mo
 
 # Django stuff:
+staticfiles/
 
 # Flask stuff:
 instance/

@@ -62,7 +62,7 @@ class OrdersViewSet(CarWashInRouteMixin,
         instance.status = OrderStatus.CANCELED
         instance.save()
 
-    def update(self, request, *args, **kwargs):
+    def _update(self, request, *args, **kwargs):
         order = self.get_object()
         serializer = self.get_serializer(order, data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -77,16 +77,16 @@ class OrdersViewSet(CarWashInRouteMixin,
 
     @action(detail=True, methods=[HTTPMethod.GET])
     def queue(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
+        return self._update(request, *args, **kwargs)
 
     @action(detail=True, methods=[HTTPMethod.PUT], permission_classes=(IsCarWashManager,))
     def start(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
+        return self._update(request, *args, **kwargs)
 
     @action(detail=True, methods=[HTTPMethod.PUT], permission_classes=(IsCarWashManager,))
     def finish(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
+        return self._update(request, *args, **kwargs)
 
     @action(detail=True, methods=[HTTPMethod.PUT], url_path='services', permission_classes=(IsCarWashManager,))
     def update_services(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
+        return self._update(request, *args, **kwargs)

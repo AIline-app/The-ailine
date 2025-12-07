@@ -6,6 +6,8 @@ from api.car_wash.serializers import (
     BoxSerializer,
     CarWashReadSerializer,
     CarWashQueueSerializer,
+    CarWashEarningsWriteSerializer,
+    CarWashEarningsReadSerializer,
 )
 
 
@@ -52,6 +54,13 @@ CarWashViewSetDocs = extend_schema_view(
         description="Returns approximate wait time and cars amount in queue for a car wash.",
         responses={200: CarWashQueueSerializer},
         tags=["Car wash"],
+    ),
+    earnings=extend_schema(
+        summary="Calculate car wash earnings",
+        description="Calculate total earnings and breakdown by car types for the specified period.",
+        request=CarWashEarningsWriteSerializer,
+        responses={200: CarWashEarningsReadSerializer, 400: OpenApiResponse(description="Validation error"), 403: OpenApiResponse(description="Forbidden")},
+        tags=["Earnings"],
     ),
 )
 
