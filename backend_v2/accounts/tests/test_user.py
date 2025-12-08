@@ -20,7 +20,7 @@ class UserAuthEndpointsTests(APITestCase):
         self.addCleanup(self._kafka_patcher.stop)
 
         # Router-registered endpoint to fetch current user (requires auth)
-        self.me_url = '/user/me/'
+        self.me_url = '/api/v1/user/me/'
 
         self.sample_username = 'John Doe'
         self.sample_phone = '+77051234567'

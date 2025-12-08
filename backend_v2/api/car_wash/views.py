@@ -1,19 +1,21 @@
 from http import HTTPMethod
 
-from django.db.models import Q
+from django.db.models import Q, F, Count, Sum
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 from rest_framework.response import Response
 
-from api.manager.permissions import IsCarWashManager
 from car_wash.models import Car
 from car_wash.models.car_wash import CarWash
 from api.car_wash.serializers import (CarWashWriteSerializer, CarSerializer, BoxSerializer, CarWashReadSerializer,
-                                      CarWashEarningsWriteSerializer, CarWashChangeSerializer)
-from api.car_wash.docs import CarWashViewSetDocs, BoxViewSetDocs, CarViewSetDocs
+                                      CarWashEarningsReadSerializer, CarWashChangeSerializer)
+from api.car_wash.docs import CarWashViewSetDocs, BoxViewSetDocs, CarViewSetDocs, CarWashEarningsViewSetDocs
 from api.car_wash.permissions import IsDirector, ReadOnly, IsCarWashOwner
+from api.manager.permissions import IsCarWashManager
+from api.manager.filters import OrdersFilterSet
 
 
 class CarWashInRouteMixin:
@@ -33,6 +35,7 @@ class CarWashInRouteMixin:
 
 @CarWashViewSetDocs
 class CarWashViewSet(viewsets.ModelViewSet):
+
     serializer_class = CarWashWriteSerializer
     lookup_url_kwarg = 'car_wash_id'
     permission_classes = (ReadOnly | IsDirector,)
@@ -55,7 +58,6 @@ class CarWashViewSet(viewsets.ModelViewSet):
             "update": CarWashChangeSerializer,
             "list": CarWashReadSerializer,
             "retrieve": CarWashReadSerializer,
-            "earnings": CarWashEarningsWriteSerializer,
         }.get(self.action, self.serializer_class)
 
     def perform_create(self, serializer):
@@ -73,11 +75,38 @@ class CarWashViewSet(viewsets.ModelViewSet):
 
         return Response(self.car_wash.get_queue_data(), status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=[HTTPMethod.POST], permission_classes=[IsCarWashOwner])
+
+@CarWashEarningsViewSetDocs
+class CarWashEarningsViewSet(CarWashInRouteMixin, viewsets.GenericViewSet):
+
+    serializer_class = CarWashEarningsReadSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = OrdersFilterSet
+    lookup_url_kwarg = 'car_wash_id'
+
+    def get_queryset(self):
+
+        return self.car_wash.orders.get_completed()
+
+    @action(detail=True, methods=[HTTPMethod.GET], permission_classes=(IsCarWashOwner,))
     def earnings(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(car_wash=self.car_wash)
+
+        queryset = self.filter_queryset(self.get_queryset())
+
+        car_wash_data = queryset.values("car_wash").annotate(
+            orders_count=Count('id'),
+            revenue=Sum('total_price'),
+        )
+
+        by_car_types = queryset.values(car_type=F("services__car_type")).annotate(
+            orders_count=Count('id', distinct=True),
+        )
+
+        serializer = self.get_serializer(
+            car_wash_data[0] | {"by_car_types": by_car_types},
+            many=False,
+        )
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

@@ -1,7 +1,10 @@
+from datetime import date
+
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResponse
 
+from iLine.docs_params import date_from_param, date_to_param
 from api.accounts.serializers import UserSerializer
-from api.manager.serializers import ManagerWriteSerializer, WasherWriteSerializer, WasherEarningsWriteSerializer, WasherEarningsReadSerializer
+from api.manager.serializers import ManagerWriteSerializer, WasherWriteSerializer, WasherEarningsReadSerializer
 
 
 ManagerViewSetDocs = extend_schema_view(
@@ -77,10 +80,14 @@ WasherViewSetDocs = extend_schema_view(
         responses={204: OpenApiResponse(description="Removed")},
         tags=["Washers"],
     ),
+)
+
+WasherEarningsViewSetDocs = extend_schema_view(
     earnings=extend_schema(
+        parameters=[date_from_param, date_to_param],
         summary="Calculate washers earnings",
         description="Calculate earnings per washer for the specified period at a car wash.",
-        request=WasherEarningsWriteSerializer,
+        request=WasherEarningsReadSerializer,
         responses={200: WasherEarningsReadSerializer, 400: OpenApiResponse(description="Validation error"), 403: OpenApiResponse(description="Forbidden")},
         tags=["Earnings"],
     ),

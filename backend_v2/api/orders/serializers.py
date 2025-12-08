@@ -6,7 +6,7 @@ from rest_framework import serializers
 
 from accounts.models import User
 from accounts.utils.constants import MAX_USERNAME_LENGTH
-from api.accounts.serializers import UserSerializer, PhoneNumberValidationMixin
+from api.accounts.serializers import UserSerializer, PhoneNumberValidationMixin, UsernameValidationMixin
 from api.car_wash.serializers import CarSerializer, BoxSerializer
 from api.services.serializers import ServicesReadSerializer
 from car_wash.utils.constants import MAX_CAR_NUMBER_LENGTH
@@ -60,7 +60,6 @@ class OrdersCreateSerializer(serializers.ModelSerializer):
         fields = ('user', 'car', 'status', 'services')
 
     def validate(self, attrs):
-        attrs['car_wash'] = self.context['car_wash']
 
         attrs['services'] = set(attrs['services'])
         if sum(map(lambda x: not x.is_extra, attrs['services'])) != 1:
@@ -78,7 +77,11 @@ class OrdersCreateSerializer(serializers.ModelSerializer):
         return OrdersReadSerializer(instance, context=self.context).data
 
 
-class OrdersManualUserSerializer(PhoneNumberValidationMixin, serializers.Serializer):
+class OrdersManualUserSerializer(
+    PhoneNumberValidationMixin,
+    UsernameValidationMixin,
+    serializers.Serializer,
+):
     phone_number = serializers.CharField()
     username = serializers.CharField(max_length=MAX_USERNAME_LENGTH)
     car_number = serializers.CharField(max_length=MAX_CAR_NUMBER_LENGTH)

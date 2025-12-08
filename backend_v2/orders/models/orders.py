@@ -22,6 +22,10 @@ class OrdersQuerySet(models.QuerySet):
 
         return active_orders
 
+    def get_completed(self):
+
+        return self.filter(status=OrderStatus.COMPLETED)
+
 
 class Orders(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

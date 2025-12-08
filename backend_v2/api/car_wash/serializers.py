@@ -80,13 +80,7 @@ class CarWashPrivateReadSerializer(CarWashPublicReadSerializer):
         )
 
 
-class CarWashReadSerializer(serializers.ModelSerializer):
-
-    class Meta:
-
-        model = CarWash
-        fields = '__all__'
-        read_only_fields = fields
+class CarWashReadSerializer(serializers.Serializer):
 
     def to_representation(self, instance):
 
@@ -117,13 +111,19 @@ class CarWashWriteSerializer(CarWashChangeSerializer):
 
         fields = CarWashChangeSerializer.Meta.fields + ('settings', 'documents', 'boxes_amount')
 
-    def validate(self, attrs):
-        # if ',' not in attrs['location']:
-        #     raise serializers.ValidationError({'location': _('Must be in format "1111.11,2222.22"')})
-        #
-        # lat, long = attrs['location'].split(',')
+    def validate_location(self, value):
+        try:
+            lat, long = value.split(',')
+            lat, long = float(lat), float(long)
+        except ValueError:
+            raise serializers.ValidationError({'location': _('Must be in format "11.1111,22.2222"')})
 
-        return attrs
+        if not -90 <= lat <= 90:
+            raise serializers.ValidationError({'location': _('Latitude must be between -90 and 90')})
+        if not -90 <= long <= 90:
+            raise serializers.ValidationError({'location': _('Longitude must be between -90 and 90')})
+
+        return value
 
     @transaction.atomic
     def create(self, validated_data):
@@ -139,65 +139,17 @@ class CarWashWriteSerializer(CarWashChangeSerializer):
         return car_wash
 
 
-class CarWashEarningsByCarTypesReadSerializer(CarWashCarTypesSerializer):
+class CarWashEarningsByCarTypesReadSerializer(serializers.Serializer):
+
+    car_type = serializers.CharField(read_only=True)
     orders_count = serializers.IntegerField(read_only=True)
 
 
 class CarWashEarningsReadSerializer(serializers.Serializer):
-    total_revenue = serializers.IntegerField(read_only=True)
+
+    revenue = serializers.IntegerField(read_only=True)
     orders_count = serializers.IntegerField(read_only=True)
     by_car_types = CarWashEarningsByCarTypesReadSerializer(many=True, read_only=True)
-
-
-class CarWashEarningsWriteSerializer(serializers.Serializer):
-    date_from = serializers.DateField(required=True)
-    date_to = serializers.DateField(required=False, default=None)
-
-    def create(self, validated_data):
-        car_wash = validated_data.pop('car_wash')
-        date_from = validated_data.pop('date_from')
-        date_to = validated_data.pop('date_to')
-
-        qs = car_wash.orders.filter(
-            status=OrderStatus.COMPLETED,
-        )
-
-        if date_to is not None:
-            qs = qs.filter(
-                finished_at__date__range=(date_from, date_to),
-            )
-        else:
-            qs = qs.filter(
-                finished_at__date=date_from,
-            )
-
-        agg = qs.aggregate(total_revenue=Sum('total_price'), orders_count=Count('id'))
-        total_revenue = agg['total_revenue'] or 0
-        orders_count = agg['orders_count'] or 0
-
-        # Counts by car type via services relationship
-        car_type_rows = (
-            qs.values('services__car_type__id', 'services__car_type__name')
-              .annotate(orders_count=Count('id', distinct=True))
-              .filter(services__car_type__id__isnull=False)
-              .order_by('-orders_count')
-        )
-        car_types = [
-            {
-                'id': row['services__car_type__id'],
-                'name': row['services__car_type__name'],
-                'orders_count': row['orders_count'],
-            }
-            for row in car_type_rows
-        ]
-        return {
-            'total_revenue': total_revenue,
-            'orders_count': orders_count,
-            'by_car_types': car_types,
-        }
-
-    def to_representation(self, instance):
-        return CarWashEarningsReadSerializer(instance, context=self.context).data
 
 
 class CarSerializer(serializers.ModelSerializer):

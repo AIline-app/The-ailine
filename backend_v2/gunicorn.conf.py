@@ -6,8 +6,8 @@ bind = os.getenv("GUNICORN_BIND", "0.0.0.0:8000")
 
 # Workers: prefer WEB_CONCURRENCY, else CPU*2+1
 workers = int(os.getenv("WEB_CONCURRENCY", multiprocessing.cpu_count() * 2 + 1))
-threads = int(os.getenv("GUNICORN_THREADS", "1"))
-worker_class = os.getenv("GUNICORN_WORKER_CLASS", "gthread" if threads > 1 else "sync")
+# threads = int(os.getenv("GUNICORN_THREADS", "1"))
+# worker_class = os.getenv("GUNICORN_WORKER_CLASS", "gthread" if threads > 1 else "sync")
 
 timeout = int(os.getenv("GUNICORN_TIMEOUT", "60"))
 graceful_timeout = int(os.getenv("GUNICORN_GRACEFUL_TIMEOUT", "30"))

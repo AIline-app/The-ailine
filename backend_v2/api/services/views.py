@@ -14,7 +14,7 @@ class ServicesViewSet(CarWashInRouteMixin, viewsets.ModelViewSet):
     permission_classes = (ReadOnly | IsCarWashOwner,)
 
     def get_queryset(self):
-        return Services.objects.filter(car_wash=self.car_wash)
+        return self.car_wash.services.all()
 
     def get_serializer_class(self):
         return {

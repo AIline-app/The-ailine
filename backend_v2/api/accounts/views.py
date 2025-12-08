@@ -1,3 +1,5 @@
+from http import HTTPMethod
+
 import requests
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -15,7 +17,7 @@ class UserViewSet(GenericViewSet):
     serializer_class = UserSerializer
     permission_classes = (IsAuthenticated,)
 
-    @action(detail=False, methods=["get"], url_path="me")
+    @action(detail=False, methods=[HTTPMethod.GET], url_path="me")
     def me(self, request):
         """Return the currently authenticated user (including id)."""
         serializer = self.get_serializer(request.user)
