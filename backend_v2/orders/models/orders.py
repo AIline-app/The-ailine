@@ -87,10 +87,9 @@ class Orders(models.Model):
         verbose_name = _('Order')
         verbose_name_plural = _('Orders')
 
-        # TODO check which indexes needed
-        # indexes = [
-            # models.Index(fields=['car']),
-            # models.Index(fields=['box']),
-            # models.Index(fields=['car_wash']),
-            # models.Index(fields=['user']),
-        # ]
+        indexes = [
+            models.Index(fields=['car_wash', '-created_at'], name='ord_cw_created_desc_idx'),
+            models.Index(fields=['car_wash', 'status', '-created_at'], name='ord_cw_status_created_desc_idx'),
+            models.Index(fields=['car', '-created_at'], name='ord_car_created_id_desc_idx'),
+            models.Index(fields=['car_wash', 'user', '-created_at'], name='ord_cw_user_created_desc_idx'),
+        ]

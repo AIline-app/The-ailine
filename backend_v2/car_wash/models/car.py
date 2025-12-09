@@ -16,6 +16,7 @@ class Car(models.Model):
         unique_together = ('owner', 'number')
         indexes = [
             models.Index(fields=['owner', 'number']),
+            models.Index(fields=['number'], name='car_number_idx'),
         ]
 
     def __str__(self):

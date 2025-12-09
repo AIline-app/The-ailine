@@ -1,4 +1,5 @@
 import phonenumbers
+from allauth.account.adapter import get_adapter
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 
@@ -18,8 +19,14 @@ class PhoneNumberValidationMixin:
         return User.objects.normalize_phone_number(phone_number)
 
 
+class UsernameValidationMixin:
+    def validate_username(self, username):
+        return get_adapter().clean_username(username)
+
+
 class BaseRegisterUserSerializer(
     PhoneNumberValidationMixin,
+    UsernameValidationMixin,
     serializers.Serializer,
 ):
 
@@ -29,8 +36,7 @@ class BaseRegisterUserSerializer(
 
     @staticmethod
     def get_user(phone_number):
-
-        return User.objects.filter(phone_number=phone_number).first()
+        return get_adapter().get_user_by_phone(phone_number)
 
     def to_representation(self, instance):
 

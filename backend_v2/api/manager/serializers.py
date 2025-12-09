@@ -26,7 +26,6 @@ class ManagerWriteSerializer(BaseRegisterUserSerializer):
 
 class WasherWriteSerializer(BaseRegisterUserSerializer):
     def validate(self, attrs):
-        # TODO validate
         attrs['user'] = self.get_user(attrs['phone_number'])
         if attrs['user'] in attrs['car_wash'].washers:
             raise serializers.ValidationError({'phone_number': _('Already a washer in this car wash')})
