@@ -6,11 +6,20 @@ from allauth.account.adapter import DefaultAccountAdapter
 from allauth.headless.adapter import DefaultHeadlessAdapter
 from allauth.core.internal.cryptokit import generate_user_code
 from allauth.account import app_settings
+from django_attribution.decorators import conversion_events
+from django_attribution.shortcuts import record_conversion
 
 from accounts.models import User
+from iLine.enums import EventEnum
 
 
 class AccountAdapter(DefaultAccountAdapter):
+    @conversion_events(EventEnum.REGISTER)
+    def save_user(self, request, user, form, commit=True):
+        user = super().save_user(request, user, form, commit=False)
+        record_conversion(request, EventEnum.REGISTER)
+        return user
+
     def generate_phone_verification_code(self, *, user, phone: str) -> str:
         return generate_user_code(length=4)
 
@@ -24,11 +33,15 @@ class AccountAdapter(DefaultAccountAdapter):
             return user.phone_number, user.is_verified
         return None
 
+    @conversion_events(EventEnum.VERIFIED_PHONE)
     def set_phone_verified(self, user: User, phone_number: str):
         self.set_phone(user, phone_number, True)
+        record_conversion(self.request, EventEnum.VERIFIED_PHONE)
 
+    @conversion_events(EventEnum.SEND_REGISTER_SMS)
     def send_verification_code_sms(self, user: User, phone: str, code: str, **kwargs):
         user.send_registration_code(code=code)
+        record_conversion(self.request, EventEnum.SEND_REGISTER_SMS)
 
     def send_unknown_account_sms(self, phone_number: str, **kwargs):
         # TODO raise error?

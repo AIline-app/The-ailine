@@ -7,7 +7,6 @@ from rest_framework.decorators import action, api_view
 from rest_framework.viewsets import GenericViewSet
 from api.accounts.docs import UserViewSetDocs, SwaggerLoginDocs
 
-from accounts.models import User
 from api.accounts.serializers import UserSerializer
 
 
@@ -17,7 +16,7 @@ class UserViewSet(GenericViewSet):
     serializer_class = UserSerializer
     permission_classes = (IsAuthenticated,)
 
-    @action(detail=False, methods=[HTTPMethod.GET], url_path="me")
+    @action(detail=False, methods=[HTTPMethod.GET], url_path='me')
     def me(self, request):
         """Return the currently authenticated user (including id)."""
         serializer = self.get_serializer(request.user)

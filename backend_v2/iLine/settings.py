@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'drf_spectacular',
+    'django_attribution',
+    'django_admin_listfilter_dropdown',
     'accounts.apps.AccountsConfig',
     'car_wash.apps.CarwashConfig',
     'services.apps.ServicesConfig',
@@ -65,6 +67,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django_attribution.middlewares.TrackingParameterMiddleware",
+    "django_attribution.middlewares.AttributionMiddleware",
     "allauth.account.middleware.AccountMiddleware",
 ]
 
@@ -100,6 +104,15 @@ SITE_ID = env.int('SITE_ID', 1)
 
 ACCOUNT_UNIQUE_USERNAME = False
 ACCOUNT_USER_MODEL_EMAIL_FIELD = None
+
+DJANGO_ATTRIBUTION = {
+    'CURRENCY': 'KZT',
+
+    # Skip tracking utm params on these URLs
+    'UTM_EXCLUDED_URLS': [
+        '/admin/',
+    ],
+}
 
 ROOT_URLCONF = 'iLine.urls'
 
@@ -159,6 +172,9 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
 }
 
 SPECTACULAR_SETTINGS = {

@@ -6,11 +6,11 @@ from iLine.constants import UUID_REGEX
 
 router = DefaultRouter()
 router.register(
-    fr"car-wash/(?P<car_wash_id>{UUID_REGEX})/order",
+    fr'car-wash/(?P<car_wash_id>{UUID_REGEX})/order',
     OrdersViewSet,
-    basename="car-wash-user-orders",
+    basename='car-wash-user-orders',
 )
 
 urlpatterns = [
-    path("", include(router.urls)),
+    path('', include(router.urls)),
 ]

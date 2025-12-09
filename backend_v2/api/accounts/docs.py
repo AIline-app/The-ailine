@@ -6,18 +6,18 @@ from api.accounts.serializers import UserSerializer
 # Documentation for User endpoints in api.accounts
 UserViewSetDocs = extend_schema_view(
     me=extend_schema(
-        summary="Get current user profile",
-        description="Return the currently authenticated user's profile.",
-        responses={200: UserSerializer, 401: OpenApiResponse(description="Unauthorized")},
-        tags=["Accounts"],
+        summary='Get current user profile',
+        description='Return the currently authenticated user\'s profile.',
+        responses={200: UserSerializer, 401: OpenApiResponse(description='Unauthorized')},
+        tags=['Accounts'],
     ),
 )
 
 SwaggerLoginDocs = extend_schema(
-    summary="Log in for Swagger UI",
+    summary='Log in for Swagger UI',
     description=(
-        "Authenticate using phone and password via allauth proxy. "
-        "On success, sets authentication cookies in the response for subsequent authorized requests in Swagger UI."
+        'Authenticate using phone and password via allauth proxy. '
+        'On success, sets authentication cookies in the response for subsequent authorized requests in Swagger UI.'
     ),
     request={
         'application/json': {

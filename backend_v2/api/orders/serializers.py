@@ -3,6 +3,8 @@ from django.db.models import Sum
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
+from django_attribution.decorators import conversion_events
+from django_attribution.shortcuts import record_conversion
 
 from accounts.models import User
 from accounts.utils.constants import MAX_USERNAME_LENGTH
@@ -12,6 +14,7 @@ from api.services.serializers import ServicesReadSerializer
 from car_wash.utils.constants import MAX_CAR_NUMBER_LENGTH
 from orders.models import Orders
 from orders.utils.enums import OrderStatus
+from iLine.enums import EventEnum
 
 
 class BaseOrderSerializer(serializers.ModelSerializer):
@@ -67,10 +70,18 @@ class OrdersCreateSerializer(serializers.ModelSerializer):
         return attrs
 
     @transaction.atomic
+    @conversion_events(EventEnum.ORDER_PLACED)
     def create(self, validated_data):
         services = validated_data.pop('services')
         order = Orders.objects.create(**validated_data)
         order.services.add(*services)
+        # record_conversion(
+        #     self.context['request'],
+        #     EventEnum.ORDER_PLACED,
+        #     source_object=order,
+        #     is_confirmed=False,
+        #     custom_data={'initial_price': sum(service.price for service in services)},
+        # )
         return order
 
     def to_representation(self, instance):

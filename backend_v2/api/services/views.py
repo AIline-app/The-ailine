@@ -18,8 +18,8 @@ class ServicesViewSet(CarWashInRouteMixin, viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         return {
-            "create": ServicesWriteSerializer,
-            "update": ServicesWriteSerializer,
-            "list": ServicesReadSerializer,
-            "retrieve": ServicesReadSerializer,
+            'create': ServicesWriteSerializer,
+            'update': ServicesWriteSerializer,
+            'list': ServicesReadSerializer,
+            'retrieve': ServicesReadSerializer,
         }.get(self.action, self.serializer_class)

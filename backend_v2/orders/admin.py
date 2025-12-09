@@ -1,128 +1,90 @@
 from django.contrib import admin
+from django.contrib.auth import get_user_model
 
+from car_wash.models import CarWash, Box
 from orders.models import Orders
+from iLine.admin_filters import OrdersListFilter
+
+User = get_user_model()
 
 
-class WasherFilter(admin.SimpleListFilter):
+class WasherFilter(OrdersListFilter):
+
     title = 'Washer'
     parameter_name = 'washer'
+    filter_field = "washer_id"
 
     def lookups(self, request, model_admin):
-        washers = (
-            model_admin.get_queryset(request)
-            .values('washer__id', 'washer__phone_number', 'washer__username')
-            .exclude(washer__id__isnull=True)
-            .order_by('washer__phone_number', 'washer__id')
-            .distinct()
+
+        return self._get_filter_list(
+            queryset=User.objects.filter(executed_orders__isnull=False).distinct(),
+            label_fields=("username", "phone_number", "id"),
+            ordering=("username", "-id"),
         )
-        results = []
-        for w in washers:
-            parts = []
-            if w['washer__phone_number']:
-                parts.append(w['washer__phone_number'])
-            if w['washer__username']:
-                parts.append(w['washer__username'])
-            parts.append(str(w['washer__id']))
-            label = ' — '.join(parts[:-1]) + f" · {parts[-1]}"
-            results.append((str(w['washer__id']), label))
-        return results
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(washer_id=self.value())
-        return queryset
 
 
-class UserFilter(admin.SimpleListFilter):
+class UserFilter(OrdersListFilter):
+
     title = 'Client'
     parameter_name = 'user'
+    filter_field = "user_id"
 
     def lookups(self, request, model_admin):
-        users = (
-            model_admin.get_queryset(request)
-            .values('user__id', 'user__phone_number', 'user__username')
-            .exclude(user__id__isnull=True)
-            .order_by('user__phone_number', 'user__id')
-            .distinct()
+
+        return self._get_filter_list(
+            queryset=User.objects.all(),
+            label_fields=("username", "phone_number", "id"),
+            ordering=("username", "-id"),
         )
-        results = []
-        for u in users:
-            parts = []
-            if u['user__phone_number']:
-                parts.append(u['user__phone_number'])
-            if u['user__username']:
-                parts.append(u['user__username'])
-            parts.append(str(u['user__id']))
-            label = ' — '.join(parts[:-1]) + f" · {parts[-1]}"
-            results.append((str(u['user__id']), label))
-        return results
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(user_id=self.value())
-        return queryset
 
 
-class CarWashFilter(admin.SimpleListFilter):
+class CarWashFilter(OrdersListFilter):
+
     title = 'Car wash'
     parameter_name = 'car_wash'
+    filter_field = "car_wash_id"
 
     def lookups(self, request, model_admin):
-        washes = (
-            model_admin.get_queryset(request)
-            .values('car_wash__id', 'car_wash__name')
-            .exclude(car_wash__id__isnull=True)
-            .order_by('car_wash__name', 'car_wash__id')
-            .distinct()
-        )
-        results = []
-        for w in washes:
-            name = w['car_wash__name'] or ''
-            uid = str(w['car_wash__id'])
-            label = (name if name else uid) + f" · {uid}"
-            results.append((uid, label))
-        return results
 
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(car_wash_id=self.value())
-        return queryset
+        return self._get_filter_list(queryset=CarWash.objects.all())
 
 
-class BoxFilter(admin.SimpleListFilter):
+class BoxFilter(OrdersListFilter):
+
     title = 'Box'
     parameter_name = 'box'
+    filter_field = "box_id"
 
     def lookups(self, request, model_admin):
-        boxes = (
-            model_admin.get_queryset(request)
-            .values('box__id', 'box__name')
-            .exclude(box__id__isnull=True)
-            .order_by('box__name', 'box__id')
-            .distinct()
-        )
-        results = []
-        for b in boxes:
-            name = b['box__name'] or ''
-            uid = str(b['box__id'])
-            label = (name if name else uid) + f" · {uid}"
-            results.append((uid, label))
-        return results
 
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(box_id=self.value())
-        return queryset
+        return self._get_filter_list(queryset=Box.objects.all())
 
 
 @admin.register(Orders)
 class OrdersAdmin(admin.ModelAdmin):
+
     list_display = (
-        'id', 'status', 'user', 'car', 'car_wash', 'box', 'washer',
-        'total_price', 'created_at', 'started_at', 'finished_at'
+        'id',
+        'status',
+        'user',
+        'car',
+        'car_wash',
+        'box',
+        'washer',
+        'total_price',
+        'started_at',
+        'finished_at',
+        'created_at',
     )
     list_filter = (
-        'status', CarWashFilter, BoxFilter, UserFilter, WasherFilter, 'created_at', 'started_at', 'finished_at'
+        'status',
+        CarWashFilter,
+        BoxFilter,
+        UserFilter,
+        WasherFilter,
+        'started_at',
+        'finished_at',
+        'created_at',
     )
     search_fields = (
         'id', 'user__phone_number', 'car__number', 'car_wash__name'

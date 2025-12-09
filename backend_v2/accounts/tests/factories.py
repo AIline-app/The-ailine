@@ -5,14 +5,14 @@ from unittest.mock import patch
 from accounts.models.user import User
 
 
-DEFAULT_PASSWORD = "S3cureP@ssw0rd"
+DEFAULT_PASSWORD = 'S3cureP@ssw0rd'
 
 
-ALLOAUTH_CONFIG_URL = "/_allauth/browser/v1/config"
-ALLOAUTH_LOGIN_PATH = "/_allauth/browser/v1/auth/login"
-ALLOAUTH_LOGOUT_PATH = "/_allauth/browser/v1/auth/session"
-ALLOAUTH_SIGNUP_PATH = "/_allauth/browser/v1/auth/signup"
-ALLOAUTH_PHONE_VERIFY_PATH = "/_allauth/browser/v1/auth/phone/verify"
+ALLOAUTH_CONFIG_URL = '/_allauth/browser/v1/config'
+ALLOAUTH_LOGIN_PATH = '/_allauth/browser/v1/auth/login'
+ALLOAUTH_LOGOUT_PATH = '/_allauth/browser/v1/auth/session'
+ALLOAUTH_SIGNUP_PATH = '/_allauth/browser/v1/auth/signup'
+ALLOAUTH_PHONE_VERIFY_PATH = '/_allauth/browser/v1/auth/phone/verify'
 
 
 def _prepare_csrf(client: APIClient) -> str:
@@ -21,7 +21,7 @@ def _prepare_csrf(client: APIClient) -> str:
     if csrftoken:
         client.cookies['csrftoken'] = csrftoken.value if hasattr(csrftoken, 'value') else csrftoken
         return client.cookies['csrftoken']
-    return ""
+    return ''
 
 
 def create_inactive_user(*, username: str, phone_number: str, password: str = DEFAULT_PASSWORD) -> User:
@@ -33,7 +33,7 @@ def create_inactive_user(*, username: str, phone_number: str, password: str = DE
     )
     if user.is_verified:
         user.is_verified = False
-        user.save(update_fields=["is_verified"])
+        user.save(update_fields=['is_verified'])
     return user
 
 
@@ -42,7 +42,7 @@ def create_active_user(*, username: str, phone_number: str, password: str = DEFA
     user = create_inactive_user(username=username, phone_number=phone_number, password=password)
     if not user.is_verified:
         user.is_verified = True
-        user.save(update_fields=["is_verified"])
+        user.save(update_fields=['is_verified'])
     return user
 
 @override_settings(
@@ -61,24 +61,24 @@ def register_user_and_get_sms(
     # Obtain CSRF and cookie
     _prepare_csrf(client)
     payload = {
-        "phone": phone_number,
-        "password": password,
-        "username": username,
+        'phone': phone_number,
+        'password': password,
+        'username': username,
     }
-    captured = {"code": None}
+    captured = {'code': None}
 
     def _capture(user, phone, code, **kwargs):
-        captured["code"] = code
+        captured['code'] = code
         # do nothing else
 
     # Patch the SMS send to capture the code that allauth generated
-    with patch("accounts.adapters.allauth.AccountAdapter.send_verification_code_sms", side_effect=_capture):
-        resp = client.post(ALLOAUTH_SIGNUP_PATH, data=payload, format="json", HTTP_X_CSRFTOKEN=client.cookies.get('csrftoken', ''))
+    with patch('accounts.adapters.allauth.AccountAdapter.send_verification_code_sms', side_effect=_capture):
+        resp = client.post(ALLOAUTH_SIGNUP_PATH, data=payload, format='json', HTTP_X_CSRFTOKEN=client.cookies.get('csrftoken', ''))
 
     # Fetch created user by normalized phone
     normalized = User.objects.normalize_phone_number(phone_number)
     user = User.objects.filter(phone_number=normalized).first()
-    return resp, user, captured["code"]
+    return resp, user, captured['code']
 
 
 @override_settings(
@@ -89,8 +89,8 @@ def register_user_and_get_sms(
 def confirm_registration(client: APIClient, *, phone_number: str, code: str):
     # Obtain CSRF and cookie
     _prepare_csrf(client)
-    payload = {"phone": phone_number, "code": code}
-    return client.post(ALLOAUTH_PHONE_VERIFY_PATH, data=payload, format="json", HTTP_X_CSRFTOKEN=client.cookies.get('csrftoken', ''))
+    payload = {'phone': phone_number, 'code': code}
+    return client.post(ALLOAUTH_PHONE_VERIFY_PATH, data=payload, format='json', HTTP_X_CSRFTOKEN=client.cookies.get('csrftoken', ''))
 
 
 @override_settings(
@@ -104,15 +104,15 @@ def login_user(client: APIClient, *, phone_number: str, password: str):
     client.delete(
         ALLOAUTH_LOGOUT_PATH,
         data={},
-        format="json",
+        format='json',
         HTTP_X_CSRFTOKEN=client.cookies.get('csrftoken', ''),
     )
     # Logout may reset session/CSRF; fetch a fresh token just in case
     _prepare_csrf(client)
-    payload = {"phone": phone_number, "password": password}
+    payload = {'phone': phone_number, 'password': password}
     return client.post(
         ALLOAUTH_LOGIN_PATH,
         data=payload,
-        format="json",
+        format='json',
         HTTP_X_CSRFTOKEN=client.cookies.get('csrftoken', ''),
     )

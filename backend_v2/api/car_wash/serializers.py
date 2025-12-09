@@ -163,7 +163,7 @@ class CarSerializer(serializers.ModelSerializer):
         if Car.objects.filter(number=attrs['number']).exists():
             raise serializers.ValidationError({'number': _('This car already exists')})
 
-        if not attrs['number'].isalphanumeric():
+        if not attrs['number'].isalnum():
             raise serializers.ValidationError({'number': _('Must contain only alphanumeric')})
 
         attrs['number'] = attrs['number'].upper()

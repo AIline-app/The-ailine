@@ -9,7 +9,7 @@ from rest_framework.viewsets import GenericViewSet
 
 from api.car_wash.views import CarWashInRouteMixin
 from api.manager.permissions import IsCarWashManager
-from api.orders.filters import LatestCarNumberFilterBackend
+from api.orders.filters import OrdersSearchFilter
 from api.orders.permissions import IsOrderOwner
 from api.orders.serializers import (
     OrdersCreateSerializer,
@@ -32,14 +32,15 @@ class OrdersViewSet(CarWashInRouteMixin,
                     GenericViewSet):
     serializer_class = OrdersReadSerializer
     permission_classes = (IsOrderOwner | IsCarWashManager,)
-    filter_backends = (DjangoFilterBackend, OrderingFilter, LatestCarNumberFilterBackend)
+    filter_backends = (DjangoFilterBackend, OrderingFilter, OrdersSearchFilter)
+    search_fields = ('^car__number',)
     filterset_fields = ('status', 'box', 'washer')
     ordering_fields = ('created_at', 'started_at', 'finished_at')
     lookup_url_kwarg = 'order_id'
 
     def get_queryset(self):
         queryset = self.car_wash.orders
-        if not self.car_wash.managers.contains(self.request.user):
+        if not self.car_wash.managers.contains(self.request.user) and self.request.user != self.car_wash.owner:
             queryset = queryset.filter(user=self.request.user)
         return queryset
 
@@ -50,13 +51,13 @@ class OrdersViewSet(CarWashInRouteMixin,
 
     def get_serializer_class(self):
         return {
-            "create": OrdersCreateSerializer,
-            "list": OrdersReadSerializer,
-            "retrieve": OrdersReadSerializer,
-            "manual": OrdersManualCreateSerializer,
-            "start": OrdersStartSerializer,
-            "finish": OrdersFinishSerializer,
-            "update_services": OrdersUpdateServicesSerializer,
+            'create': OrdersCreateSerializer,
+            'list': OrdersReadSerializer,
+            'retrieve': OrdersReadSerializer,
+            'manual': OrdersManualCreateSerializer,
+            'start': OrdersStartSerializer,
+            'finish': OrdersFinishSerializer,
+            'update_services': OrdersUpdateServicesSerializer,
         }.get(self.action, self.serializer_class)
 
     def perform_destroy(self, instance):

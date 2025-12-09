@@ -1,15 +1,21 @@
 from django.contrib import admin
+from django.contrib.auth import get_user_model
 
 from car_wash.models import Car, Box
 from car_wash.models.car_wash import CarWash, CarWashSettings, CarWashDocuments, CarType
+from iLine.admin_filters import OrdersListFilter
+
+User = get_user_model()
 
 
 class BoxInline(admin.TabularInline):
+
     model = Box
     extra = 0
 
 
 class CarWashSettingsInline(admin.StackedInline):
+
     model = CarWashSettings
     can_delete = False
     extra = 0
@@ -17,100 +23,98 @@ class CarWashSettingsInline(admin.StackedInline):
 
 
 class CarWashDocumentsInline(admin.StackedInline):
+
     model = CarWashDocuments
     can_delete = False
     extra = 0
     max_num = 1
 
 
-class OwnerFilter(admin.SimpleListFilter):
+class OwnerFilter(OrdersListFilter):
+
     title = 'Owner'
     parameter_name = 'owner'
+    filter_field = 'owner_id'
 
     def lookups(self, request, model_admin):
-        owners = (
-            model_admin.get_queryset(request)
-            .values('owner__id', 'owner__phone_number', 'owner__username')
-            .exclude(owner__id__isnull=True)
-            .order_by('owner__phone_number', 'owner__id')
-            .distinct()
+
+        return self._get_filter_list(
+            queryset=User.objects.filter(owner_car_washes__isnull=False).distinct(),
+            label_fields=("username", "phone_number", "id"),
+            ordering=("username", "-id"),
         )
-        results = []
-        for o in owners:
-            parts = []
-            if o['owner__phone_number']:
-                parts.append(o['owner__phone_number'])
-            if o['owner__username']:
-                parts.append(o['owner__username'])
-            parts.append(str(o['owner__id']))
-            label = ' — '.join(parts[:-1]) + f" · {parts[-1]}"
-            results.append((str(o['owner__id']), label))
-        return results
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(owner_id=self.value())
-        return queryset
 
 
-class CarWashNameFilter(admin.SimpleListFilter):
+class CarWashNameFilter(OrdersListFilter):
+
     title = 'Car wash'
     parameter_name = 'car_wash'
+    filter_field = 'car_wash_id'
 
     def lookups(self, request, model_admin):
-        washes = (
-            model_admin.get_queryset(request)
-            .values('car_wash__id', 'car_wash__name')
-            .exclude(car_wash__id__isnull=True)
-            .order_by('car_wash__name', 'car_wash__id')
-            .distinct()
-        )
-        results = []
-        for w in washes:
-            name = w['car_wash__name'] or ''
-            uid = str(w['car_wash__id'])
-            label = (name if name else uid) + f" · {uid}"
-            results.append((uid, label))
-        return results
 
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(car_wash_id=self.value())
-        return queryset
+        return self._get_filter_list(queryset=CarWash.objects.all())
 
 
 @admin.register(CarWash)
 class CarWashAdmin(admin.ModelAdmin):
-    list_display = ('name', 'owner', 'address', 'is_active', 'created_at', 'id')
-    list_filter = ('is_active', OwnerFilter, 'created_at')
-    search_fields = ('name', 'address', 'id', 'owner__phone_number')
+
+    list_display = (
+        'id',
+        'name',
+        'owner',
+        'address',
+        'is_active',
+        'created_at',
+    )
+    list_filter = (
+        OwnerFilter,
+        'is_active',
+        'created_at',
+    )
+    search_fields = (
+        'id',
+        'name',
+        'address',
+        'owner__phone_number',
+    )
     ordering = ('-created_at',)
     raw_id_fields = ('owner',)
-    filter_horizontal = ('managers', 'washers')
-    inlines = [CarWashSettingsInline, CarWashDocumentsInline, BoxInline]
+    filter_horizontal = (
+        'managers',
+        'washers',
+    )
+    inlines = (
+        CarWashSettingsInline,
+        CarWashDocumentsInline,
+        BoxInline,
+    )
     list_select_related = ('owner',)
 
 
 @admin.register(Box)
 class BoxAdmin(admin.ModelAdmin):
-    list_display = ('name', 'car_wash', 'id')
+
+    list_display = ('id', 'name', 'car_wash')
     list_filter = (CarWashNameFilter,)
-    search_fields = ('name', 'id', 'car_wash__name')
+    search_fields = ('id', 'name', 'car_wash__name')
     raw_id_fields = ('car_wash',)
     list_select_related = ('car_wash',)
 
 
 @admin.register(Car)
 class CarAdmin(admin.ModelAdmin):
-    list_display = ('number', 'owner', 'id')
+
+    list_display = ('id', 'number', 'owner')
     list_filter = (OwnerFilter,)
-    search_fields = ('number', 'id', 'owner__phone_number')
+    search_fields = ('id', 'number', 'owner__phone_number')
     raw_id_fields = ('owner',)
     list_select_related = ('owner',)
 
 
 @admin.register(CarWashSettings)
 class CarWashSettingsAdmin(admin.ModelAdmin):
+
     list_display = ('car_wash', 'opens_at', 'closes_at', 'percent_washers')
     list_filter = ('opens_at', 'closes_at')
     search_fields = ('car_wash__name',)

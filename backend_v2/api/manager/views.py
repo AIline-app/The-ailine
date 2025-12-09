@@ -26,10 +26,10 @@ class ManagerViewSet(CarWashInRouteMixin, viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         return {
-            "create": ManagerWriteSerializer,
-            "update": ManagerWriteSerializer,
-            "list": UserSerializer,
-            "retrieve": UserSerializer,
+            'create': ManagerWriteSerializer,
+            'update': ManagerWriteSerializer,
+            'list': UserSerializer,
+            'retrieve': UserSerializer,
         }.get(self.action, self.serializer_class)
 
     def perform_destroy(self, instance):
@@ -48,10 +48,10 @@ class WasherViewSet(CarWashInRouteMixin, viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         return {
-            "create": WasherWriteSerializer,
-            "update": WasherWriteSerializer,
-            "list": UserSerializer,
-            "retrieve": UserSerializer,
+            'create': WasherWriteSerializer,
+            'update': WasherWriteSerializer,
+            'list': UserSerializer,
+            'retrieve': UserSerializer,
         }.get(self.action, self.serializer_class)
 
     def perform_destroy(self, instance):

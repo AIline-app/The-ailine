@@ -54,10 +54,10 @@ class CarWashViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         return {
-            "create": CarWashWriteSerializer,
-            "update": CarWashChangeSerializer,
-            "list": CarWashReadSerializer,
-            "retrieve": CarWashReadSerializer,
+            'create': CarWashWriteSerializer,
+            'update': CarWashChangeSerializer,
+            'list': CarWashReadSerializer,
+            'retrieve': CarWashReadSerializer,
         }.get(self.action, self.serializer_class)
 
     def perform_create(self, serializer):
@@ -93,17 +93,17 @@ class CarWashEarningsViewSet(CarWashInRouteMixin, viewsets.GenericViewSet):
 
         queryset = self.filter_queryset(self.get_queryset())
 
-        car_wash_data = queryset.values("car_wash").annotate(
+        car_wash_data = queryset.values('car_wash').annotate(
             orders_count=Count('id'),
             revenue=Sum('total_price'),
         )
 
-        by_car_types = queryset.values(car_type=F("services__car_type")).annotate(
+        by_car_types = queryset.values(car_type=F('services__car_type')).annotate(
             orders_count=Count('id', distinct=True),
         )
 
         serializer = self.get_serializer(
-            car_wash_data[0] | {"by_car_types": by_car_types},
+            car_wash_data[0] | {'by_car_types': by_car_types},
             many=False,
         )
 

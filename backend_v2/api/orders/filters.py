@@ -1,30 +1,29 @@
 from django.db.models import F, Window
 from django.db.models.functions import RowNumber
-from rest_framework.filters import BaseFilterBackend
+from rest_framework.filters import SearchFilter
 
 
-class LatestCarNumberFilterBackend(BaseFilterBackend):
-    """
-    Custom filter that searches by car_number prefix and returns
-    the latest order per matching car (if any).
-    """
+class OrdersSearchFilter(SearchFilter):
+
     search_param = 'car_number'
 
     def filter_queryset(self, request, queryset, view):
-        search_term = request.query_params.get(self.search_param)
 
-        if not search_term:
+        queryset = super().filter_queryset(request, queryset, view)
+
+        search_fields = self.get_search_fields(view, request)
+        search_terms = self.get_search_terms(request)
+
+        if not search_fields or not search_terms:
             return queryset
 
-        # Constrain to cars whose number starts with the search term
-        base_qs = queryset.filter(car__number__istartswith=search_term)
-
         # Use window function to pick latest order per car
-        annotated = base_qs.annotate(
+        annotated = queryset.annotate(
             rn=Window(
                 expression=RowNumber(),
                 partition_by=[F('car')],
                 order_by=[F('created_at').desc(nulls_last=True), F('id').desc()],
             )
         )
+
         return annotated.filter(rn=1)
