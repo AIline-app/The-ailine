@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class CustomTextField extends StatefulWidget {
-  const CustomTextField({super.key, 
+  const CustomTextField({
+    super.key,
     this.icon,
     this.isClicked = false,
     this.textController,
@@ -42,7 +43,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           enabledBorder: OutlineInputBorder(borderSide: BorderSide.none),
           focusedBorder: OutlineInputBorder(borderSide: BorderSide.none),
           label: Text(widget.labelText),
-          labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+          labelStyle: TextStyle(color: Colors.grey),
           suffixIcon: widget.icon,
         ),
       ),

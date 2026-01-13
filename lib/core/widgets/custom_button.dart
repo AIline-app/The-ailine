@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomButton extends StatelessWidget {
   const CustomButton({super.key, required this.onPressed, required this.text});
@@ -11,13 +12,14 @@ class CustomButton extends StatelessWidget {
     return TextButton(
       style: TextButton.styleFrom(
         backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
-        minimumSize: Size(double.infinity, 100),
+        foregroundColor: Colors.white,
+        minimumSize: Size(328.w, 96.h),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(8.r),
           side: BorderSide(
             color: Theme.of(context).colorScheme.tertiary,
-            width: 5,
+
+            width: 5.w,
           ),
         ),
       ),

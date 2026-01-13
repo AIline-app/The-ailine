@@ -9,7 +9,7 @@ class CustomCircleCheckbox extends StatefulWidget {
 }
 
 class _CustomCircleCheckboxState extends State<CustomCircleCheckbox> {
-  bool _isChecked = false;
+  bool _isChecked = true;
 
   @override
   Widget build(BuildContext context) {
@@ -24,11 +24,7 @@ class _CustomCircleCheckboxState extends State<CustomCircleCheckbox> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16.0),
           border: Border.all(
-            color:
-                // _isChecked
-                //     ? Colors.grey
-                //     :
-                Theme.of(context).colorScheme.secondary,
+            color: Theme.of(context).colorScheme.secondary,
             width: 5,
           ),
         ),
@@ -47,15 +43,6 @@ class _CustomCircleCheckboxState extends State<CustomCircleCheckbox> {
                       width: 2,
                     ),
                   ),
-          // child:
-          //     _isChecked
-          //         ? const Icon(
-          //           CupertinoIcons.check_mark,
-          //           color: Colors.white,
-          //           size: 25,
-          //           weight: 1,
-          //         )
-          //         : const SizedBox.shrink(),
         ),
       ),
     );
