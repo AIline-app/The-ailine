@@ -9,7 +9,7 @@ from api.accounts.serializers import BaseRegisterUserSerializer
 class ManagerWriteSerializer(BaseRegisterUserSerializer):
     def validate(self, attrs):
         attrs['user'] = self.get_user(attrs['phone_number'])
-        if attrs['user'] in attrs['car_wash'].managers:
+        if attrs['user'] in self.context['car_wash'].managers.all():
             raise serializers.ValidationError({'phone_number': _('Already a manager in this car wash')})
         return attrs
 
@@ -27,7 +27,7 @@ class ManagerWriteSerializer(BaseRegisterUserSerializer):
 class WasherWriteSerializer(BaseRegisterUserSerializer):
     def validate(self, attrs):
         attrs['user'] = self.get_user(attrs['phone_number'])
-        if attrs['user'] in attrs['car_wash'].washers:
+        if attrs['user'] in self.context['car_wash'].washers.all():
             raise serializers.ValidationError({'phone_number': _('Already a washer in this car wash')})
         return attrs
 

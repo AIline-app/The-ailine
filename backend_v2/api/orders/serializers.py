@@ -75,13 +75,13 @@ class OrdersCreateSerializer(serializers.ModelSerializer):
         services = validated_data.pop('services')
         order = Orders.objects.create(**validated_data)
         order.services.add(*services)
-        # record_conversion(
-        #     self.context['request'],
-        #     EventEnum.ORDER_PLACED,
-        #     source_object=order,
-        #     is_confirmed=False,
-        #     custom_data={'initial_price': sum(service.price for service in services)},
-        # )
+        record_conversion(
+            self.context['request'],
+            EventEnum.ORDER_PLACED,
+            source_object=order,
+            is_confirmed=False,
+            custom_data={'initial_price': sum(service.price for service in services)},
+        )
         return order
 
     def to_representation(self, instance):

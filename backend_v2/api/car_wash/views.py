@@ -102,6 +102,12 @@ class CarWashEarningsViewSet(CarWashInRouteMixin, viewsets.GenericViewSet):
             orders_count=Count('id', distinct=True),
         )
 
+        car_wash_data = car_wash_data if car_wash_data else [{
+            'car_wash': self.car_wash.id,
+            'orders_count': 0,
+            'revenue': 0,
+        }]
+
         serializer = self.get_serializer(
             car_wash_data[0] | {'by_car_types': by_car_types},
             many=False,

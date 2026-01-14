@@ -106,6 +106,7 @@ ACCOUNT_UNIQUE_USERNAME = False
 ACCOUNT_USER_MODEL_EMAIL_FIELD = None
 
 DJANGO_ATTRIBUTION = {
+    'SOURCE_OBJECT_ID_FIELD': 'UUIDField',
     'CURRENCY': 'KZT',
 
     # Skip tracking utm params on these URLs
