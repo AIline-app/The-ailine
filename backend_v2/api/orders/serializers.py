@@ -156,6 +156,7 @@ class OrdersStartSerializer(serializers.ModelSerializer):
 
         return attrs
 
+    @conversion_events(EventEnum.ORDER_STARTED)
     def update(self, instance, validated_data):
         instance.status = OrderStatus.IN_PROGRESS
         instance.box = validated_data['box']
@@ -163,6 +164,21 @@ class OrdersStartSerializer(serializers.ModelSerializer):
         instance.started_at = now()
         instance.total_price = instance.services.aggregate(Sum('price'))['price__sum']  # TODO check if no services exists
         instance.save(update_fields=['status', 'box', 'washer', 'total_price', 'started_at'])
+        # Track conversion for order start
+        request = self.context.get('request')
+        if request is not None:
+            record_conversion(
+                request,
+                EventEnum.ORDER_STARTED,
+                source_object=instance,
+                is_confirmed=True,
+                custom_data={
+                    'box_id': str(instance.box_id) if instance.box_id else None,
+                    'washer_id': str(instance.washer_id) if instance.washer_id else None,
+                    'started_at': instance.started_at.isoformat() if instance.started_at else None,
+                    'total_price': instance.total_price,
+                },
+            )
         return instance
 
     def to_representation(self, instance):
@@ -179,10 +195,29 @@ class OrdersFinishSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'id': _('Order is not in progress')})
         return attrs
 
+    @conversion_events(EventEnum.ORDER_COMPLETED)
     def update(self, instance, validated_data):
         instance.status = OrderStatus.COMPLETED
         instance.finished_at = now()
         instance.save(update_fields=['status', 'finished_at'])
+        # Track conversion for order completion
+        request = self.context.get('request')
+        if request is not None:
+            duration_seconds = None
+            if instance.started_at and instance.finished_at:
+                duration_seconds = int((instance.finished_at - instance.started_at).total_seconds())
+            record_conversion(
+                request,
+                EventEnum.ORDER_COMPLETED,
+                source_object=instance,
+                is_confirmed=True,
+                custom_data={
+                    'finished_at': instance.finished_at.isoformat() if instance.finished_at else None,
+                    'started_at': instance.started_at.isoformat() if instance.started_at else None,
+                    'duration_seconds': duration_seconds,
+                    'total_price': instance.total_price,
+                },
+            )
         return instance
 
     def to_representation(self, instance):
@@ -213,8 +248,31 @@ class OrdersUpdateServicesSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'id': _('Order is either in progress or executed')})
         return attrs
 
+    @conversion_events(EventEnum.ORDER_SERVICES_UPDATED)
     def update(self, instance, validated_data):
+        # capture before state
+        request = self.context.get('request')
+        before_services = list(instance.services.values_list('id', flat=True))
+        before_price = instance.services.aggregate(Sum('price'))['price__sum'] or 0
+        # apply update
         instance.services.set(validated_data['services'])
+        # recalc total prospective price if already started (total_price is set on start)
+        after_services = list(instance.services.values_list('id', flat=True))
+        after_price = instance.services.aggregate(Sum('price'))['price__sum'] or 0
+        if request is not None:
+            record_conversion(
+                request,
+                EventEnum.ORDER_SERVICES_UPDATED,
+                source_object=instance,
+                is_confirmed=True,
+                custom_data={
+                    'before_services': [str(s) for s in before_services],
+                    'after_services': [str(s) for s in after_services],
+                    'price_delta': (after_price - before_price),
+                    'before_price': before_price,
+                    'after_price': after_price,
+                },
+            )
         return instance
 
     def to_representation(self, instance):

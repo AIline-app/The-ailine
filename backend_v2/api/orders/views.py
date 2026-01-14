@@ -21,6 +21,9 @@ from api.orders.serializers import (
 )
 from api.orders.docs import OrdersViewSetDocs
 from orders.utils.enums import OrderStatus
+from iLine.enums import EventEnum
+from django_attribution.shortcuts import record_conversion
+from django_attribution.decorators import conversion_events
 
 
 @OrdersViewSetDocs
@@ -60,9 +63,27 @@ class OrdersViewSet(CarWashInRouteMixin,
             'update_services': OrdersUpdateServicesSerializer,
         }.get(self.action, self.serializer_class)
 
+    @conversion_events(EventEnum.ORDER_CANCELED)
     def perform_destroy(self, instance):
+        # record previous status before cancel
+        prev_status = instance.status
         instance.status = OrderStatus.CANCELED
         instance.save()
+        # Track conversion for order cancellation
+        try:
+            record_conversion(
+                self.request,
+                EventEnum.ORDER_CANCELED,
+                source_object=instance,
+                is_confirmed=True,
+                custom_data={
+                    'previous_status': prev_status,
+                    'canceled_by_user_id': str(self.request.user.id) if getattr(self.request, 'user', None) else None,
+                },
+            )
+        except Exception:
+            # Avoid failing the API if attribution tracking has issues
+            pass
 
     def _update(self, request, *args, **kwargs):
         order = self.get_object()
