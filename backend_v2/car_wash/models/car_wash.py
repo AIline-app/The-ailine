@@ -108,7 +108,7 @@ class CarWash(models.Model):
         return {
             'wait_time': str(queue_duration),
             'car_amount': len(orders),
-            'late_for': late_for or str(late_for),
+            'late_for': late_for if late_for is None else str(late_for),
         }
 
     def update_car_types(self, car_types):
