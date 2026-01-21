@@ -8,6 +8,8 @@ from api.car_wash.serializers import (
     BoxSerializer,
     CarWashPrivateReadSerializer,
     CarWashEarningsReadSerializer,
+    MarketingLinksResponseSerializer,
+    CarWashQueueSerializer,
 )
 
 
@@ -52,7 +54,16 @@ CarWashViewSetDocs = extend_schema_view(
     queue=extend_schema(
         summary='Get car wash queue data',
         description='Returns approximate wait time and cars amount in queue for a car wash.',
-        # responses={200: CarWashQueueSerializer},
+        responses={200: CarWashQueueSerializer},
+        tags=['Car wash'],
+    ),
+    marketing_links=extend_schema(
+        summary='Get marketing links and QR codes',
+        description='Generates UTM links for all active campaigns and returns URLs with pre-generated QR codes for a specific car wash.',
+        responses={
+            200: MarketingLinksResponseSerializer,
+            403: OpenApiResponse(description='Forbidden'),
+        },
         tags=['Car wash'],
     ),
 )

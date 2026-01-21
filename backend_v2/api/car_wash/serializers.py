@@ -168,3 +168,24 @@ class CarSerializer(serializers.ModelSerializer):
 
         attrs['number'] = attrs['number'].upper()
         return attrs
+
+
+# Swagger serializers for marketing_links response
+class CampaignBriefSerializer(serializers.Serializer):
+    id = serializers.CharField(read_only=True)
+    name = serializers.CharField(read_only=True)
+
+
+class MarketingLinkItemSerializer(serializers.Serializer):
+    campaign = CampaignBriefSerializer(read_only=True)
+    link = serializers.URLField(read_only=True)
+    qr_code = serializers.URLField(read_only=True)
+
+
+class MarketingLinksResponseSerializer(serializers.Serializer):
+    results = MarketingLinkItemSerializer(many=True, read_only=True)
+
+
+class CarWashQueueSerializer(serializers.Serializer):
+    wait_time = serializers.CharField(read_only=True)
+    car_amount = serializers.IntegerField(read_only=True)
