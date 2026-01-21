@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'car_wash.apps.CarwashConfig',
     'services.apps.ServicesConfig',
     'orders.apps.OrdersConfig',
+    'marketing.apps.MarketingConfig'
 ]
 
 MIDDLEWARE = [
@@ -101,6 +102,10 @@ HEADLESS_ONLY = True
 HEADLESS_SERVE_SPECIFICATION = True
 
 SITE_ID = env.int('SITE_ID', 1)
+
+# Media files
+MEDIA_URL = env.str('MEDIA_URL', '/media/')
+MEDIA_ROOT = env.str('MEDIA_ROOT', os.path.join(str(BASE_DIR), 'media'))
 
 ACCOUNT_UNIQUE_USERNAME = False
 ACCOUNT_USER_MODEL_EMAIL_FIELD = None
