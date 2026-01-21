@@ -13,9 +13,18 @@ from services.models import Services
 
 class OrdersQuerySet(models.QuerySet):
 
-    def get_active(self, current_order=None):
+    def get_waiting(self, current_order=None):
 
         active_orders = self.filter(status__in=(OrderStatus.EN_ROUTE, OrderStatus.ON_SITE))
+
+        if current_order:
+            active_orders = active_orders.filter(created_at__lt=current_order.created_at)
+
+        return active_orders
+
+    def get_active(self, current_order=None):
+
+        active_orders = self.filter(status=OrderStatus.IN_PROGRESS)
 
         if current_order:
             active_orders = active_orders.filter(created_at__lt=current_order.created_at)

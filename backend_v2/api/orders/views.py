@@ -9,7 +9,7 @@ from rest_framework.viewsets import GenericViewSet
 
 from api.car_wash.views import CarWashInRouteMixin
 from api.manager.permissions import IsCarWashManager
-from api.orders.filters import OrdersSearchFilter
+from api.orders.filters import OrdersSearchFilter, OrdersFilterSet
 from api.orders.permissions import IsOrderOwner
 from api.orders.serializers import (
     OrdersCreateSerializer,
@@ -37,7 +37,7 @@ class OrdersViewSet(CarWashInRouteMixin,
     permission_classes = (IsOrderOwner | IsCarWashManager,)
     filter_backends = (DjangoFilterBackend, OrderingFilter, OrdersSearchFilter)
     search_fields = ('^car__number',)
-    filterset_fields = ('status', 'box', 'washer')
+    filterset_class = OrdersFilterSet
     ordering_fields = ('created_at', 'started_at', 'finished_at')
     lookup_url_kwarg = 'order_id'
 

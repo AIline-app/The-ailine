@@ -189,3 +189,4 @@ class MarketingLinksResponseSerializer(serializers.Serializer):
 class CarWashQueueSerializer(serializers.Serializer):
     wait_time = serializers.CharField(read_only=True)
     car_amount = serializers.IntegerField(read_only=True)
+    late_for = serializers.CharField(read_only=True, allow_null=True)

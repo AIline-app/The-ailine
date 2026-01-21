@@ -1,6 +1,10 @@
 from django.db.models import F, Window
 from django.db.models.functions import RowNumber
+from django_filters import FilterSet, MultipleChoiceFilter
 from rest_framework.filters import SearchFilter
+
+from orders.models import Orders
+from orders.utils.enums import OrderStatus
 
 
 class OrdersSearchFilter(SearchFilter):
@@ -27,3 +31,14 @@ class OrdersSearchFilter(SearchFilter):
         )
 
         return annotated.filter(rn=1)
+
+
+class OrdersFilterSet(FilterSet):
+    status = MultipleChoiceFilter(
+        field_name='status',
+        choices=OrderStatus.choices,
+    )
+
+    class Meta:
+        model = Orders
+        fields = ('status', 'box', 'washer')

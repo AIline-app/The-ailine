@@ -5,6 +5,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import Sum, DurationField, Value, ExpressionWrapper
 from django.utils.translation import gettext_lazy as _
+from django.utils.timezone import now
 
 from car_wash.utils.constants import DEFAULT_WASHER_PERCENT, MIN_WASHER_PERCENT, MAX_WASHER_PERCENT
 from iLine.settings import AUTH_USER_MODEL
@@ -77,7 +78,7 @@ class CarWash(models.Model):
 
     def __get_orders(self, current_order=None):
 
-        return self.orders.get_active(current_order)
+        return self.orders.get_waiting(current_order)
 
     def get_queue_data(self, current_order=None):
 
@@ -90,7 +91,25 @@ class CarWash(models.Model):
             ),
         )["sum_duration"]
 
-        return {'wait_time': str(queue_duration), 'car_amount': len(orders)}
+        # Calculate how long the current order is late for (if applicable)
+        late_for = None
+        if current_order is not None and len(orders) == 0:
+            # You are late if there is no one in front of you (no EN_ROUTE or ON_SITE orders ahead)
+            if self.orders.get_active(current_order).count() < boxes_amount:
+                last_completed_before = (
+                    self.orders.get_completed()
+                    .filter(created_at__lt=current_order.created_at)
+                    .order_by('-finished_at')
+                    .first()
+                )
+                if last_completed_before and last_completed_before.finished_at:
+                    late_for = now() - last_completed_before.finished_at
+
+        return {
+            'wait_time': str(queue_duration),
+            'car_amount': len(orders),
+            'late_for': late_for or str(late_for),
+        }
 
     def update_car_types(self, car_types):
         # TODO finish
