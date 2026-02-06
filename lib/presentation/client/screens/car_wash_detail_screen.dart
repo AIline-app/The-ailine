@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gghgggfsfs/core/theme/color_schemes.dart';
+import 'package:gghgggfsfs/core/theme/text_styles.dart';
 import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_checkbox.dart';
@@ -24,65 +25,97 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 243, 241, 241),
-      appBar: AppBar(leading: CustomBackButton()),
-      body: Padding(
-        padding: const EdgeInsets.all(10.0),
+      body: SafeArea(
         child: SingleChildScrollView(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+        
+              Padding(
+                padding: EdgeInsets.all(2),
+                child: Row(
+                  children: [
+                    CustomBackButton(),
+                  ],
+                ),
+              ),
+          ClipRRect(
+          borderRadius: const BorderRadius.vertical(
+              bottom: Radius.circular(8),
+        ),
+        child: Stack(
+          children: [
+            // Фон-карточка (с фиксированной высотой, иначе Spacer сломает layout)
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: SizedBox(
+                  height: 350,
+                  width: double.infinity,
                   child: Stack(
+                    fit: StackFit.expand,
                     children: [
-                      Image(
-                        image: AssetImage('assets/images/card_car.jpg'),
-                        height: 410,
+                      Image.asset(
+                        'assets/images/card_car.jpg',
                         fit: BoxFit.cover,
-                        color: Colors.black.withOpacity(0.5),
-                        colorBlendMode: BlendMode.darken,
                       ),
+        
+                      Container(
+                        color: const Color(0x891C1C1C),
+                      ),
+        
                       Padding(
-                        padding: const EdgeInsets.all(10.0),
+                        padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
-                                Text(
-                                  'г. Астана, ул. Абая, 117',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
+                                const Expanded(
+                                  child: Text(
+                                    'г. Астана, ул. Абая, 117',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ),
-                                SizedBox(width: 7),
+                                const SizedBox(width: 7),
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(9),
                                   child: Image.asset(
                                     'assets/icons/2gis.png',
                                     width: 19,
+                                    height: 19,
+                                    fit: BoxFit.cover,
                                   ),
                                 ),
                               ],
                             ),
-                            SizedBox(height: 10),
+        
+                            const SizedBox(height: 10),
+        
                             Text(
                               'Автомойка 777',
-                              style: Theme.of(context).textTheme.displayLarge,
+                              style: AppTextStyles.bold28w600,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            SizedBox(height: 5),
+        
+                            const SizedBox(height: 5),
+        
                             Text(
                               '50 метров от вас',
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: AppTextStyles.normalLightGrey,
                             ),
-                            SizedBox(height: 40),
-                            Text(
+        
+                            const Spacer(),
+        
+                            const Text(
                               'Перед вами сейчас:',
                               style: TextStyle(
                                 height: 2,
@@ -91,29 +124,19 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+        
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Text(
-                                  '12',
-                                  style: TextStyle(
-                                    height: 0.9,
-                                    color: Colors.white,
-                                    fontSize: 72,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                Text(
-                                  'машин',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
+                                Text('12', style: AppTextStyles.bold40),
+                                const SizedBox(width: 6),
+                                Text('машин', style: AppTextStyles.normalLightGrey),
                               ],
                             ),
-                            SizedBox(height: 35),
-                            Text(
+        
+                            const SizedBox(height: 20),
+        
+                            const Text(
                               'Вы сможете подъехать к:',
                               style: TextStyle(
                                 height: 2,
@@ -122,28 +145,14 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: 10),
-                            Text(
-                              '≈15:30',
-                              style: TextStyle(
-                                height: 0.9,
-                                color: Colors.white,
-                                fontSize: 72,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-
+        
+                            const SizedBox(height: 10),
+        
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  '± 30 мин',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16,
-                                  ),
-                                ),
+                                Text('≈15:30', style: AppTextStyles.bold40),
+                                Text('± 30 мин', style: AppTextStyles.normalLightGrey),
                               ],
                             ),
                           ],
@@ -152,196 +161,178 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: 10),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TypeCarButton(
-                      onPressed: () {
-                        setState(() {
-                          selectedIndex = 0;
-                        });
-                      },
-                      text: 'седан',
-                      textColor:
-                          selectedIndex == 0
-                              ? Colors.white
-                              : customColorScheme.primary,
-                      backgroundColor:
-                          selectedIndex == 0
-                              ? customColorScheme.primary
-                              : Colors.transparent,
-                    ),
-                    TypeCarButton(
-                      onPressed: () {
-                        setState(() {
-                          selectedIndex = 1;
-                        });
-                      },
-                      text: 'джип',
-                      textColor:
-                          selectedIndex == 1
-                              ? Colors.white
-                              : customColorScheme.primary,
-                      backgroundColor:
-                          selectedIndex == 1
-                              ? customColorScheme.primary
-                              : Colors.transparent,
-                    ),
-                    TypeCarButton(
-                      onPressed: () {
-                        setState(() {
-                          selectedIndex = 2;
-                        });
-                      },
-                      text: 'минивен',
-                      textColor:
-                          selectedIndex == 2
-                              ? Colors.white
-                              : customColorScheme.primary,
-                      backgroundColor:
-                          selectedIndex == 2
-                              ? customColorScheme.primary
-                              : Colors.transparent,
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20),
-                Container(
-                  height: 310,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
+              ),
+            ),
+        
+          ],
+        ),
+            ),
+              SizedBox(height: 10),
+        
+             SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: Row(
                     children: [
-                      TarifsSection(
-                        title: 'Стандарт',
-                        subtitle: 'Пена, вода, сушка',
-                        minutes: '30 мин',
-                        price: '500р',
+                      TypeCarButton(
+                        onPressed: () {
+                          setState(() => selectedIndex = 0);
+                        },
+                        text: 'седан',
+                        textColor:
+                            selectedIndex == 0 ? Colors.white : customColorScheme.primary,
+                        backgroundColor:
+                            selectedIndex == 0 ? customColorScheme.primary : Colors.transparent,
                       ),
-                      TarifsSection(
-                        title: 'Стандарт',
-                        subtitle: 'Пена, вода, сушка',
-                        minutes: '30 мин',
-                        price: '500р',
+                      const SizedBox(width: 8),
+                      TypeCarButton(
+                        onPressed: () {
+                          setState(() => selectedIndex = 1);
+                        },
+                        text: 'джип',
+                        textColor:
+                            selectedIndex == 1 ? Colors.white : customColorScheme.primary,
+                        backgroundColor:
+                            selectedIndex == 1 ? customColorScheme.primary : Colors.transparent,
                       ),
-                      TarifsSection(
-                        title: 'Стандарт',
-                        subtitle: 'Пена, вода, сушка',
-                        minutes: '30 мин',
-                        price: '500р',
-                      ),
-                      TarifsSection(
-                        title: 'Стандарт',
-                        subtitle: 'Пена, вода, сушка',
-                        minutes: '30 мин',
-                        price: '500р',
+                      const SizedBox(width: 8),
+                      TypeCarButton(
+                        onPressed: () {
+                          setState(() => selectedIndex = 2);
+                        },
+                        text: 'минивен',
+                        textColor:
+                            selectedIndex == 2 ? Colors.white : customColorScheme.primary,
+                        backgroundColor:
+                            selectedIndex == 2 ? customColorScheme.primary : Colors.transparent,
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: 20),
-                Padding(
-                  padding: EdgeInsets.only(left: 20),
-                  child: Text(
-                    'Дополнительные услуги',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 24,
-                      color: MainColors.mainDeepBlue,
+              ),
+              SizedBox(height: 20),
+              Container(
+                height: 310,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  children: [
+                    TarifsSection(
+                      title: 'Стандарт',
+                      subtitle: 'Пена, вода, сушка',
+                      minutes: '30 мин',
+                      price: '500р',
                     ),
-                  ),
+                    TarifsSection(
+                      title: 'Стандарт',
+                      subtitle: 'Пена, вода, сушка',
+                      minutes: '30 мин',
+                      price: '500р',
+                    ),
+                    TarifsSection(
+                      title: 'Стандарт',
+                      subtitle: 'Пена, вода, сушка',
+                      minutes: '30 мин',
+                      price: '500р',
+                    ),
+                    TarifsSection(
+                      title: 'Стандарт',
+                      subtitle: 'Пена, вода, сушка',
+                      minutes: '30 мин',
+                      price: '500р',
+                    ),
+                  ],
                 ),
-                SizedBox(height: 5),
-                AnotherService(
-                  title: 'Покрытие воском',
-                  subtitle: 'Какой-то текст',
-                  minutes: '10 мин',
-                  price: '200р',
+              ),
+              SizedBox(height: 20),
+              Padding(
+                padding: EdgeInsets.only(left: 20),
+                child: Text(
+                  'Дополнительные услуги',
+                  style: AppTextStyles.title,
                 ),
-                AnotherService(
-                  title: 'Покрытие воском',
-                  subtitle: 'Какой-то текст',
-                  minutes: '10 мин',
-                  price: '200р',
+              ),
+              SizedBox(height: 5),
+              AnotherService(
+                title: 'Покрытие воском',
+                subtitle: 'Какой-то текст',
+                minutes: '10 мин',
+                price: '200р',
+              ),
+              AnotherService(
+                title: 'Покрытие воском',
+                subtitle: 'Какой-то текст',
+                minutes: '10 мин',
+                price: '200р',
+              ),
+              AnotherService(
+                title: 'Покрытие воском',
+                subtitle: 'Какой-то текст',
+                minutes: '10 мин',
+                price: '200р',
+              ),
+              AnotherService(
+                title: 'Покрытие воском',
+                subtitle: 'Какой-то текст',
+                minutes: '10 мин',
+                price: '200р',
+              ),
+              SizedBox(height: 10),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                height: 200,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                AnotherService(
-                  title: 'Покрытие воском',
-                  subtitle: 'Какой-то текст',
-                  minutes: '10 мин',
-                  price: '200р',
-                ),
-                AnotherService(
-                  title: 'Покрытие воском',
-                  subtitle: 'Какой-то текст',
-                  minutes: '10 мин',
-                  price: '200р',
-                ),
-                SizedBox(height: 10),
-                Container(
-                  height: 200,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(9.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Вы выбрали',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                          ),
+                child: Padding(
+                  padding: const EdgeInsets.all(9.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Вы выбрали',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
                         ),
-
-                        Text(
-                          '750 р',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 32,
-                            color: MainColors.mainDeepBlue,
-                          ),
-                        ),
-
-                        Text(
-                          '2.02, вторник, 14:00',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 32,
-                            color: MainColors.mainDeepBlue,
-                          ),
-                        ),
-                        SizedBox(height: 30),
+                      ),
+        
+                      Text(
+                        '750 р',
+                        style: AppTextStyles.bold28Black,
+                      ),
+        
+                      Text(
+                        '2.02, вторник, 14:00',
+                        style: AppTextStyles.bold28Black,
+                      ),
+                      SizedBox(height: 30),
                         Row(
-                          children: [
-                            CustomCheckboxWidget(),
-                            SizedBox(width: 10),
-                            SizedBox(
-                              width: 327,
-                              child: Text(
-                                'Я подтверждаю дату и время бронирования и ознакомлен с условиями оплаты ',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          ],
+                        children: [
+                        const SizedBox(width: 10),
+                        CustomCheckboxWidget(),
+                        const SizedBox(width: 10),
+                        Expanded(
+                        child: Text(
+                        'Я подтверждаю дату и время бронирования и ознакомлен с условиями оплаты',
+                        style: AppTextStyles.normal14,
                         ),
-                      ],
-                    ),
+                        ),
+                        ],
+                        )]
                   ),
                 ),
-                SizedBox(height: 20),
-                CustomButton(
+              ),
+              SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: CustomButton(
                   text: 'Записаться',
                   onPressed: () {
                     Navigator.push(
@@ -352,9 +343,9 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                     );
                   },
                 ),
-                SizedBox(height: 10),
-              ],
-            ),
+              ),
+              SizedBox(height: 10),
+            ],
           ),
         ),
       ),

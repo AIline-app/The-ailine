@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gghgggfsfs/core/theme/app_theme.dart';
+import 'package:gghgggfsfs/presentation/client/screens/car_wash_detail_screen.dart';
 import 'package:gghgggfsfs/presentation/client/screens/map_home_screen.dart';
 import 'package:gghgggfsfs/routes.dart';
 
@@ -15,7 +16,7 @@ class AilineApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Ailine',
-      home: const MapHomeScreen(),
+      home: CarWashDetailScreen(),
       theme: appTheme,
       initialRoute: AppRoutes.home,
       onGenerateRoute: AppRoutes.generateRoute,

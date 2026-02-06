@@ -21,16 +21,16 @@ class _CustomCheckboxWidgetState extends State<CustomCheckboxWidget> {
       child: Container(
         padding: const EdgeInsets.all(2.0),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12.0),
+          borderRadius: BorderRadius.circular(8.0),
           border: Border.all(
             color: Theme.of(context).colorScheme.secondary,
-            width: 5,
+            width: 3,
           ),
         ),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          width: 20,
-          height: 20,
+          width: 16,
+          height: 16,
           decoration:
               widget.isChecked
                   ? BoxDecoration(

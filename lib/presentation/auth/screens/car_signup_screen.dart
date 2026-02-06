@@ -23,8 +23,15 @@ class _CarSignupScreenState extends State<CarSignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(leading: CustomBackButton()),
+      appBar: AppBar(
+        leading: CustomBackButton(),
+        backgroundColor: Colors.white,
+        elevation: 0,           // убирает тень
+        shadowColor: Colors.transparent, // гарантированно убирает тень
+        foregroundColor: Colors.black,   // цвет текста и иконок
+      ),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
@@ -32,7 +39,7 @@ class _CarSignupScreenState extends State<CarSignupScreen> {
         },
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -314,7 +321,7 @@ class LabelBelowThumbShape extends SliderComponentShape {
   final double thumbRadius;
   final BuildContext context;
 
-  LabelBelowThumbShape({this.thumbRadius = 22.0, required this.context});
+  LabelBelowThumbShape({this.thumbRadius = 16.0, required this.context});
 
   @override
   Size getPreferredSize(bool isEnabled, bool isDiscrete) =>

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gghgggfsfs/core/api_client/api_client.dart';
+import 'package:gghgggfsfs/core/theme/text_styles.dart';
 import 'package:gghgggfsfs/data/repository/car_wash_repository.dart';
 import 'package:gghgggfsfs/core/widgets/custom_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_text_field.dart';
@@ -79,6 +80,53 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                     child: Container(),
                   ),
                 ),
+                
+                Positioned(
+                  top: 20,
+                  right: 0,
+                  child:Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                    Container(
+                      height: 36,
+                      width: 36,
+                       alignment: Alignment.center,
+                      padding: EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(3),
+                        color: Color.fromRGBO(34, 140, 238, 1)
+                      ),
+                      child: Center(
+                        child: IconButton(onPressed: (){
+                                            
+                        },
+                         padding: EdgeInsets.zero, // 👈 важно
+                        constraints: const BoxConstraints(),
+                        icon: Icon(Icons.map, color: Colors.white,)),
+                      ),
+                    ),
+                    SizedBox(width: 6),
+                    Container(
+                      height: 36,
+                      width: 36,
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(3),
+                        color: Color.fromRGBO(34, 140, 238, 1)
+                      ),
+                      child: Center(
+                        child: IconButton(onPressed: (){
+              
+                        }, 
+                        padding: EdgeInsets.zero, // 👈 важно
+                        constraints: const BoxConstraints(),
+                        icon: Icon(Icons.list, color: Colors.white,),),
+                      ),
+                    ),
+                     SizedBox(width: 10,),
+                  ],),
+                ),
 
                 Align(alignment: Alignment(0, -0.7), child: StarModal()),
 
@@ -98,102 +146,111 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
   // Alert Dialog for sign in
 
   Widget _buildCarWashCards(List<CarWashModel> carWashes) {
-    return Container(
-      height: 300,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
-              ),
-              child: ExpansionTile(
-                initiallyExpanded: isExpanded,
-                onExpansionChanged: (bool expanded) {
-                  setState(() {
-                    isExpanded = expanded;
-                  });
-                },
-                title: Text(
-                  selectedSortOption,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+      return DraggableScrollableSheet(
+    initialChildSize: 0.45, // стартовая высота
+    minChildSize: 0.25,
+    maxChildSize: 0.55,
+    builder: (context, scrollController) {
+      return Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          boxShadow: [
+            BoxShadow(color: Colors.black12, blurRadius: 10),
+          ],
+        ),
+        child: Column(
+          children: [
+
+            Container(
+              height: 30,
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                trailing: Icon(
-                  isExpanded
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down,
-                  color: Colors.black,
-                ),
-                children: [
-                  ListTile(
-                    title: const Text('Расстояние'),
-                    onTap: () {
-                      setState(() {
-                        selectedSortOption = 'Расстояние';
-                        _sortCarWashes();
-                        isExpanded = false;
-                      });
-                    },
-                  ),
-                  ListTile(
-                    title: const Text('Очередь'),
-                    onTap: () {
-                      setState(() {
-                        selectedSortOption = 'Очередь';
-                        _sortCarWashes();
-                        isExpanded = false;
-                      });
-                    },
-                  ),
-                  ListTile(
-                    title: const Text('Рейтинг'),
-                    onTap: () {
-                      setState(() {
-                        selectedSortOption = 'Рейтинг';
-                        _sortCarWashes();
-                        isExpanded = false;
-                      });
-                    },
-                  ),
-                ],
               ),
             ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: carWashes.length,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      selectedIndex = index;
-                      _moveToCarWash(carWashes[index]);
-                      _addPlacemarks(carWashes);
-                    });
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: const [
+                    BoxShadow(color: Colors.black12, blurRadius: 2),
+                  ],
+                ),
+                child: ExpansionTile(
+                  initiallyExpanded: isExpanded,
+                  onExpansionChanged: (expanded) {
+                    setState(() => isExpanded = expanded);
                   },
-                  child: CarWashCard(
-                    carWash: carWashes[index],
-                    isSelected: index == selectedIndex,
+                  title: Text(
+                    selectedSortOption,
+                    style: AppTextStyles.body,
                   ),
-                );
-              },
+                  trailing: Icon(
+                    isExpanded
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                  ),
+                  children: [
+                    _buildSortTile('Расстояние'),
+                    _buildSortTile('Очередь'),
+                    _buildSortTile('Рейтинг'),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+
+  
+            Expanded(
+              child: ListView.separated(
+                controller: scrollController, // 🔥 обязательно
+                itemCount: carWashes.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 6),
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedIndex = index;
+                        _moveToCarWash(carWashes[index]);
+                        _addPlacemarks(carWashes);
+                      });
+                    },
+                    child: CarWashCard(
+                      carWash: carWashes[index],
+                      isSelected: index == selectedIndex,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
   }
+
+  Widget _buildSortTile(String title) {
+  return ListTile(
+    title: Text(title),
+    onTap: () {
+      setState(() {
+        selectedSortOption = title;
+        _sortCarWashes();
+        isExpanded = false;
+      });
+      Navigator.pop(context); // закрыть ExpansionTile
+    },
+  );
+}
 
   void _addPlacemarks(List<CarWashModel> carWashes) {
     final hasCoordinates = carWashes.any(
@@ -308,7 +365,7 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(
-                      top: 100,
+                      top: 20,
                       left: 20,
                       right: 20,
                     ),
@@ -333,7 +390,7 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                             'Забыли пароль?',
                             style: TextStyle(
                               fontSize: 15,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                               color: Color(0xff228CEE),
                             ),
                           ),

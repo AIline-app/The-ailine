@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gghgggfsfs/core/theme/text_styles.dart';
 
 class StarModal extends StatefulWidget {
   const StarModal({super.key});
@@ -14,15 +15,15 @@ class _StarModalState extends State<StarModal> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 6),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: EdgeInsets.all(16),
+            padding: EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.secondary,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -32,16 +33,14 @@ class _StarModalState extends State<StarModal> {
                   children: [
                     Text(
                       "Оцените мойку",
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSecondary,
-                      ),
+                      style: AppTextStyles.caption,
                     ),
                     IconButton(
                       onPressed: () {},
                       icon: Icon(
                         Icons.more_vert,
                         color: Theme.of(context).colorScheme.onSecondary,
-                        size: 32,
+                        size: 26,
                       ),
                     ),
                   ],
@@ -49,9 +48,7 @@ class _StarModalState extends State<StarModal> {
 
                 Text(
                   "Автомойка на Ленинском",
-                  style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onSecondary,
-                  ),
+                  style: AppTextStyles.bold22,
                 ),
 
                 Row(
@@ -64,7 +61,7 @@ class _StarModalState extends State<StarModal> {
                               ? Icons.star
                               : Icons.star_border,
                           color: Colors.white,
-                          size: 60,
+                          size: 39,
                         ),
                         onPressed: () {
                           setState(() {

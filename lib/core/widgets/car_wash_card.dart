@@ -16,9 +16,10 @@ class CarWashCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 10),
       padding: const EdgeInsets.all(0),
       width: MediaQuery.of(context).size.width * 0.7,
+       height: 160, 
       decoration: BoxDecoration(
         color: isSelected ? Colors.orange.shade50 : Colors.white,
         border: Border.all(
@@ -35,75 +36,77 @@ class CarWashCard extends StatelessWidget {
           Navigator.pushNamed(context, AppRoutes.details);
         },
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(13),
-          child: Stack(
-            children: [
-              // 👇 Background image
-              Positioned(
-                child: Image.asset(
+            borderRadius: BorderRadius.circular(13),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+ 
+                Image.asset(
                   'assets/images/card_car.jpg',
-                  width: 500,
                   fit: BoxFit.cover,
+                ),
+
+                Container(
                   color: Colors.black.withOpacity(0.4),
-                  colorBlendMode: BlendMode.darken,
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${carWash.distance.toInt()} метров от вас',
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      carWash.title,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${carWash.distance.toInt()} метров от вас',
+                        style: const TextStyle(fontSize: 12, color: Colors.white70),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Перед вами: ${carWash.queueLenght} машин',
-                          style: const TextStyle(
-                            color: Colors.blue,
-                            fontSize: 14,
-                          ),
-                        ),
-                        Text(
-                          '${carWash.slots} бокса',
-                          style: const TextStyle(
-                            color: Colors.blue,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: List.generate(
-                        5,
-                        (index) => Icon(
-                          index < carWash.rating.round()
-                              ? Icons.star
-                              : Icons.star_border,
-                          color: Colors.orange,
-                          size: 18,
+                      const SizedBox(height: 8),
+                      Text(
+                        carWash.title,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Перед вами: ${carWash.queueLenght} машин',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                            ),
+                          ),
+                          Text(
+                            '${carWash.slots} бокса',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: List.generate(
+                          5,
+                          (index) => Icon(
+                            index < carWash.rating.round()
+                                ? Icons.star
+                                : Icons.star_border,
+                            color: Colors.orange,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+
       ),
     );
   }

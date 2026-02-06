@@ -15,21 +15,24 @@ class TypeCarButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-      style: TextButton.styleFrom(
-        backgroundColor: backgroundColor,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
-        minimumSize: Size(125, 72),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-          side: BorderSide(
-            color: Theme.of(context).colorScheme.tertiary,
-            width: 3,
+    return Padding(
+      padding: const EdgeInsets.only(right: 4.0, left: 4),
+      child: TextButton(
+        style: TextButton.styleFrom(
+          backgroundColor: backgroundColor,
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          minimumSize: Size(80, 40),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.tertiary,
+              width: 3,
+            ),
           ),
         ),
+        onPressed: onPressed,
+        child: Text(text, style: TextStyle(fontSize: 16, color: textColor, fontWeight: FontWeight.w500)),
       ),
-      onPressed: onPressed,
-      child: Text(text, style: TextStyle(fontSize: 20, color: textColor)),
     );
   }
 }

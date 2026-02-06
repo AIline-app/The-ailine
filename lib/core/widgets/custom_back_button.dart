@@ -12,7 +12,7 @@ class CustomBackButton extends StatelessWidget {
       },
       icon: SvgPicture.asset(
         "assets/icons/arrow_back.svg",
-        width: 20,
+        width: 14,
         color: Theme.of(context).colorScheme.primary,
       ),
     );

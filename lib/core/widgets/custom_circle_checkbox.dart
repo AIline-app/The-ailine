@@ -29,13 +29,13 @@ class _CustomCircleCheckboxState extends State<CustomCircleCheckbox> {
                 //     ? Colors.grey
                 //     :
                 Theme.of(context).colorScheme.secondary,
-            width: 5,
+            width: 3,
           ),
         ),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          width: 20,
-          height: 20,
+          width: 16,
+          height: 16,
           decoration:
               _isChecked
                   ? null

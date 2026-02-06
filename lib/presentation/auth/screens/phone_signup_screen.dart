@@ -19,7 +19,8 @@ class _PhoneSignupScreenState extends State<PhoneSignupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(leading: CustomBackButton()),
+      backgroundColor: Colors.white,
+      appBar: AppBar(leading: CustomBackButton(), backgroundColor: Colors.white,),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
@@ -27,7 +28,7 @@ class _PhoneSignupScreenState extends State<PhoneSignupScreen> {
         },
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,

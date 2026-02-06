@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gghgggfsfs/core/theme/text_styles.dart';
 import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_button.dart';
 import 'package:gghgggfsfs/presentation/auth/screens/phone_signup_screen.dart';
@@ -9,29 +10,29 @@ class PaymentWarningScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(leading: CustomBackButton()),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 "Оплата за бронирование",
-                style: Theme.of(context).textTheme.displayLarge,
+                style: AppTextStyles.bold28Black,
               ),
               Spacer(),
               Text(
                 "Оплата доступна зарегистрированным пользователям.",
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onBackground,
-                ),
+                style: AppTextStyles.bodyBold,
               ),
               Text(
                 "После регистрации вам не нужно \nзаново вводить данные",
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: AppTextStyles.body,
               ),
-              SizedBox(height: 45),
+              Spacer(),
               CustomButton(
                 onPressed: () {
                   Navigator.push(

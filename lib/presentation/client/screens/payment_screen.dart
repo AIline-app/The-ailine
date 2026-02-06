@@ -3,6 +3,7 @@ import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_button.dart';
 import 'package:gghgggfsfs/core/widgets/custom_checkbox.dart';
 import 'package:gghgggfsfs/core/widgets/custom_text_field.dart';
+import 'package:gghgggfsfs/presentation/client/screens/map_home_screen.dart';
 import 'package:gghgggfsfs/routes.dart';
 
 class PaymentScreen extends StatelessWidget {
@@ -146,7 +147,12 @@ class PaymentScreen extends StatelessWidget {
 
                 CustomButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, AppRoutes.home);
+                     Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MapHomeScreen(),
+                        ),
+                      );
                   },
                   text: "Зарегистрироваться",
                 ),

@@ -6,7 +6,7 @@ final ColorScheme customColorScheme = ColorScheme(
   onPrimary: Colors.white,
   secondary: Color(0xFFEE9C22),
   onSecondary: Colors.white,
-  tertiary: Color(0xFF5AB0FF),
+  tertiary: Color.fromRGBO(90, 176, 255, 1),
   onTertiary: Color(0xFF228CEE),
   error: Colors.red,
   onError: Colors.white,
