@@ -10,6 +10,9 @@ from api.car_wash.serializers import (
     CarWashEarningsReadSerializer,
     MarketingLinksResponseSerializer,
     CarWashQueueSerializer,
+    CarWashDocumentsPrivateSerializer,
+    CarWashSettingsReadSerializer,
+    CarWashCarTypesSerializer,
 )
 
 
@@ -57,6 +60,16 @@ CarWashViewSetDocs = extend_schema_view(
         responses={200: CarWashQueueSerializer},
         tags=['Car wash'],
     ),
+    document=extend_schema(
+        summary='Get car wash documents',
+        responses={200: CarWashDocumentsPrivateSerializer},
+        tags=['Car wash', 'Documents'],
+    ),
+    setting=extend_schema(
+        summary='Get car wash settings',
+        responses={200: CarWashSettingsReadSerializer},
+        tags=['Car wash', 'Settings'],
+    ),
     marketing_links=extend_schema(
         summary='Get marketing links and QR codes',
         description='Generates UTM links for all active campaigns and returns URLs with pre-generated QR codes for a specific car wash.',
@@ -102,6 +115,42 @@ BoxViewSetDocs = extend_schema_view(
         summary='Delete a box',
         responses={204: OpenApiResponse(description='Deleted')},
         tags=['Boxes'],
+    ),
+)
+
+CarTypeViewSetDocs = extend_schema_view(
+    list=extend_schema(
+        summary='List car types',
+        responses={200: CarWashCarTypesSerializer},
+        tags=['Car types'],
+    ),
+    retrieve=extend_schema(
+        summary='Retrieve a car type',
+        responses={200: CarWashCarTypesSerializer, 404: OpenApiResponse(description='Not found')},
+        tags=['Car types'],
+    ),
+    create=extend_schema(
+        summary='Create a car type',
+        request=CarWashCarTypesSerializer,
+        responses={201: CarWashCarTypesSerializer, 400: OpenApiResponse(description='Validation error')},
+        tags=['Car types'],
+    ),
+    update=extend_schema(
+        summary='Update a car type',
+        request=CarWashCarTypesSerializer,
+        responses={200: CarWashCarTypesSerializer},
+        tags=['Car types'],
+    ),
+    partial_update=extend_schema(
+        summary='Partially update a car type',
+        request=CarWashCarTypesSerializer,
+        responses={200: CarWashCarTypesSerializer},
+        tags=['Car types'],
+    ),
+    destroy=extend_schema(
+        summary='Delete a car type',
+        responses={204: OpenApiResponse(description='Deleted')},
+        tags=['Car types'],
     ),
 )
 

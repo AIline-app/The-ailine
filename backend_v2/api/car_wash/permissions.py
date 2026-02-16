@@ -24,7 +24,10 @@ class IsCarWashOwner(IsDirector):
                 and request.user == view.car_wash.owner)
 
     def has_object_permission(self, request, view, obj):
-        return super().has_object_permission(request, view, obj.car_wash)
+        if hasattr(obj, 'car_wash'):
+            return super().has_object_permission(request, view, obj.car_wash)
+        elif hasattr(obj, 'settings'):
+            return super().has_object_permission(request, view, obj.settings.car_wash)
 
 
 class IsManagerSuperior(IsCarWashOwner):

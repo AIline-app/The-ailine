@@ -33,6 +33,8 @@ ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", str, '*')
 # Application definition
 
 INSTALLED_APPS = [
+    'admin_tools_stats',
+    'django_nvd3',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -109,6 +111,22 @@ MEDIA_ROOT = env.str('MEDIA_ROOT', os.path.join(str(BASE_DIR), 'media'))
 
 ACCOUNT_UNIQUE_USERNAME = False
 ACCOUNT_USER_MODEL_EMAIL_FIELD = None
+
+# Time and localization
+TIME_ZONE = env.str('TIME_ZONE', 'UTC')
+USE_TZ = True
+
+# Celery configuration (uses django-environ with CELERY_ namespace)
+# Broker/Backend: default to Redis service in docker-compose; override via env in other envs
+CELERY_BROKER_URL = env.str('CELERY_BROKER_URL', 'redis://redis:6379/0')
+CELERY_RESULT_BACKEND = env.str('CELERY_RESULT_BACKEND', CELERY_BROKER_URL)
+CELERY_ENABLE_UTC = True
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+# Run tasks eagerly in DEBUG if explicitly requested (useful for local dev without broker)
+CELERY_TASK_ALWAYS_EAGER = env.bool('CELERY_TASK_ALWAYS_EAGER', False)
 
 DJANGO_ATTRIBUTION = {
     'SOURCE_OBJECT_ID_FIELD': 'UUIDField',
@@ -266,3 +284,5 @@ AUTH_USER_MODEL = 'accounts.User'
 # Kafka configuration
 KAFKA_BOOTSTRAP_SERVERS = os.environ.get('KAFKA_BOOTSTRAP_SERVERS', 'localhost:9092')
 KAFKA_SMS_TOPIC = os.environ.get('KAFKA_SMS_TOPIC', 'sms')
+KAFKA_TELEGRAM_TOPIC = os.environ.get('KAFKA_TELEGRAM_TOPIC', 'telegram')
+KAFKA_WHATSAPP_TOPIC = os.environ.get('KAFKA_WHATSAPP_TOPIC', 'whatsapp')

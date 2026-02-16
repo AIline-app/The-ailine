@@ -5,10 +5,22 @@ from api.accounts.serializers import UserSerializer
 
 # Documentation for User endpoints in api.accounts
 UserViewSetDocs = extend_schema_view(
+    destroy=extend_schema(
+        summary='Delete currently authorized user',
+        responses={
+            204: OpenApiResponse(description='Deleted'),
+            400: OpenApiResponse(description='Car wash employee cannot be deleted'),
+            403: OpenApiResponse(description='Forbidden'),
+        },
+        tags=['Accounts'],
+    ),
     me=extend_schema(
         summary='Get current user profile',
         description='Return the currently authenticated user\'s profile.',
-        responses={200: UserSerializer, 401: OpenApiResponse(description='Unauthorized')},
+        responses={
+            200: UserSerializer,
+            401: OpenApiResponse(description='Unauthorized')
+        },
         tags=['Accounts'],
     ),
 )

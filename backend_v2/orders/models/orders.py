@@ -88,6 +88,7 @@ class Orders(models.Model):
     started_at = models.DateTimeField(verbose_name=_('Started at'), blank=True, null=True)
     finished_at = models.DateTimeField(verbose_name=_('Finished at'), blank=True, null=True)
     total_price = models.PositiveIntegerField(verbose_name=_('Final total price'), blank=True, null=True, default=None)
+    duration = models.DurationField(verbose_name=_('Total duration'), blank=False, null=False)
     status = models.CharField(verbose_name=_('Status'), choices=OrderStatus.choices, default=OrderStatus.EN_ROUTE)
 
     objects: OrdersQuerySet = OrdersQuerySet.as_manager()
@@ -102,3 +103,22 @@ class Orders(models.Model):
             models.Index(fields=['car', '-created_at'], name='ord_car_created_id_desc_idx'),
             models.Index(fields=['car_wash', 'user', '-created_at'], name='ord_cw_user_created_desc_idx'),
         ]
+
+    def get_queue_data(self):
+
+        # Get approximate wait time
+        # wait_time = self.queue_entry.get_approximate_wait_time()
+        # wait_time_str = str(wait_time) if wait_time else '0:00:00'
+
+        # Count cars ahead in queue
+        # cars_ahead = QueueEntry.objects.filter(position__lt=self.queue_entry.position, car_wash=self.car_wash).count()
+
+        # Check if delayed
+        # delay_duration = self.queue_entry.get_delay_duration()
+        # late_for_str = str(delay_duration) if delay_duration else None
+
+        return {
+            'wait_time': self.queue_entry.get_approximate_wait_time(),
+            'car_amount': self.queue_entry.position,
+            'late_for': self.queue_entry.get_delay_duration(),
+        }

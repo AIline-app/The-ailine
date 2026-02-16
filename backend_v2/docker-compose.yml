@@ -10,7 +10,8 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+#      - ./postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data  # TODO change to this line in PROD
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
@@ -20,9 +21,11 @@ services:
     ports:
       - "5678:5432"
     restart: always
+    networks:
+      - app-network
 
   kafka:
-    image: apache/kafka:4.1.1-rc2
+    image: apache/kafka:4.1.1
     ports:
       - "9092:9092"
     environment:
@@ -51,6 +54,25 @@ services:
       retries: 5
       start_period: 20s
     restart: always
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    ports:
+       - "6666:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: always
+    networks:
+      - app-network
 
   web:
     build: .
@@ -66,7 +88,13 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      redis:
+        condition: service_healthy
       sms-worker:
+        condition: service_started
+      celery-worker:
+        condition: service_started
+      celery-beat:
         condition: service_started
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8000/healthz/"]
@@ -75,6 +103,9 @@ services:
       retries: 3
       start_period: 30s
     restart: always
+    networks:
+      - app-network
+
 
   sms-worker:
     container_name: sms-worker
@@ -83,12 +114,54 @@ services:
     command: python worker.py
     env_file:
       - .env
+    environment:
+      - LOG_LEVEL=DEBUG  # Control log level via environment
     depends_on:
       kafka:
         condition: service_healthy
     restart: always
+    networks:
+      - app-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  celery-worker:
+    build: .
+    env_file:
+      - .env
+    command: ["celery", "-A", "iLine", "worker", "-l", "info"]
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+    networks:
+      - app-network
+
+  celery-beat:
+    build: .
+    env_file:
+      - .env
+    command: ["celery", "-A", "iLine", "beat", "-l", "info"]
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
   kafka_data:
+  redis_data:
   media:
+
+networks:
+  app-network:
+    driver: bridge

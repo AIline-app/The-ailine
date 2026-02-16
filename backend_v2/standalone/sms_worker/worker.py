@@ -20,11 +20,26 @@ DEBUG = bool(os.getenv("DEBUG", 0))
 BOT_ID = os.getenv("BOT_ID")
 CHAT_ID = os.getenv("CHAT_ID")
 
-logging.basicConfig(level=logging.DEBUG if DEBUG else logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+# Get log level from environment
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
 
+# Configure root logger
+logging.basicConfig(
+    level=logging.WARNING,  # Set root to WARNING
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+# Suppress Kafka debug messages
+logging.getLogger('kafka').setLevel(logging.ERROR)
+
+# Your application logger
+logger = logging.getLogger('sms_worker')
+logger.setLevel(getattr(logging, LOG_LEVEL))
+
+logger.info("SMS Worker started successfully")
 
 def send_telegram(message: str) -> bool:
-    logging.debug(message)
+    logger.debug(message)
 
     if not BOT_ID or not CHAT_ID:
         return False
@@ -33,10 +48,10 @@ def send_telegram(message: str) -> bool:
     try:
         resp = requests.post(url, json={"chat_id": CHAT_ID, "text": message}, headers={"Content-Type": "application/json"}, timeout=10)
         if not resp.ok:
-            logging.warning(f'Telegram send failed: {resp.status_code} {resp.text[:200]}')
+            logger.warning(f'Telegram send failed: {resp.status_code} {resp.text[:200]}')
         return resp.ok
     except Exception as e:
-        logging.exception(f'Telegram send exception: {e}')
+        logger.exception(f'Telegram send exception: {e}')
         return False
 
 
@@ -59,10 +74,10 @@ def send_sms(phone: str, message: str) -> bool:
     try:
         # The real provider might require GET
         resp = requests.get(url, timeout=10)
-        logging.info("SMS provider response: %s %s", resp.status_code, resp.text[:200])
+        logger.info("SMS provider response: %s %s", resp.status_code, resp.text[:200])
         return resp.ok
     except Exception as e:
-        logging.exception("Failed to send SMS: %s", e)
+        logger.exception("Failed to send SMS: %s", e)
         return False
 
 
@@ -78,22 +93,22 @@ def main():
                 auto_offset_reset='earliest',
                 group_id='sms-worker-group',
             )
-            logging.info(f'Connected to Kafka at {KAFKA_BOOTSTRAP_SERVERS}, listening topic {KAFKA_SMS_TOPIC}')
+            logger.info(f'Connected to Kafka at {KAFKA_BOOTSTRAP_SERVERS}, listening topic {KAFKA_SMS_TOPIC}')
             for msg in consumer:
                 payload = msg.value or {}
                 phone = payload.get('phone')
                 message = payload.get('message')
                 if not phone or not message:
-                    logging.warning(f'Invalid message payload: {payload}')
+                    logger.warning(f'Invalid message payload: {payload}')
                     continue
                 ok = send_sms(phone, str(message))
                 if ok:
-                    logging.info(f'SMS sent to {phone}')
+                    logger.info(f'SMS sent to {phone}')
                 else:
-                    logging.error(f'SMS failed for {phone}')
+                    logger.error(f'SMS failed for {phone}')
             # If loop ends, recreate
         except Exception:
-            logging.exception(f'Kafka consumer error. Reconnecting in {backoff}')
+            logger.exception(f'Kafka consumer error. Reconnecting in {backoff}')
             time.sleep(backoff)
             backoff = min(backoff * 2, 60)
 

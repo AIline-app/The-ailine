@@ -27,7 +27,7 @@ class ServicesWriteSerializer(serializers.ModelSerializer):
         exclude = ('id', 'car_wash')
 
     def validate(self, attrs):
-        if attrs['car_type'].settings.car_wash != attrs['car_wash']:
+        if attrs['car_type'].settings.car_wash != self.context['car_wash']:
             raise serializers.ValidationError(
                 {'car_type': _('Invalid pk "{pk_value}" - object does not exist.').format(pk_value=attrs['car_type'].pk)}
             )

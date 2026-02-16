@@ -123,3 +123,10 @@ class User(AbstractBaseUser, PermissionsMixin):
             # TODO notify admin?
             logging.error(f"Kafka not available for sending SMS for user {self.id}: {error}")
         return False
+
+    def delete(self, using = None, keep_parents = False):
+        # Anonimize user instead of deleting to preserve history
+        self.phone_number = None
+        self.username = '[DELETED USER]'
+        self.is_active = False
+        self.save()

@@ -26,6 +26,13 @@ app.conf.beat_schedule = {
             'expires': 60 * 60,  # Do not run if task is older than 1 hour
         },
     },
+    'send-order-notifications-every-5-min': {
+        'task': 'orders.tasks.send_order_notifications',
+        'schedule': crontab(minute='*/5'),
+        'options': {
+            'expires': 10 * 60,  # Expire after 10 minutes
+        },
+    },
 }
 
 

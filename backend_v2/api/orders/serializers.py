@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.db import transaction
 from django.db.models import Sum
 from django.utils.timezone import now
@@ -40,7 +42,7 @@ class OrdersReadPublicSerializer(BaseOrderSerializer):
 
 class OrdersReadSerializer(BaseOrderSerializer):
     def to_representation(self, instance):
-        is_manager = self.context.get('is_manager')
+        is_manager = self.context.get('is_manager')  # TODO what is going on here
         if is_manager is None:
             request = self.context.get('request')
             user = getattr(request, 'user', None)
@@ -73,15 +75,22 @@ class OrdersCreateSerializer(serializers.ModelSerializer):
     @conversion_events(EventEnum.ORDER_PLACED)
     def create(self, validated_data):
         services = validated_data.pop('services')
-        order = Orders.objects.create(**validated_data)
+        duration = sum((service.duration for service in services), start=timedelta(0))
+        order = Orders.objects.create(duration=duration, **validated_data)
         order.services.add(*services)
         record_conversion(
             self.context['request'],
             EventEnum.ORDER_PLACED,
             source_object=order,
             is_confirmed=False,
-            custom_data={'initial_price': sum(service.price for service in services)},
+            custom_data={
+                'initial_price': sum((service.price for service in services), start=0),
+                'initial_duration': duration.total_seconds(),
+            },
         )
+        # Add order to queue if it has a car wash and is in waiting status
+        # if order.car_wash and order.status in (OrderStatus.EN_ROUTE, OrderStatus.ON_SITE):
+        order.car_wash.add_to_queue(order)
         return order
 
     def to_representation(self, instance):
@@ -110,7 +119,7 @@ class OrdersManualUserSerializer(
         return attrs
 
     def create(self, validated_data):
-        return super().create(validated_data)
+        return super().create(validated_data)  # TODO remove?
 
 
 class OrdersManualCreateSerializer(OrdersCreateSerializer):
@@ -164,6 +173,8 @@ class OrdersStartSerializer(serializers.ModelSerializer):
         instance.started_at = now()
         instance.total_price = instance.services.aggregate(Sum('price'))['price__sum']  # TODO check if no services exists
         instance.save(update_fields=['status', 'box', 'washer', 'total_price', 'started_at'])
+        # Remove from queue when order starts
+        instance.car_wash.remove_from_queue(instance)
         # Track conversion for order start
         request = self.context.get('request')
         if request is not None:
@@ -256,6 +267,7 @@ class OrdersUpdateServicesSerializer(serializers.ModelSerializer):
         before_price = instance.services.aggregate(Sum('price'))['price__sum'] or 0
         # apply update
         instance.services.set(validated_data['services'])
+        instance.car_wash.recalculate_queue()
         # recalc total prospective price if already started (total_price is set on start)
         after_services = list(instance.services.values_list('id', flat=True))
         after_price = instance.services.aggregate(Sum('price'))['price__sum'] or 0

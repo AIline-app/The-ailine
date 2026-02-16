@@ -24,13 +24,13 @@ from django.conf.urls.static import static
 def healthz(request):
     return JsonResponse({"status": "ok"})
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('_allauth/', include('allauth.urls')),
     path("_allauth/", include("allauth.headless.urls")),
     path('api/v1/', include('api.urls')),
     path('healthz/', healthz, name='healthz'),
+    path('admin_tools_stats/', include('admin_tools_stats.urls')),
 ]
 
 # Serve media files (e.g., generated QR codes) at /media/ in this app

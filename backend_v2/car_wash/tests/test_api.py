@@ -18,8 +18,8 @@ class CarWashEndpointsTests(APITestCase):
             'closes_at': '22:00:00',
             'percent_washers': 30,
             'car_types': [
-                {'name': 'Sedan'},
-                {'name': 'SUV'},
+                {'name': 'Sedan', 'description': 'Sedan'},
+                {'name': 'SUV', 'description': 'SUV'},
             ]
         }
         self.sample_documents = {

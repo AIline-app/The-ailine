@@ -17,6 +17,7 @@ class TestOrderCancel(APITestCase):
         self.cw = CarWash.objects.create(owner=self.owner, name='CW', address='Addr', is_active=True)
         self.cw.create_settings(settings_data={'opens_at': '09:00:00', 'closes_at': '21:00:00', 'percent_washers': 30, 'car_types': [{'name': 'Sedan'}]})
         self.cw.create_documents(documents_data={'iin': '123456789012'})
+        self.cw.create_boxes(amount=2)
         car_type = self.cw.settings.car_types.first()
         self.main = Services.objects.create(car_wash=self.cw, car_type=car_type, name='Basic', description='Main', price=1000, duration='00:30:00', is_extra=False)
         self.car = Car.objects.create(number='AAA111', owner=self.client_user)

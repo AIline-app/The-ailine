@@ -18,6 +18,7 @@ class TestManagerManualCreate(APITestCase):
             'opens_at': '09:00:00', 'closes_at': '21:00:00', 'percent_washers': 30, 'car_types': [{'name': 'Sedan'}]
         })
         self.cw.create_documents(documents_data={'iin': '123456789012'})
+        self.cw.create_boxes(amount=2)
         self.cw.managers.add(self.manager)
 
         car_type = self.cw.settings.car_types.first()

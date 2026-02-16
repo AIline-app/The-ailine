@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 
-from car_wash.models import Car, Box
+from car_wash.models import Car, Box, QueueEntry
 from car_wash.models.car_wash import CarWash, CarWashSettings, CarWashDocuments, CarType
 from iLine.admin_filters import OrdersListFilter
 
@@ -134,3 +134,13 @@ class CarTypeAdmin(admin.ModelAdmin):
     list_filter = ('settings',)
     search_fields = ('name', 'id', 'settings__car_wash__name')
     raw_id_fields = ('settings',)
+
+
+@admin.register(QueueEntry)
+class QueueEntryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'car_wash', 'order', 'position', 'expected_start_time', 'expected_duration', 'created_at')
+    list_filter = (CarWashNameFilter, 'created_at')
+    search_fields = ('id', 'order__id', 'car_wash__name')
+    raw_id_fields = ('car_wash', 'order')
+    list_select_related = ('car_wash', 'order')
+    ordering = ('car_wash', 'position')

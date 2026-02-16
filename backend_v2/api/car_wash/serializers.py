@@ -10,6 +10,8 @@ from car_wash.utils.constants import MAX_CAR_NUMBER_LENGTH, MIN_CAR_NUMBER_LENGT
 from orders.utils.enums import OrderStatus
 
 
+### BOX ###
+
 class BoxSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -17,12 +19,15 @@ class BoxSerializer(serializers.ModelSerializer):
         exclude = ('car_wash',)
 
 
+### CAR TYPE ###
+
 class CarWashCarTypesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CarType
         exclude = ('settings',)
 
+### SETTINGS ###
 
 class CarWashSettingsPrivateSerializer(serializers.ModelSerializer):
 
@@ -32,31 +37,60 @@ class CarWashSettingsPrivateSerializer(serializers.ModelSerializer):
         model = CarWashSettings
         exclude = ('car_wash',)
 
-    def validate(self, attrs):
-
-        if attrs['opens_at'] >= attrs['closes_at']:
-            raise serializers.ValidationError({'opens_at': _('Must be earlier than closes_at')})
-
-        return attrs
-
 
 class CarWashSettingsPublicSerializer(serializers.ModelSerializer):
+
     car_types = CarWashCarTypesSerializer(many=True, read_only=True)
+
     class Meta:
         model = CarWashSettings
         fields = ('opens_at', 'closes_at', 'car_types')
 
+
+class CarWashSettingsReadSerializer(serializers.Serializer):
+
+    def to_representation(self, instance):
+
+        serializer = CarWashSettingsPublicSerializer
+        if instance.car_wash.owner == self.context['request'].user:
+            serializer = CarWashSettingsPrivateSerializer
+
+        return serializer(instance, context=self.context).data
+
+
+class CarWashSettingsWriteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CarWashSettings
+        exclude = ('car_wash',)
+
+    def validate(self, attrs):
+
+        if attrs['opens_at'] > attrs['closes_at']:
+            raise serializers.ValidationError({'opens_at': _('Must be earlier than closes_at')})
+
+        return attrs
+
+    def to_representation(self, instance):
+        return CarWashSettingsReadSerializer(instance, context=self.context).data
+
+
+### DOCUMENTS ###
 
 class CarWashDocumentsPrivateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarWashDocuments
         exclude = ('car_wash',)
 
+    def validate(self, attrs):
+        return attrs  # TODO validate documents
 
+
+### CAR WASH ###
 
 class CarWashPublicReadSerializer(serializers.ModelSerializer):
 
-    settings = CarWashSettingsPublicSerializer(many=False)
+    settings = CarWashSettingsReadSerializer(many=False)
 
     class Meta:
 
@@ -139,6 +173,8 @@ class CarWashWriteSerializer(CarWashChangeSerializer):
         return car_wash
 
 
+### EARNINGS ###
+
 class CarWashEarningsByCarTypesReadSerializer(serializers.Serializer):
 
     car_type = serializers.CharField(read_only=True)
@@ -151,6 +187,8 @@ class CarWashEarningsReadSerializer(serializers.Serializer):
     orders_count = serializers.IntegerField(read_only=True)
     by_car_types = CarWashEarningsByCarTypesReadSerializer(many=True, read_only=True)
 
+
+### CAR ###
 
 class CarSerializer(serializers.ModelSerializer):
     number = serializers.CharField(min_length=MIN_CAR_NUMBER_LENGTH, max_length=MAX_CAR_NUMBER_LENGTH)
@@ -170,7 +208,8 @@ class CarSerializer(serializers.ModelSerializer):
         return attrs
 
 
-# Swagger serializers for marketing_links response
+### MARKETING ###
+
 class CampaignBriefSerializer(serializers.Serializer):
     id = serializers.CharField(read_only=True)
     name = serializers.CharField(read_only=True)
@@ -186,7 +225,9 @@ class MarketingLinksResponseSerializer(serializers.Serializer):
     results = MarketingLinkItemSerializer(many=True, read_only=True)
 
 
+### QUEUE ###
+
 class CarWashQueueSerializer(serializers.Serializer):
     wait_time = serializers.CharField(read_only=True)
     car_amount = serializers.IntegerField(read_only=True)
-    late_for = serializers.CharField(read_only=True, allow_null=True)
+    # late_for = serializers.CharField(read_only=True, allow_null=True)

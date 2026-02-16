@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -63,7 +65,12 @@ class TestUserOrders(APITestCase):
         created_id = resp.data['id']
 
         # Create someone else's order
-        foreign_order = Orders.objects.create(user=self.other_user, car_wash=self.cw, car=self.other_car)
+        foreign_order = Orders.objects.create(
+            user=self.other_user,
+            car_wash=self.cw,
+            car=self.other_car,
+            duration=timedelta(hours=1),
+        )
         foreign_order.services.add(self.main_service)
 
         list_resp = self.client.get(self.list_url(self.cw.id))

@@ -6,6 +6,7 @@ from http import HTTPMethod
 import qrcode
 import qrcode.image.svg
 from django.db.models import Q, F, Count, Sum
+from django.http import HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from qrcode.image.styledpil import StyledPilImage
@@ -17,11 +18,13 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 from rest_framework.response import Response
 
-from car_wash.models import Car
 from car_wash.models.car_wash import CarWash
 from api.car_wash.serializers import (CarWashWriteSerializer, CarSerializer, BoxSerializer, CarWashReadSerializer,
-                                      CarWashEarningsReadSerializer, CarWashChangeSerializer)
-from api.car_wash.docs import CarWashViewSetDocs, BoxViewSetDocs, CarViewSetDocs, CarWashEarningsViewSetDocs
+                                      CarWashEarningsReadSerializer, CarWashChangeSerializer,
+                                      CarWashDocumentsPrivateSerializer, CarWashSettingsWriteSerializer,
+                                      CarWashCarTypesSerializer)
+from api.car_wash.docs import (CarWashViewSetDocs, BoxViewSetDocs, CarViewSetDocs, CarWashEarningsViewSetDocs,
+                               CarTypeViewSetDocs)
 from api.car_wash.permissions import IsDirector, ReadOnly, IsCarWashOwner
 from api.manager.permissions import IsCarWashManager
 from api.manager.filters import OrdersFilterSet
@@ -34,14 +37,17 @@ class CarWashInRouteMixin:
 
     @property
     def car_wash(self) -> CarWash:
+
         return get_object_or_404(CarWash, pk=self.kwargs['car_wash_id'])
 
     def get_serializer_context(self):
+
         context = super().get_serializer_context()
         context['car_wash'] = self.car_wash
         return context
 
     def perform_create(self, serializer):
+
         return serializer.save(car_wash=self.car_wash)
 
 
@@ -53,6 +59,7 @@ class CarWashViewSet(viewsets.ModelViewSet):
     permission_classes = (ReadOnly | IsDirector,)
 
     def get_queryset(self):
+
         queryset = CarWash.objects.prefetch_related('settings')
         if self.request.method in SAFE_METHODS:
             if self.request.user.is_authenticated:
@@ -70,6 +77,8 @@ class CarWashViewSet(viewsets.ModelViewSet):
             'update': CarWashChangeSerializer,
             'list': CarWashReadSerializer,
             'retrieve': CarWashReadSerializer,
+            'document': CarWashDocumentsPrivateSerializer,
+            'setting': CarWashSettingsWriteSerializer,
         }.get(self.action, self.serializer_class)
 
     def perform_create(self, serializer):
@@ -78,9 +87,47 @@ class CarWashViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         serializer.save(owner=self.request.user)
 
+    def perform_destroy(self, instance):
+        instance.is_active = False
+        instance.save(update_fields=['is_active'])
+
     @property
     def car_wash(self) -> CarWash:
         return get_object_or_404(CarWash, pk=self.kwargs['car_wash_id'])
+
+    @action(detail=True, methods=[HTTPMethod.GET, HTTPMethod.PATCH], permission_classes=[IsCarWashOwner])
+    def document(self, request, *args, **kwargs):
+
+        if request.method == HTTPMethod.GET:
+
+            return Response(self.get_serializer(self.car_wash.documents).data, status=status.HTTP_200_OK)
+
+        elif request.method == HTTPMethod.PATCH:
+
+            serializer = self.get_serializer(self.car_wash.documents, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
+
+        return HttpResponseNotAllowed
+
+    @action(detail=True, methods=[HTTPMethod.GET, HTTPMethod.PATCH], permission_classes=(ReadOnly | IsCarWashOwner,))
+    def setting(self, request, *args, **kwargs):
+
+        if request.method == HTTPMethod.GET:
+
+            return Response(self.get_serializer(self.car_wash.settings).data, status=status.HTTP_200_OK)
+
+        elif request.method == HTTPMethod.PATCH:
+
+            serializer = self.get_serializer(self.car_wash.settings, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
+
+        return HttpResponseNotAllowed
 
     @action(detail=True, methods=[HTTPMethod.GET])
     def queue(self, request, *args, **kwargs):
@@ -197,14 +244,33 @@ class BoxViewSet(CarWashInRouteMixin, viewsets.ModelViewSet):
         return [permission() for permission in permissions_classes]
 
 
+@CarTypeViewSetDocs
+class CarTypeViewSet(CarWashInRouteMixin, viewsets.ModelViewSet):
+
+    serializer_class = CarWashCarTypesSerializer
+    permission_classes = (ReadOnly | IsCarWashOwner,)
+    lookup_url_kwarg = 'car_type_id'
+
+    def get_queryset(self):
+
+        return self.car_wash.settings.car_types.all()
+
+    def perform_create(self, serializer):
+
+        return serializer.save(settings=self.car_wash.settings)
+
+
 @CarViewSetDocs
 class CarViewSet(viewsets.ModelViewSet):
+
     serializer_class = CarSerializer
     permission_classes = (IsAuthenticated,)
     lookup_field='number'
 
     def get_queryset(self):
-        return Car.objects.filter(owner=self.request.user)
+
+        return self.request.user.cars.all()
 
     def perform_create(self, serializer):
+
         serializer.save(owner=self.request.user)

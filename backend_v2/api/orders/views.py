@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
+from api.car_wash.permissions import IsCarWashOwner
 from api.car_wash.views import CarWashInRouteMixin
 from api.manager.permissions import IsCarWashManager
 from api.orders.filters import OrdersSearchFilter, OrdersFilterSet
@@ -45,7 +46,7 @@ class OrdersViewSet(CarWashInRouteMixin,
         queryset = self.car_wash.orders
         if not self.car_wash.managers.contains(self.request.user) and self.request.user != self.car_wash.owner:
             queryset = queryset.filter(user=self.request.user)
-        return queryset
+        return queryset.all()
 
     def get_serializer_context(self):
         ctx = super().get_serializer_context()
@@ -69,6 +70,9 @@ class OrdersViewSet(CarWashInRouteMixin,
         prev_status = instance.status
         instance.status = OrderStatus.CANCELED
         instance.save()
+        # Remove from queue if it was in waiting status
+        if instance.car_wash and prev_status in (OrderStatus.EN_ROUTE, OrderStatus.ON_SITE):
+            instance.car_wash.remove_from_queue(instance)
         # Track conversion for order cancellation
         try:
             record_conversion(
@@ -93,7 +97,7 @@ class OrdersViewSet(CarWashInRouteMixin,
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
 
-    @action(detail=False, methods=[HTTPMethod.POST], permission_classes=(IsCarWashManager,))
+    @action(detail=False, methods=[HTTPMethod.POST], permission_classes=(IsCarWashManager | IsCarWashOwner,))
     def manual(self, request, car_wash_id, *args, **kwargs):
         request.data['car_wash_id'] = car_wash_id  # TODO remove?
         return self.create(request, *args, **kwargs)

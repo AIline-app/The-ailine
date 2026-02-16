@@ -22,7 +22,7 @@ class ManagerViewSet(CarWashInRouteMixin, viewsets.ModelViewSet):
     lookup_url_kwarg = 'user_id'
 
     def get_queryset(self):
-        return self.car_wash.managers
+        return self.car_wash.managers.all()
 
     def get_serializer_class(self):
         return {
@@ -44,7 +44,7 @@ class WasherViewSet(CarWashInRouteMixin, viewsets.ModelViewSet):
     lookup_url_kwarg = 'user_id'
 
     def get_queryset(self):
-        return self.car_wash.washers
+        return self.car_wash.washers.all()
 
     def get_serializer_class(self):
         return {
