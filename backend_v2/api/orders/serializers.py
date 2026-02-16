@@ -267,6 +267,10 @@ class OrdersUpdateServicesSerializer(serializers.ModelSerializer):
         before_price = instance.services.aggregate(Sum('price'))['price__sum'] or 0
         # apply update
         instance.services.set(validated_data['services'])
+        # recalculate duration to equal sum of service durations
+        duration = sum((service.duration for service in instance.services.all()), start=timedelta(0))
+        instance.duration = duration
+        instance.save(update_fields=['duration'])
         instance.car_wash.recalculate_queue()
         # recalc total prospective price if already started (total_price is set on start)
         after_services = list(instance.services.values_list('id', flat=True))
@@ -283,6 +287,7 @@ class OrdersUpdateServicesSerializer(serializers.ModelSerializer):
                     'price_delta': (after_price - before_price),
                     'before_price': before_price,
                     'after_price': after_price,
+                    'after_duration_seconds': int(duration.total_seconds()),
                 },
             )
         return instance

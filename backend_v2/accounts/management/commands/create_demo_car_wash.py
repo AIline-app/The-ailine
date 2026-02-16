@@ -231,6 +231,9 @@ class Command(BaseCommand):
                     # assign box/washer if available for realism
                     box = boxes[(box_idx + sc_idx + k) % len(boxes)] if boxes else None
                     washer = washers[(sc_idx + k) % len(washers)] if washers else None
+                    services_list = self._compose_services_for_order(car_wash, service_variant)
+                    service_variant += 1
+                    duration = sum((s.duration for s in services_list), start=timedelta(0))
                     order = Orders.objects.create(
                         user=user,
                         car_wash=car_wash,
@@ -241,9 +244,8 @@ class Command(BaseCommand):
                         started_at=started,
                         finished_at=finished_at,
                         status=status,
+                        duration=duration,
                     )
-                    services_list = self._compose_services_for_order(car_wash, service_variant)
-                    service_variant += 1
                     self._apply_services_and_total(order, services_list)
 
             # Historical days: create a mix of completed and canceled orders
@@ -266,6 +268,9 @@ class Command(BaseCommand):
                         status = OrderStatus.COMPLETED
                         started = started_at
                         finished_at = started_at + timedelta(minutes=40 + (_ % 2) * 15)
+                    services_list = self._compose_services_for_order(car_wash, service_variant)
+                    service_variant += 1
+                    duration = sum((s.duration for s in services_list), start=timedelta(0))
                     order = Orders.objects.create(
                         user=user,
                         car_wash=car_wash,
@@ -276,9 +281,8 @@ class Command(BaseCommand):
                         started_at=started,
                         finished_at=finished_at,
                         status=status,
+                        duration=duration,
                     )
-                    services_list = self._compose_services_for_order(car_wash, service_variant)
-                    service_variant += 1
                     self._apply_services_and_total(order, services_list)
 
             # Recent completed this day
@@ -286,6 +290,9 @@ class Command(BaseCommand):
                 user, car = next_client_car()
                 box = boxes[box_idx % len(boxes)] if boxes else None
                 box_idx += 1
+                services_list = self._compose_services_for_order(car_wash, service_variant)
+                service_variant += 1
+                duration = sum((s.duration for s in services_list), start=timedelta(0))
                 order = Orders.objects.create(
                     user=user,
                     car_wash=car_wash,
@@ -296,9 +303,8 @@ class Command(BaseCommand):
                     started_at=now - timedelta(hours=3, minutes=30),
                     finished_at=now - timedelta(hours=3),
                     status=OrderStatus.COMPLETED,
+                    duration=duration,
                 )
-                services_list = self._compose_services_for_order(car_wash, service_variant)
-                service_variant += 1
                 self._apply_services_and_total(order, services_list)
 
             # In-progress orders (occupy distinct boxes and distinct cars)
@@ -312,6 +318,9 @@ class Command(BaseCommand):
                         used_cars.add(car.id)
                         break
                 box = boxes[idx % len(boxes)] if boxes else None
+                services_list = self._compose_services_for_order(car_wash, service_variant)
+                service_variant += 1
+                duration = sum((s.duration for s in services_list), start=timedelta(0))
                 order = Orders.objects.create(
                     user=user,
                     car_wash=car_wash,
@@ -321,14 +330,16 @@ class Command(BaseCommand):
                     created_at=now - timedelta(hours=1),
                     started_at=now - timedelta(minutes=45),
                     status=OrderStatus.IN_PROGRESS,
+                    duration=duration,
                 )
-                services_list = self._compose_services_for_order(car_wash, service_variant)
-                service_variant += 1
                 self._apply_services_and_total(order, services_list)
 
             # 3 en route + 3 on site
             for _ in range(3):
                 user, car = next_client_car()
+                services_list = self._compose_services_for_order(car_wash, service_variant)
+                service_variant += 1
+                duration = sum((s.duration for s in services_list), start=timedelta(0))
                 order = Orders.objects.create(
                     user=user,
                     car_wash=car_wash,
@@ -336,13 +347,15 @@ class Command(BaseCommand):
                     box=None,
                     status=OrderStatus.EN_ROUTE,
                     created_at=now - timedelta(minutes=25),
+                    duration=duration,
                 )
-                services_list = self._compose_services_for_order(car_wash, service_variant)
-                service_variant += 1
                 self._apply_services_and_total(order, services_list)
 
             for _ in range(3):
                 user, car = next_client_car()
+                services_list = self._compose_services_for_order(car_wash, service_variant)
+                service_variant += 1
+                duration = sum((s.duration for s in services_list), start=timedelta(0))
                 order = Orders.objects.create(
                     user=user,
                     car_wash=car_wash,
@@ -350,9 +363,8 @@ class Command(BaseCommand):
                     box=None,
                     status=OrderStatus.ON_SITE,
                     created_at=now - timedelta(minutes=12),
+                    duration=duration,
                 )
-                services_list = self._compose_services_for_order(car_wash, service_variant)
-                service_variant += 1
                 self._apply_services_and_total(order, services_list)
 
         create_orders_for(carwash_a, sedan_a, in_progress_boxes=2, washers=[washer_a])
