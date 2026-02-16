@@ -1,0 +1,207 @@
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResponse
+
+from iLine.docs_params import date_from_param, date_to_param
+from api.car_wash.serializers import (
+    CarWashWriteSerializer,
+    CarWashChangeSerializer,
+    CarSerializer,
+    BoxSerializer,
+    CarWashPrivateReadSerializer,
+    CarWashEarningsReadSerializer,
+    MarketingLinksResponseSerializer,
+    CarWashQueueSerializer,
+    CarWashDocumentsPrivateSerializer,
+    CarWashSettingsReadSerializer,
+    CarWashCarTypesSerializer,
+)
+
+
+CarWashViewSetDocs = extend_schema_view(
+    list=extend_schema(
+        summary='List car washes',
+        description='List public car washes for anonymous users and both public and own car washes for authenticated users.',
+        responses={200: CarWashPrivateReadSerializer},
+        tags=['Car wash'],
+    ),
+    retrieve=extend_schema(
+        summary='Retrieve a car wash',
+        description='Retrieve a car wash by id. Returns detailed info for owners, public info otherwise.',
+        responses={200: CarWashPrivateReadSerializer, 404: OpenApiResponse(description='Not found')},
+        tags=['Car wash'],
+    ),
+    create=extend_schema(
+        summary='Create a car wash',
+        description='Create a new car wash with settings, documents and initial boxes amount.',
+        request=CarWashWriteSerializer,
+        responses={201: CarWashPrivateReadSerializer, 400: OpenApiResponse(description='Validation error')},
+        tags=['Car wash'],
+    ),
+    update=extend_schema(
+        summary='Update a car wash',
+        description='Update existing car wash fields, nested settings/documents and boxes amount.',
+        request=CarWashChangeSerializer,
+        responses={200: CarWashPrivateReadSerializer, 400: OpenApiResponse(description='Validation error')},
+        tags=['Car wash'],
+    ),
+    partial_update=extend_schema(
+        summary='Partially update a car wash',
+        request=CarWashChangeSerializer,
+        responses={200: CarWashPrivateReadSerializer},
+        tags=['Car wash'],
+    ),
+    destroy=extend_schema(
+        summary='Delete a car wash',
+        responses={204: OpenApiResponse(description='Deleted'), 403: OpenApiResponse(description='Forbidden')},
+        tags=['Car wash'],
+    ),
+    queue=extend_schema(
+        summary='Get car wash queue data',
+        description='Returns approximate wait time and cars amount in queue for a car wash.',
+        responses={200: CarWashQueueSerializer},
+        tags=['Car wash'],
+    ),
+    document=extend_schema(
+        summary='Get car wash documents',
+        responses={200: CarWashDocumentsPrivateSerializer},
+        tags=['Car wash', 'Documents'],
+    ),
+    setting=extend_schema(
+        summary='Get car wash settings',
+        responses={200: CarWashSettingsReadSerializer},
+        tags=['Car wash', 'Settings'],
+    ),
+    marketing_links=extend_schema(
+        summary='Get marketing links and QR codes',
+        description='Generates UTM links for all active campaigns and returns URLs with pre-generated QR codes for a specific car wash.',
+        responses={
+            200: MarketingLinksResponseSerializer,
+            403: OpenApiResponse(description='Forbidden'),
+        },
+        tags=['Car wash'],
+    ),
+)
+
+
+BoxViewSetDocs = extend_schema_view(
+    list=extend_schema(
+        summary='List boxes',
+        responses={200: BoxSerializer},
+        tags=['Boxes'],
+    ),
+    retrieve=extend_schema(
+        summary='Retrieve a box',
+        responses={200: BoxSerializer, 404: OpenApiResponse(description='Not found')},
+        tags=['Boxes'],
+    ),
+    create=extend_schema(
+        summary='Create a box',
+        request=BoxSerializer,
+        responses={201: BoxSerializer, 400: OpenApiResponse(description='Validation error')},
+        tags=['Boxes'],
+    ),
+    update=extend_schema(
+        summary='Update a box',
+        request=BoxSerializer,
+        responses={200: BoxSerializer},
+        tags=['Boxes'],
+    ),
+    partial_update=extend_schema(
+        summary='Partially update a box',
+        request=BoxSerializer,
+        responses={200: BoxSerializer},
+        tags=['Boxes'],
+    ),
+    destroy=extend_schema(
+        summary='Delete a box',
+        responses={204: OpenApiResponse(description='Deleted')},
+        tags=['Boxes'],
+    ),
+)
+
+CarTypeViewSetDocs = extend_schema_view(
+    list=extend_schema(
+        summary='List car types',
+        responses={200: CarWashCarTypesSerializer},
+        tags=['Car types'],
+    ),
+    retrieve=extend_schema(
+        summary='Retrieve a car type',
+        responses={200: CarWashCarTypesSerializer, 404: OpenApiResponse(description='Not found')},
+        tags=['Car types'],
+    ),
+    create=extend_schema(
+        summary='Create a car type',
+        request=CarWashCarTypesSerializer,
+        responses={201: CarWashCarTypesSerializer, 400: OpenApiResponse(description='Validation error')},
+        tags=['Car types'],
+    ),
+    update=extend_schema(
+        summary='Update a car type',
+        request=CarWashCarTypesSerializer,
+        responses={200: CarWashCarTypesSerializer},
+        tags=['Car types'],
+    ),
+    partial_update=extend_schema(
+        summary='Partially update a car type',
+        request=CarWashCarTypesSerializer,
+        responses={200: CarWashCarTypesSerializer},
+        tags=['Car types'],
+    ),
+    destroy=extend_schema(
+        summary='Delete a car type',
+        responses={204: OpenApiResponse(description='Deleted')},
+        tags=['Car types'],
+    ),
+)
+
+
+CarViewSetDocs = extend_schema_view(
+    list=extend_schema(
+        summary='List my cars',
+        responses={200: CarSerializer},
+        tags=['Cars'],
+    ),
+    retrieve=extend_schema(
+        summary='Retrieve my car by number',
+        responses={200: CarSerializer, 404: OpenApiResponse(description='Not found')},
+        tags=['Cars'],
+    ),
+    create=extend_schema(
+        summary='Register a new car',
+        request=CarSerializer,
+        responses={201: CarSerializer, 400: OpenApiResponse(description='Validation error')},
+        tags=['Cars'],
+    ),
+    update=extend_schema(
+        summary='Update my car',
+        request=CarSerializer,
+        responses={200: CarSerializer},
+        tags=['Cars'],
+    ),
+    partial_update=extend_schema(
+        summary='Partially update my car',
+        request=CarSerializer,
+        responses={200: CarSerializer},
+        tags=['Cars'],
+    ),
+    destroy=extend_schema(
+        summary='Delete my car',
+        responses={204: OpenApiResponse(description='Deleted')},
+        tags=['Cars'],
+    ),
+)
+
+CarWashEarningsViewSetDocs = extend_schema_view(
+    earnings=extend_schema(
+        parameters=[date_from_param, date_to_param],
+        summary='Calculate car wash earnings',
+        description='Calculate total earnings and breakdown by car types for the specified period.',
+        request=CarWashEarningsReadSerializer,
+        responses={
+            200: CarWashEarningsReadSerializer,
+            400: OpenApiResponse(description='Validation error'),
+            403: OpenApiResponse(description='Forbidden'),
+        },
+        tags=['Earnings'],
+    ),
+)

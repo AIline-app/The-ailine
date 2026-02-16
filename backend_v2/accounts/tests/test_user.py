@@ -1,9 +1,8 @@
-from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
+from unittest.mock import patch
 
 from accounts.models.user import User
-from accounts.utils.choices import UserRoles, TypeSmsCode
 from accounts.tests.factories import (
     create_active_user,
     create_inactive_user,
@@ -11,58 +10,57 @@ from accounts.tests.factories import (
     confirm_registration,
     login_user,
 )
-from accounts.utils.constants import MAX_SMS_CODE_VALUE
 
 
 class UserAuthEndpointsTests(APITestCase):
     def setUp(self):
-        self.register_url = reverse('user_register')
-        self.register_confirm_url = reverse('user_register_confirm')
-        self.login_url = reverse('user_login')
+        # Disable Kafka sending in tests
+        self._kafka_patcher = patch('accounts.utils.kafka.Kafka.send', return_value=None)
+        self.mock_kafka_send = self._kafka_patcher.start()
+        self.addCleanup(self._kafka_patcher.stop)
+
         # Router-registered endpoint to fetch current user (requires auth)
-        self.me_url = '/user/me/'
+        self.me_url = '/api/v1/user/me/'
 
         self.sample_username = 'John Doe'
         self.sample_phone = '+77051234567'
         self.sample_password = 'S3cureP@ssw0rd'
 
     def test_register_success_creates_inactive_user_and_returns_user_data(self):
-        payload = {
-            'username': self.sample_username,
-            'phone_number': self.sample_phone,
-            'password': self.sample_password,
-            'role': UserRoles.CLIENT,
-        }
-        resp = self.client.post(self.register_url, data=payload, format='json')
-        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
-        # Response should contain user fields
-        self.assertIn('id', resp.data)
-        self.assertEqual(resp.data['username'], self.sample_username)
-        self.assertIn('phone_number', resp.data)
+        reg_resp, user, code = register_user_and_get_sms(
+            self.client,
+            username=self.sample_username,
+            phone_number=self.sample_phone,
+            password=self.sample_password,
+        )
+        self.assertEqual(reg_resp.status_code, status.HTTP_401_UNAUTHORIZED)
         # Ensure user exists and is inactive until confirmation
-        user = User.objects.get(phone_number=User.objects.normalize_phone_number(self.sample_phone))
-        self.assertFalse(user.is_active)
-        # SMS code for registration should be created
-        self.assertTrue(user.sms_codes.filter(type=TypeSmsCode.REGISTER).exists())
+        self.assertIsNotNone(user)
+        self.assertEqual(user.username, self.sample_username)
+        self.assertEqual(user.phone_number, User.objects.normalize_phone_number(self.sample_phone))
+        self.assertFalse(user.is_verified)
 
-    def test_register_existing_active_same_role_fails(self):
-        # Prepare existing active user with CLIENT role
+    def test_register_existing_active_fails(self):
+        # Prepare existing active user
         create_active_user(
             username=self.sample_username,
             phone_number=self.sample_phone,
             password=self.sample_password,
-            role=UserRoles.CLIENT,
         )
+        users_before = User.objects.count()
 
-        payload = {
-            'username': 'Another Name',
-            'phone_number': self.sample_phone,
-            'password': 'AnotherPass123',
-            'role': UserRoles.CLIENT,
-        }
-        resp = self.client.post(self.register_url, data=payload, format='json')
-        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('phone_number', resp.data)
+        # Attempt signup again with same phone via allauth endpoint
+        reg_resp, _, _ = register_user_and_get_sms(
+            self.client,
+            username='Another Name',
+            phone_number=self.sample_phone,
+            password='AnotherPass123',
+        )
+        self.assertEqual(reg_resp.status_code, status.HTTP_401_UNAUTHORIZED)
+        # Ensure no new user was created
+        self.assertEqual(User.objects.count(), users_before)
+        user = User.objects.get(phone_number=User.objects.normalize_phone_number(self.sample_phone))
+
 
     def test_register_confirm_success_activates_user_and_logs_in(self):
         # Register first to create user and SMS
@@ -71,20 +69,16 @@ class UserAuthEndpointsTests(APITestCase):
             username=self.sample_username,
             phone_number=self.sample_phone,
             password=self.sample_password,
-            role=UserRoles.CLIENT,
         )
-        self.assertEqual(reg_resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(reg_resp.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertIsNotNone(code)
 
         resp = confirm_registration(self.client, phone_number=self.sample_phone, code=code)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-        # User should now be active and logged in (session auth)
+        # User should now be active; then log in and access protected endpoint
         user.refresh_from_db()
-        self.assertTrue(user.is_active)
-        # SMS should be deleted after successful confirmation
-        self.assertFalse(user.sms_codes.filter(type=TypeSmsCode.REGISTER).exists())
-        # Verify session by accessing protected endpoint
+        self.assertTrue(user.is_verified)
         me_resp = self.client.get(self.me_url)
         self.assertEqual(me_resp.status_code, status.HTTP_200_OK)
         self.assertEqual(me_resp.data.get('id'), str(user.id))
@@ -96,16 +90,19 @@ class UserAuthEndpointsTests(APITestCase):
             username=self.sample_username,
             phone_number=self.sample_phone,
             password=self.sample_password,
-            role=UserRoles.CLIENT,
         )
-        self.assertEqual(reg_resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(reg_resp.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertIsNotNone(code)
 
-        # pick a wrong code within valid range
-        wrong_code = code + 1 if code + 1 < MAX_SMS_CODE_VALUE else code - 1
+        # pick a wrong code different from the correct one
+        wrong_code = 'AAAA' if code != 'AAAA' else 'BBBB'
         resp = confirm_registration(self.client, phone_number=self.sample_phone, code=wrong_code)
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('code', resp.data)
+        # Ensure user remains inactive; also no session established
+        user.refresh_from_db()
+        self.assertFalse(user.is_verified)
+        me_resp = self.client.get(self.me_url)
+        self.assertEqual(me_resp.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_login_success_for_active_user(self):
         # Create active user directly
@@ -113,7 +110,6 @@ class UserAuthEndpointsTests(APITestCase):
             username=self.sample_username,
             phone_number=self.sample_phone,
             password=self.sample_password,
-            role=UserRoles.CLIENT,
         )
 
         resp = login_user(self.client, phone_number=self.sample_phone, password=self.sample_password)
@@ -129,10 +125,12 @@ class UserAuthEndpointsTests(APITestCase):
             username=self.sample_username,
             phone_number=self.sample_phone,
             password=self.sample_password,
-            role=UserRoles.CLIENT,
         )
         resp = login_user(self.client, phone_number=self.sample_phone, password=self.sample_password)
-        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
+        # Ensure session not established
+        me_resp = self.client.get(self.me_url)
+        self.assertEqual(me_resp.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_login_fails_for_wrong_credentials(self):
         # Active user
@@ -140,11 +138,13 @@ class UserAuthEndpointsTests(APITestCase):
             username=self.sample_username,
             phone_number=self.sample_phone,
             password=self.sample_password,
-            role=UserRoles.CLIENT,
         )
 
         resp = login_user(self.client, phone_number=self.sample_phone, password='WrongPass123')
-        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        # Ensure session not established
+        me_resp = self.client.get(self.me_url)
+        self.assertEqual(me_resp.status_code, status.HTTP_403_FORBIDDEN)
 
 
     def test_me_returns_current_user_data_for_authenticated_user(self):
@@ -153,7 +153,6 @@ class UserAuthEndpointsTests(APITestCase):
             username=self.sample_username,
             phone_number=self.sample_phone,
             password=self.sample_password,
-            role=UserRoles.CLIENT,
         )
         login_resp = login_user(self.client, phone_number=self.sample_phone, password=self.sample_password)
         self.assertEqual(login_resp.status_code, status.HTTP_200_OK)

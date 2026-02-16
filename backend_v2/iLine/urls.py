@@ -14,18 +14,24 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.conf import settings
-from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
-from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from django.http import JsonResponse
+from django.conf import settings
+from django.conf.urls.static import static
+
+
+def healthz(request):
+    return JsonResponse({"status": "ok"})
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('accounts.urls')),
-    path('', include('carwash.urls')),
-    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    # Optional UI:
-    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path('_allauth/', include('allauth.urls')),
+    path("_allauth/", include("allauth.headless.urls")),
+    path('api/v1/', include('api.urls')),
+    path('healthz/', healthz, name='healthz'),
+    path('admin_tools_stats/', include('admin_tools_stats.urls')),
 ]
+
+# Serve media files (e.g., generated QR codes) at /media/ in this app
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,0 +1,38 @@
+# Docker build context exclusions
+**/__pycache__
+**/*.py[cod]
+*.pyc
+*.pyo
+*.pyd
+*.pytest_cache
+*.coverage
+htmlcov
+.coverage*
+.pytest_cache/
+.eggs/
+*.egg-info/
+
+# Git
+.git
+.gitignore
+
+# Python virtualenvs
+venv/
+.env
+.env.*
+
+# IDEs
+.idea/
+.vscode/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# Django collected staticfiles and media (mounted as volumes in prod)
+static/
+staticfiles/
+media/
+
+# OS files
+.DS_Store
+Thumbs.db

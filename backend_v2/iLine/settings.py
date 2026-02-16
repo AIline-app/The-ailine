@@ -22,37 +22,121 @@ environ.Env.read_env(env_file=BASE_DIR('.env'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = env.str("SECRET_KEY")
 
-DEBUG = bool(os.environ.get("DEBUG", default=0))
+DEBUG = env.bool("DEBUG", False)
 
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(",")
+APP_HOST = env.str('APP_HOST', 'http://localhost:8000/')
 
+ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", str, '*')
 
 # Application definition
 
 INSTALLED_APPS = [
+    'admin_tools_stats',
+    'django_nvd3',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.headless',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.apple',
+    'allauth.usersessions',
     'rest_framework',
+    'django_filters',
     'drf_spectacular',
+    'django_attribution',
+    'django_admin_listfilter_dropdown',
     'accounts.apps.AccountsConfig',
-    'carwash.apps.CarwashConfig',
+    'car_wash.apps.CarwashConfig',
+    'services.apps.ServicesConfig',
+    'orders.apps.OrdersConfig',
+    'marketing.apps.MarketingConfig'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # 'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django_attribution.middlewares.TrackingParameterMiddleware",
+    "django_attribution.middlewares.AttributionMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
+
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         # For each OAuth based provider, either add a ``SocialApp``
+#         # (``socialaccount`` app) containing the required client
+#         # credentials, or list them here:
+#         'APP': {
+#             'client_id': '123',
+#             'secret': '456',
+#             'key': ''
+#         }
+#     }
+# }
+
+ACCOUNT_LOGIN_METHODS = {"phone"}
+
+ACCOUNT_SIGNUP_FIELDS = [
+  'phone*', 'password1*', 'username*'
+]
+ACCOUNT_ADAPTER = 'accounts.adapters.AccountAdapter'
+ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
+ACCOUNT_PHONE_VERIFICATION_TIMEOUT = 300
+ACCOUNT_PHONE_VERIFICATION_SUPPORTS_RESEND = True
+ACCOUNT_SIGNUP_FORM_HONEYPOT_FIELD = 'email'  # for bot protection
+
+HEADLESS_ADAPTER = 'accounts.adapters.HeadlessAdapter'
+HEADLESS_ONLY = True
+HEADLESS_SERVE_SPECIFICATION = True
+
+SITE_ID = env.int('SITE_ID', 1)
+
+# Media files
+MEDIA_URL = env.str('MEDIA_URL', '/media/')
+MEDIA_ROOT = env.str('MEDIA_ROOT', os.path.join(str(BASE_DIR), 'media'))
+
+ACCOUNT_UNIQUE_USERNAME = False
+ACCOUNT_USER_MODEL_EMAIL_FIELD = None
+
+# Time and localization
+TIME_ZONE = env.str('TIME_ZONE', 'UTC')
+USE_TZ = True
+
+# Celery configuration (uses django-environ with CELERY_ namespace)
+# Broker/Backend: default to Redis service in docker-compose; override via env in other envs
+CELERY_BROKER_URL = env.str('CELERY_BROKER_URL', 'redis://redis:6379/0')
+CELERY_RESULT_BACKEND = env.str('CELERY_RESULT_BACKEND', CELERY_BROKER_URL)
+CELERY_ENABLE_UTC = True
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+# Run tasks eagerly in DEBUG if explicitly requested (useful for local dev without broker)
+CELERY_TASK_ALWAYS_EAGER = env.bool('CELERY_TASK_ALWAYS_EAGER', False)
+
+DJANGO_ATTRIBUTION = {
+    'SOURCE_OBJECT_ID_FIELD': 'UUIDField',
+    'CURRENCY': 'KZT',
+
+    # Skip tracking utm params on these URLs
+    'UTM_EXCLUDED_URLS': [
+        '/admin/',
+    ],
+}
 
 ROOT_URLCONF = 'iLine.urls'
 
@@ -71,17 +155,38 @@ TEMPLATES = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
 WSGI_APPLICATION = 'iLine.wsgi.application'
 
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', str, 'http://localhost:8000')
+
+if DEBUG:
+    # CSRF and session cookie settings suitable for local development
+    # CSRF_COOKIE_SECURE = False
+    # SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_SAMESITE = 'Lax'
+else:
+    CSRF_COOKIE_DOMAIN = env.str('CSRF_COOKIE_DOMAIN', default=None)
+    SESSION_COOKIE_DOMAIN = env.str('SESSION_COOKIE_DOMAIN', default=None)
+
+CSRF_USE_SESSIONS = False
+CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read the cookie
+CSRF_COOKIE_NAME = 'csrftoken'  # Explicitly set the cookie name
+CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': env.str('POSTGRES_DB', 'POSTGRES_DB'),
-        'USER': env.str('POSTGRES_USER', 'POSTGRES_USER'),
-        'PASSWORD': env.str('POSTGRES_PASSWORD', 'POSTGRES_PASSWORD'),
-        'HOST': env.str('HOST', 'localhost'),
-        'PORT': env.int('PORT', 5432),
+        'NAME': env.str('POSTGRES_DB', 'postgres'),
+        'USER': env.str('POSTGRES_USER', 'postgres'),
+        'PASSWORD': env.str('POSTGRES_PASSWORD', 'postgres'),
+        'HOST': env.str('POSTGRES_HOST', 'localhost'),
+        'PORT': env.int('POSTGRES_PORT', 5432),
     }
 }
 
@@ -91,6 +196,9 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
 }
 
 SPECTACULAR_SETTINGS = {
@@ -131,17 +239,50 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
+# Keep minimal: in DEBUG, Django will serve app static automatically; no collectstatic in production.
 STATIC_URL = 'static/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+# Security & proxy settings for production
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# SESSION_COOKIE_SECURE = not DEBUG
+# CSRF_COOKIE_SECURE = not DEBUG
+# SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', '0' if DEBUG else '31536000'))
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
+# SECURE_HSTS_PRELOAD = not DEBUG
+# SECURE_CONTENT_TYPE_NOSNIFF = True
+# SECURE_BROWSER_XSS_FILTER = True
+# X_FRAME_OPTIONS = 'DENY'
+# USE_X_FORWARDED_HOST = True
+
+# Logging to stdout/stderr for containerized deployments
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': env.str('DJANGO_LOG_LEVEL', 'DEBUG' if DEBUG else 'INFO'),
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': env.str('DJANGO_LOG_LEVEL', 'DEBUG' if DEBUG else 'INFO'),
+            'propagate': False,
+        },
+    },
+}
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Use custom user model
 AUTH_USER_MODEL = 'accounts.User'
 
-SMS_LOGIN = env.str('SMS_LOGIN')
-SMS_PASSWORD = env.str('SMS_PASSWORD')
+# Kafka configuration
+KAFKA_BOOTSTRAP_SERVERS = os.environ.get('KAFKA_BOOTSTRAP_SERVERS', 'localhost:9092')
+KAFKA_SMS_TOPIC = os.environ.get('KAFKA_SMS_TOPIC', 'sms')
+KAFKA_TELEGRAM_TOPIC = os.environ.get('KAFKA_TELEGRAM_TOPIC', 'telegram')
+KAFKA_WHATSAPP_TOPIC = os.environ.get('KAFKA_WHATSAPP_TOPIC', 'whatsapp')
