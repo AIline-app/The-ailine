@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/core/theme/text_styles.dart';
+import 'package:theIline/core/theme/text_styles.dart';
 
 class StarModal extends StatefulWidget {
   const StarModal({super.key});

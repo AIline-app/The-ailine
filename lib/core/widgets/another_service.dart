@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/core/widgets/custom_checkbox.dart';
+import 'package:theIline/core/widgets/custom_checkbox.dart';
 
 class AnotherService extends StatelessWidget {
   const AnotherService({

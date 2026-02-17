@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/core/theme/text_styles.dart';
-import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
-import 'package:gghgggfsfs/core/widgets/custom_button.dart';
-import 'package:gghgggfsfs/presentation/auth/screens/phone_signup_screen.dart';
+import 'package:theIline/core/theme/text_styles.dart';
+import 'package:theIline/core/widgets/custom_back_button.dart';
+import 'package:theIline/core/widgets/custom_button.dart';
+import 'package:theIline/presentation/auth/screens/phone_signup_screen.dart';
 
 class PaymentWarningScreen extends StatelessWidget {
   const PaymentWarningScreen({super.key});
@@ -11,7 +11,7 @@ class PaymentWarningScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(leading: CustomBackButton()),
+      appBar: AppBar(leading: CustomBackButton(), backgroundColor: Colors.white),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),

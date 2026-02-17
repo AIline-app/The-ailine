@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/routes.dart';
+import 'package:theIline/routes.dart';
 import '../../data/model_car_wash/model_car_wash.dart';
 
 class CarWashCard extends StatelessWidget {

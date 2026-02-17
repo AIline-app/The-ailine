@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/presentation/auth/screens/car_signup_screen.dart';
-import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
-import 'package:gghgggfsfs/core/widgets/custom_button.dart';
+import 'package:theIline/presentation/auth/screens/car_signup_screen.dart';
+import 'package:theIline/core/widgets/custom_back_button.dart';
+import 'package:theIline/core/widgets/custom_button.dart';
 import 'package:otp_text_field_v2/otp_field_v2.dart';
 import 'package:otp_text_field_v2/otp_text_field_v2.dart';
 
@@ -19,7 +19,7 @@ class _OtpSignupScreenState extends State<OtpSignupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(leading: CustomBackButton()),
+      appBar: AppBar(leading: CustomBackButton(), backgroundColor: Colors.white),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {

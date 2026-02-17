@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:label="gghgggfsfs"
+        android:label="theIline"
         android:name=".MainApplication"
         android:icon="@mipmap/ic_launcher">
 

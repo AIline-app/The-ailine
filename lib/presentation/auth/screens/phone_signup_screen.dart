@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
-import 'package:gghgggfsfs/core/widgets/custom_button.dart';
-import 'package:gghgggfsfs/core/widgets/custom_text_field.dart';
-import 'package:gghgggfsfs/presentation/auth/screens/otp_signup_screen.dart';
+import 'package:theIline/core/widgets/custom_back_button.dart';
+import 'package:theIline/core/widgets/custom_button.dart';
+import 'package:theIline/core/widgets/custom_text_field.dart';
+import 'package:theIline/presentation/auth/screens/otp_signup_screen.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 
 class PhoneSignupScreen extends StatefulWidget {
@@ -59,7 +59,7 @@ class _PhoneSignupScreenState extends State<PhoneSignupScreen> {
                           isClicked
                               ? IconsaxPlusLinear.eye
                               : IconsaxPlusLinear.eye_slash,
-                          size: 30,
+                          size: 21,
                           color: Theme.of(context).colorScheme.outline,
                         ),
                       ),

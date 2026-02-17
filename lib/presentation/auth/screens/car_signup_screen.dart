@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/core/theme/color_schemes.dart';
-import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
-import 'package:gghgggfsfs/core/widgets/custom_button.dart';
-import 'package:gghgggfsfs/core/widgets/custom_checkbox.dart';
-import 'package:gghgggfsfs/core/widgets/custom_text_field.dart';
-import 'package:gghgggfsfs/core/widgets/type_car_button.dart';
-import 'package:gghgggfsfs/presentation/client/screens/payment_screen.dart';
-import 'package:gghgggfsfs/routes.dart';
+import 'package:theIline/core/theme/color_schemes.dart';
+import 'package:theIline/core/widgets/custom_back_button.dart';
+import 'package:theIline/core/widgets/custom_button.dart';
+import 'package:theIline/core/widgets/custom_checkbox.dart';
+import 'package:theIline/core/widgets/custom_text_field.dart';
+import 'package:theIline/core/widgets/type_car_button.dart';
+import 'package:theIline/presentation/client/screens/payment_screen.dart';
+import 'package:theIline/routes.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 
 class CarSignupScreen extends StatefulWidget {
@@ -28,9 +28,9 @@ class _CarSignupScreenState extends State<CarSignupScreen> {
       appBar: AppBar(
         leading: CustomBackButton(),
         backgroundColor: Colors.white,
-        elevation: 0,           // убирает тень
-        shadowColor: Colors.transparent, // гарантированно убирает тень
-        foregroundColor: Colors.black,   // цвет текста и иконок
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        foregroundColor: Colors.black,
       ),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
@@ -66,7 +66,7 @@ class _CarSignupScreenState extends State<CarSignupScreen> {
                             isClicked
                                 ? IconsaxPlusLinear.eye
                                 : IconsaxPlusLinear.eye_slash,
-                            size: 30,
+                            size: 21,
                             color: Theme.of(context).colorScheme.outline,
                           ),
                         ),

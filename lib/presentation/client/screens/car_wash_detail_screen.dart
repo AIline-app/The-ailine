@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/core/theme/color_schemes.dart';
-import 'package:gghgggfsfs/core/theme/text_styles.dart';
-import 'package:gghgggfsfs/core/widgets/custom_back_button.dart';
-import 'package:gghgggfsfs/core/widgets/custom_button.dart';
-import 'package:gghgggfsfs/core/widgets/custom_checkbox.dart';
-import 'package:gghgggfsfs/presentation/auth/screens/phone_signup_screen.dart';
-import 'package:gghgggfsfs/presentation/client/screens/payment_warning_screen.dart';
-import 'package:gghgggfsfs/presentation/client/themes/main_colors.dart';
-import 'package:gghgggfsfs/core/widgets/another_service.dart';
-import 'package:gghgggfsfs/core/widgets/tarifs_section.dart';
-import 'package:gghgggfsfs/core/widgets/type_car_button.dart';
+import 'package:theIline/core/theme/color_schemes.dart';
+import 'package:theIline/core/theme/text_styles.dart';
+import 'package:theIline/core/widgets/custom_back_button.dart';
+import 'package:theIline/core/widgets/custom_button.dart';
+import 'package:theIline/core/widgets/custom_checkbox.dart';
+import 'package:theIline/presentation/auth/screens/phone_signup_screen.dart';
+import 'package:theIline/presentation/client/screens/payment_warning_screen.dart';
+import 'package:theIline/presentation/client/themes/main_colors.dart';
+import 'package:theIline/core/widgets/another_service.dart';
+import 'package:theIline/core/widgets/tarifs_section.dart';
+import 'package:theIline/core/widgets/type_car_button.dart';
+
+import '../../../core/widgets/car_tarifs.dart';
 
 class CarWashDetailScreen extends StatefulWidget {
   const CarWashDetailScreen({super.key});
@@ -212,42 +214,7 @@ class _CarWashDetailScreenState extends State<CarWashDetailScreen> {
                 ),
               ),
               SizedBox(height: 20),
-              Container(
-                height: 310,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  children: [
-                    TarifsSection(
-                      title: 'Стандарт',
-                      subtitle: 'Пена, вода, сушка',
-                      minutes: '30 мин',
-                      price: '500р',
-                    ),
-                    TarifsSection(
-                      title: 'Стандарт',
-                      subtitle: 'Пена, вода, сушка',
-                      minutes: '30 мин',
-                      price: '500р',
-                    ),
-                    TarifsSection(
-                      title: 'Стандарт',
-                      subtitle: 'Пена, вода, сушка',
-                      minutes: '30 мин',
-                      price: '500р',
-                    ),
-                    TarifsSection(
-                      title: 'Стандарт',
-                      subtitle: 'Пена, вода, сушка',
-                      minutes: '30 мин',
-                      price: '500р',
-                    ),
-                  ],
-                ),
-              ),
+              CarTarifs(),
               SizedBox(height: 20),
               Padding(
                 padding: EdgeInsets.only(left: 20),

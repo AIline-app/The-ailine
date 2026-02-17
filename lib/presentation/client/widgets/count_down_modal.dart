@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/presentation/client/screens/map_home_screen.dart';
+import 'package:theIline/presentation/client/screens/map_home_screen.dart';
 
 class CountDownModal extends StatelessWidget {
   const CountDownModal({
@@ -117,20 +117,20 @@ class CountDownModal extends StatelessWidget {
             ),
           ),
     
-          SizedBox(height: 20),
+          SizedBox(height: 6),
     
           ArrivalHint(
             text:
                 'По прибытию на автомойку нажмите пожалуйста  на кнопку "Я на месте".',
           ),
     
-          SizedBox(height: 20),
+          SizedBox(height: 6),
     
           Container(
-            padding: const EdgeInsets.all(4),
+            height: 45,
             decoration: BoxDecoration(
               color: Colors.grey[400],
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: Colors.grey.shade300,
                 width: 5,
@@ -142,7 +142,7 @@ class CountDownModal extends StatelessWidget {
               ),
               indicator: BoxDecoration(
                 color: Colors.blue,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(8),
               ),
               dividerColor: Colors.transparent,
               labelColor: Colors.white,
@@ -155,7 +155,7 @@ class CountDownModal extends StatelessWidget {
             ),
           ),
     
-          SizedBox(height: 20),
+          SizedBox(height: 6),
     
           ArrivalHint(
             text:

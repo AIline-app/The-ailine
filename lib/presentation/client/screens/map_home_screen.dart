@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/core/api_client/api_client.dart';
-import 'package:gghgggfsfs/core/theme/text_styles.dart';
-import 'package:gghgggfsfs/data/repository/car_wash_repository.dart';
-import 'package:gghgggfsfs/core/widgets/custom_button.dart';
-import 'package:gghgggfsfs/core/widgets/custom_text_field.dart';
-import 'package:gghgggfsfs/presentation/client/widgets/car_wash_time_modal.dart';
-import 'package:gghgggfsfs/presentation/client/widgets/count_down_modal.dart';
-import 'package:gghgggfsfs/presentation/client/widgets/star_modal.dart';
-import 'package:gghgggfsfs/routes.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:theIline/core/api_client/api_client.dart';
+import 'package:theIline/core/theme/text_styles.dart';
+import 'package:theIline/core/widgets/action_button.dart';
+import 'package:theIline/data/repository/car_wash_repository.dart';
+import 'package:theIline/core/widgets/custom_button.dart';
+import 'package:theIline/core/widgets/custom_text_field.dart';
+import 'package:theIline/presentation/client/widgets/car_wash_time_modal.dart';
+import 'package:theIline/presentation/client/widgets/count_down_modal.dart';
+import 'package:theIline/presentation/client/widgets/star_modal.dart';
+import 'package:theIline/routes.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
+import '../../../core/widgets/popup_contents/no_authorized.dart';
+import '../../../core/widgets/popup_sheet.dart';
+import '../../../data/bloc/popup_store/popup_bloc.dart';
+import '../../../data/bloc/popup_store/popup_event.dart';
 import '../../../data/model_car_wash/model_car_wash.dart';
 import '../../../core/widgets/car_wash_card.dart';
 import '../themes/main_colors.dart';
@@ -42,6 +48,20 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
     _futureCarWashes = carWashRepository.getAllCarWashes();
   }
 
+  void _openPopupSheet(BuildContext context) {
+
+    context.read<PopUpBloc>().add(SetPopUp(1));
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+
+        return PopUpSheet(content: _buildCarWashCards(carWashes));
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final tabs = ['Tab 1', 'Tab 2'];
@@ -71,70 +91,45 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
                   mapObjects: mapObjects,
                 ),
 
-                Positioned(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () {
-                      _showLoginDialog(context);
-                    },
-                    child: Container(),
+                //Align(alignment: Alignment(0, -0.6), child: StarModal()),
+
+                Align(alignment: Alignment(0, -0.5), child: CountDownModal()),
+
+                GestureDetector(
+                  onTap: (){ _openPopupSheet(context); },
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      height: 40,
+                      width: 200,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                        boxShadow: [
+                          BoxShadow(color: Colors.black12, blurRadius: 10),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 30,
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(vertical: 12),
+                              width: 40,
+                              height: 4,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade300,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-                
-                Positioned(
-                  top: 20,
-                  right: 0,
-                  child:Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                    Container(
-                      height: 36,
-                      width: 36,
-                       alignment: Alignment.center,
-                      padding: EdgeInsets.all(3),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(3),
-                        color: Color.fromRGBO(34, 140, 238, 1)
-                      ),
-                      child: Center(
-                        child: IconButton(onPressed: (){
-                                            
-                        },
-                         padding: EdgeInsets.zero, // 👈 важно
-                        constraints: const BoxConstraints(),
-                        icon: Icon(Icons.map, color: Colors.white,)),
-                      ),
-                    ),
-                    SizedBox(width: 6),
-                    Container(
-                      height: 36,
-                      width: 36,
-                      alignment: Alignment.center,
-                      padding: EdgeInsets.all(3),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(3),
-                        color: Color.fromRGBO(34, 140, 238, 1)
-                      ),
-                      child: Center(
-                        child: IconButton(onPressed: (){
-              
-                        }, 
-                        padding: EdgeInsets.zero, // 👈 важно
-                        constraints: const BoxConstraints(),
-                        icon: Icon(Icons.list, color: Colors.white,),),
-                      ),
-                    ),
-                     SizedBox(width: 10,),
-                  ],),
-                ),
 
-                Align(alignment: Alignment(0, -0.7), child: StarModal()),
-
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: _buildCarWashCards(carWashes),
-                ),
-                SizedBox(height: 20),
               ],
             );
           },
@@ -146,72 +141,63 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
   // Alert Dialog for sign in
 
   Widget _buildCarWashCards(List<CarWashModel> carWashes) {
-      return DraggableScrollableSheet(
-    initialChildSize: 0.45, // стартовая высота
-    minChildSize: 0.25,
-    maxChildSize: 0.55,
-    builder: (context, scrollController) {
       return Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-          boxShadow: [
-            BoxShadow(color: Colors.black12, blurRadius: 10),
-          ],
-        ),
+        height: 400,
         child: Column(
           children: [
-
+            SizedBox(height: 10),
             Container(
-              height: 30,
-              child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 12),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(2),
-                ),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
               ),
             ),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black12, blurRadius: 2),
-                  ],
-                ),
-                child: ExpansionTile(
-                  initiallyExpanded: isExpanded,
-                  onExpansionChanged: (expanded) {
-                    setState(() => isExpanded = expanded);
-                  },
-                  title: Text(
-                    selectedSortOption,
-                    style: AppTextStyles.body,
-                  ),
-                  trailing: Icon(
-                    isExpanded
-                        ? Icons.keyboard_arrow_up
-                        : Icons.keyboard_arrow_down,
-                  ),
-                  children: [
-                    _buildSortTile('Расстояние'),
-                    _buildSortTile('Очередь'),
-                    _buildSortTile('Рейтинг'),
-                  ],
-                ),
+            SizedBox(height: 10),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outline,
+                width: 3,
               ),
             ),
+            child: Theme(
+              data: Theme.of(context).copyWith(
+                dividerColor: Colors.transparent,
+              ),
+              child: ExpansionTile(
+                tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+                childrenPadding: const EdgeInsets.only(bottom: 8),
+                initiallyExpanded: isExpanded,
+                onExpansionChanged: (expanded) {
+                  setState(() => isExpanded = expanded);
+                },
+                title: Text(
+                  selectedSortOption,
+                  style: AppTextStyles.body,
+                ),
+                trailing: Icon(
+                  isExpanded
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
+                ),
+                children: [
+                  _buildSortTile('Расстояние'),
+                  _buildSortTile('Очередь'),
+                  _buildSortTile('Рейтинг'),
+                ],
+              ),
+            ),
+          ),
+        ),
 
-  
-            Expanded(
+        Expanded(
               child: ListView.separated(
-                controller: scrollController, // 🔥 обязательно
                 itemCount: carWashes.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 6),
                 itemBuilder: (context, index) {
@@ -234,8 +220,6 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
           ],
         ),
       );
-    },
-  );
   }
 
   Widget _buildSortTile(String title) {
@@ -323,134 +307,6 @@ class _MapHomeScreenState extends State<MapHomeScreen> {
       carWashes.sort((a, b) => b.rating.compareTo(a.rating));
     }
   }
-
-  void _showLoginDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.transparent,
-          contentPadding: EdgeInsets.zero,
-          content: Center(
-            child: Container(
-              width: 800,
-              height: 830,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: Colors.blue,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(
-                            Icons.close,
-                            color: Colors.white,
-                            size: 52,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      top: 20,
-                      left: 20,
-                      right: 20,
-                    ),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Вход',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 32,
-                              color: Color(0xff1F3D59),
-                            ),
-                          ),
-                          SizedBox(height: 30),
-                          CustomTextField(labelText: 'Номер телефона'),
-                          SizedBox(height: 20),
-                          CustomTextField(labelText: 'Пароль'),
-                          SizedBox(height: 25),
-                          Text(
-                            'Забыли пароль?',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xff228CEE),
-                            ),
-                          ),
-                          SizedBox(height: 25),
-                          CustomButton(text: 'Войти', onPressed: () {}),
-                          SizedBox(height: 20),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, AppRoutes.reg);
-                            },
-
-                            child: Text(
-                              'Регистрация',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w600,
-                                color: MainColors.mainBlue,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            width: 150,
-                            height: 2,
-                            color: MainColors.mainBlue,
-                          ),
-                          SizedBox(height: 90),
-                          TextButton(
-                            onPressed: () {},
-                            style: TextButton.styleFrom(
-                              overlayColor: Colors.transparent,
-                            ),
-                            child: Text(
-                              'Стать партнером',
-                              style: TextStyle(
-                                fontSize: 27,
-                                fontWeight: FontWeight.w600,
-                                color: MainColors.mainOrrange,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 2,
-                            child: Container(
-                              width: 220,
-                              height: 2,
-                              color: MainColors.mainOrrange,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
 }
 
 class ArrivalHint extends StatelessWidget {
@@ -463,9 +319,9 @@ class ArrivalHint extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
       ),
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       child: Text(
         text,
         style: Theme.of(

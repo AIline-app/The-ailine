@@ -5,6 +5,7 @@ class CustomTextField extends StatefulWidget {
     this.icon,
     this.isClicked = false,
     this.textController,
+    this.readOnly = false,
     required this.labelText,
   });
 
@@ -12,6 +13,7 @@ class CustomTextField extends StatefulWidget {
   final bool isClicked;
   final TextEditingController? textController;
   final String labelText;
+  final bool readOnly;
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -22,16 +24,17 @@ class _CustomTextFieldState extends State<CustomTextField> {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 10),
-      height: 65,
+      height: 48,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: Theme.of(context).colorScheme.outline,
-          width: 4,
+          width: 3,
         ),
       ),
       child: TextFormField(
+        readOnly: widget.readOnly,
         style: TextStyle(fontSize: 20),
         maxLength: 20,
         obscureText: !widget.isClicked,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gghgggfsfs/core/theme/color_schemes.dart';
-import 'package:gghgggfsfs/core/theme/text_theme.dart';
+import 'package:theIline/core/theme/color_schemes.dart';
+import 'package:theIline/core/theme/text_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 final ThemeData appTheme = ThemeData(
@@ -8,5 +8,11 @@ final ThemeData appTheme = ThemeData(
   scaffoldBackgroundColor: Colors.white,
   colorScheme: customColorScheme,
   textTheme: GoogleFonts.interTextTheme(customTextTheme),
-  appBarTheme: AppBarTheme(backgroundColor: customColorScheme.background),
+  appBarTheme: const AppBarTheme(
+    backgroundColor: Colors.white,
+    surfaceTintColor: Colors.transparent,
+    elevation: 0,
+    scrolledUnderElevation: 0,
+    shadowColor: Colors.transparent,
+  ),
 );

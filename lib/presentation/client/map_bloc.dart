@@ -4,11 +4,12 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:gghgggfsfs/data/model_car_wash/model_car_wash.dart';
+import 'package:theIline/data/model_car_wash/model_car_wash.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import '../../data/repository/car_wash_repository.dart';
 import 'map_event.dart';
 import 'map_state.dart';
+
 class CarWashBloc extends Bloc<CarWashEvent, CarWashState> {
   final CarWashRepository repository;
 
