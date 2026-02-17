@@ -129,4 +129,4 @@ class User(AbstractBaseUser, PermissionsMixin):
         self.phone_number = None
         self.username = '[DELETED USER]'
         self.is_active = False
-        self.save()
+        self.save(update_fields=['phone_number', 'username', 'is_active'])

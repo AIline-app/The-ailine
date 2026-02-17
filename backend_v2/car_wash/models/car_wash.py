@@ -100,36 +100,6 @@ class CarWash(models.Model):
             'wait_time': wait_time_str,
             'car_amount': cars_ahead,
         }
-        
-        # Legacy calculation (backward compatibility)
-        # boxes_amount = self.__get_boxes_amount()
-        # orders = self.__get_orders(current_order)
-        # queue_duration = orders.aggregate(
-        #     sum_duration=ExpressionWrapper(
-        #         Sum("services__duration", default=timedelta(0)) / Value(boxes_amount),
-        #         output_field=DurationField(),
-        #     ),
-        # )["sum_duration"]
-        #
-        # # Calculate how long the current order is late for (if applicable)
-        # late_for = None
-        # if current_order is not None and len(orders) == 0:
-        #     # You are late if there is no one in front of you (no EN_ROUTE or ON_SITE orders ahead)
-        #     if self.orders.get_active(current_order).count() < boxes_amount:
-        #         last_completed_before = (
-        #             self.orders.get_completed()
-        #             .filter(created_at__lt=current_order.created_at)
-        #             .order_by('-finished_at')
-        #             .first()
-        #         )
-        #         if last_completed_before and last_completed_before.finished_at:
-        #             late_for = now() - last_completed_before.finished_at
-        #
-        # return {
-        #     'wait_time': str(queue_duration),
-        #     'car_amount': len(orders),
-        #     'late_for': late_for if late_for is None else str(late_for),
-        # }
 
     def add_to_queue(self, order):
         """Add an order to the queue and calculate its expected start time.
@@ -160,13 +130,6 @@ class CarWash(models.Model):
             expected_start_time=expected_start,
             expected_duration=services_duration,
         )
-        # queue_entry = QueueEntry.objects.create(
-        #     car_wash=self,
-        #     order=order,
-        #     position=next_position,
-        #     expected_start_time=expected_start,
-        #     expected_duration=services_duration,
-        # )
         
         return queue_entry
     
@@ -176,21 +139,11 @@ class CarWash(models.Model):
         Args:
             order: The order to remove from the queue
         """
-        
-        # try:
-        removed_position = order.queue_entry.position
-        order.queue_entry.delete()
 
-        # Shift down all entries after the removed one
-        entries_to_update = self.queue_entries.filter(position__gt=removed_position)
-        for entry in entries_to_update:
-            entry.position -= 1
-            entry.save()  # TODO bulk update?
+        if queue_entry := order.queue_entry:
+            queue_entry.delete()
+            self.recalculate_queue()
 
-        # Recalculate expected times for all remaining entries
-        self.recalculate_queue()
-        # except QueueEntry.DoesNotExist:
-        #     pass
     
     def recalculate_queue(self):
         """Recalculate expected start times for all entries in the queue."""

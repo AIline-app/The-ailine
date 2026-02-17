@@ -69,6 +69,10 @@ class OrdersCreateSerializer(serializers.ModelSerializer):
         attrs['services'] = set(attrs['services'])
         if sum(map(lambda x: not x.is_extra, attrs['services'])) != 1:
             raise serializers.ValidationError({'services': _('Exactly one main service is allowed')})
+
+        if not attrs['user'].cars.contains(attrs['car']):
+            raise serializers.ValidationError({'car': _('Unknown car')})
+
         return attrs
 
     @transaction.atomic
@@ -118,9 +122,6 @@ class OrdersManualUserSerializer(
         attrs['car'] = car
         return attrs
 
-    def create(self, validated_data):
-        return super().create(validated_data)  # TODO remove?
-
 
 class OrdersManualCreateSerializer(OrdersCreateSerializer):
     client_info = OrdersManualUserSerializer()
@@ -129,21 +130,12 @@ class OrdersManualCreateSerializer(OrdersCreateSerializer):
         model = Orders
         fields = ('user', 'client_info', 'status', 'services')
 
-    # def get_fields(self):
-    #     fields = super().get_fields()
-    #     # In manual creation, car is supplied via client_info, not request payload
-    #     fields['car'].required = False
-    #     return fields
 
-    @transaction.atomic
-    def create(self, validated_data):
-        client_info = validated_data.pop('client_info')
-        validated_data['user'] = client_info['user']
-        validated_data['car'] = client_info['car']
-        return super().create(validated_data)
-
-    def update(self, instance, validated_data):
-        pass
+    def validate(self, attrs):
+        client_info = attrs.pop('client_info')
+        attrs['user'] = client_info['user']
+        attrs['car'] = client_info['car']
+        return super().validate(attrs)
 
 
 class OrdersStartSerializer(serializers.ModelSerializer):
@@ -156,14 +148,26 @@ class OrdersStartSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'id': _('Order already executed')})
         if self.instance.status in (OrderStatus.IN_PROGRESS,):
             raise serializers.ValidationError({'id': _('Order already in progress')})
-
-        if not self.instance.car_wash.washers.contains(attrs['washer']):
-            raise serializers.ValidationError({'washer': _('Unknown washer')})
-
-        if not self.instance.car_wash.boxes.contains(attrs['box']):
-            raise serializers.ValidationError({'box': _('Unknown box')})
-
         return attrs
+
+    def validate_washer(self, washer):
+        if not self.instance.car_wash.washers.contains(washer):
+            raise serializers.ValidationError(_('Unknown washer'))
+
+        if self.instance.car_wash.orders.filter(washer=washer, status=OrderStatus.IN_PROGRESS).exists():
+            raise serializers.ValidationError(_('Washer already has an order in progress'))
+
+        return washer
+
+    def validate_box(self, box):
+        if not self.instance.car_wash.boxes.contains(box):
+            raise serializers.ValidationError(_('Unknown box'))
+
+        if self.instance.car_wash.orders.filter(box=box, status=OrderStatus.IN_PROGRESS).exists():
+            raise serializers.ValidationError(_('Box already has an order in progress'))
+
+        return box
+
 
     @conversion_events(EventEnum.ORDER_STARTED)
     def update(self, instance, validated_data):
@@ -240,19 +244,19 @@ class OrdersUpdateServicesSerializer(serializers.ModelSerializer):
         model = Orders
         fields = ('id', 'services')
 
-    def validate_services(self, value):
+    def validate_services(self, services):
         """Validate that all services belong to the car wash."""
         # if 'car_wash' in self.context:
-        value = set(value)
+        services = set(services)
 
-        services = self.context['car_wash'].services
-        if any(not services.contains(service) for service in value):
+        valid_services = self.context['car_wash'].services
+        if any(not valid_services.contains(service) for service in services):  # TODO optimize
             raise serializers.ValidationError({'services': _('All services must belong to this car wash')})
 
-        if sum(map(lambda x: not x.is_extra, value)) != 1:
+        if sum(map(lambda x: not x.is_extra, services)) != 1:
             raise serializers.ValidationError({'services': _('Exactly one main service is allowed')})
 
-        return value
+        return services
 
     def validate(self, attrs):
         if self.instance.status in (OrderStatus.IN_PROGRESS, OrderStatus.COMPLETED, OrderStatus.CANCELED):

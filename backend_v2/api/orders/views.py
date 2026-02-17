@@ -105,16 +105,19 @@ class OrdersViewSet(CarWashInRouteMixin,
     @action(detail=True, methods=[HTTPMethod.GET])
     def queue(self, request, *args, **kwargs):
 
-        return Response(self.car_wash.get_queue_data(self.get_object()), status=status.HTTP_200_OK)
+        return Response(self.get_object().get_queue_data(), status=status.HTTP_200_OK)
 
     @action(detail=True, methods=[HTTPMethod.PUT], permission_classes=(IsCarWashManager,))
     def start(self, request, *args, **kwargs):
+
         return self._update(request, *args, **kwargs)
 
     @action(detail=True, methods=[HTTPMethod.PUT], permission_classes=(IsCarWashManager,))
     def finish(self, request, *args, **kwargs):
+
         return self._update(request, *args, **kwargs)
 
     @action(detail=True, methods=[HTTPMethod.PUT], url_path='services', permission_classes=(IsCarWashManager,))
     def update_services(self, request, *args, **kwargs):
+
         return self._update(request, *args, **kwargs)

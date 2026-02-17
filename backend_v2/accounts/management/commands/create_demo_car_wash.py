@@ -350,6 +350,7 @@ class Command(BaseCommand):
                     duration=duration,
                 )
                 self._apply_services_and_total(order, services_list)
+                car_wash.add_to_queue(order)
 
             for _ in range(3):
                 user, car = next_client_car()
@@ -366,6 +367,7 @@ class Command(BaseCommand):
                     duration=duration,
                 )
                 self._apply_services_and_total(order, services_list)
+                car_wash.add_to_queue(order)
 
         create_orders_for(carwash_a, sedan_a, in_progress_boxes=2, washers=[washer_a])
         create_orders_for(carwash_b, sedan_b, in_progress_boxes=2, washers=[washer_a, washer_b])

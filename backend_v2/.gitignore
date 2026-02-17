@@ -207,3 +207,6 @@ ENV/
 
 # mkdocs documentation
 /site
+
+# PostgreSQL
+postgres_data/**
