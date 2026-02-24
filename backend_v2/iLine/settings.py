@@ -58,7 +58,8 @@ INSTALLED_APPS = [
     'car_wash.apps.CarwashConfig',
     'services.apps.ServicesConfig',
     'orders.apps.OrdersConfig',
-    'marketing.apps.MarketingConfig'
+    'marketing.apps.MarketingConfig',
+    'rating.apps.RatingConfig',
 ]
 
 MIDDLEWARE = [
