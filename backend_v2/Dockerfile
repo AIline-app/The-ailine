@@ -10,6 +10,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # System dependencies (runtime)
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+       bash \
        curl \
        libpq5 \
     && rm -rf /var/lib/apt/lists/*
@@ -40,7 +41,7 @@ COPY . /app
 
 # Permissions
 RUN chown -R appuser:appuser /app
-#USER appuser  # TODO enable in PROD
+USER appuser
 
 EXPOSE 8000
 

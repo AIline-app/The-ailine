@@ -1,0 +1,67 @@
+version: "3.9"
+
+services:
+  db:
+    extends:
+      file: docker-compose.prod.yml
+      service: db
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5678:5432"
+
+  kafka:
+    extends:
+      file: docker-compose.prod.yml
+      service: kafka
+    ports:
+      - "9092:9092"
+
+  redis:
+    extends:
+      file: docker-compose.prod.yml
+      service: redis
+    ports:
+      - "6666:6379"
+
+  web:
+    extends:
+      file: docker-compose.prod.yml
+      service: web
+    depends_on:
+      db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+#      sms-worker:
+#        condition: service_started
+#      celery-worker:
+#        condition: service_started
+#      celery-beat:
+#        condition: service_started
+
+  sms-worker:
+    extends:
+      file: docker-compose.prod.yml
+      service: sms-worker
+
+  celery-worker:
+    extends:
+      file: docker-compose.prod.yml
+      service: celery-worker
+
+  celery-beat:
+    extends:
+      file: docker-compose.prod.yml
+      service: celery-beat
+
+volumes:
+  kafka_data:
+  redis_data:
+  media:
+
+networks:
+  app-network:
+    driver: bridge
