@@ -180,6 +180,38 @@ services:
     networks:
       - app-network
 
+  telegram-bot:
+    container_name: telegram-bot
+    build:
+      context: .
+      dockerfile: standalone/telegram_bot/Dockerfile
+    env_file:
+      - .env
+    environment:
+      - LOG_LEVEL=INFO
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import os,sys; sys.exit(0 if os.getenv('TELEGRAM_BOT_TOKEN') else 1)\" "]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.05"
+          memory: 96M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - app-network
+
   celery-worker:
     build: .
     env_file:
@@ -188,10 +220,6 @@ services:
     depends_on:
       web:
         condition: service_healthy
-#      db:
-#        condition: service_healthy
-#      redis:
-#        condition: service_healthy
     restart: always
     deploy:
       resources:
@@ -214,10 +242,6 @@ services:
     depends_on:
       web:
         condition: service_healthy
-#      db:
-#        condition: service_healthy
-#      redis:
-#        condition: service_healthy
     restart: always
     deploy:
       resources:

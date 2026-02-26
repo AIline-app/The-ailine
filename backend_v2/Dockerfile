@@ -5,6 +5,9 @@ FROM python:3.12-slim AS base
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_DEFAULT_TIMEOUT=120 \
+    PIP_RETRIES=5 \
     PATH="/home/appuser/.local/bin:${PATH}"
 
 # System dependencies (runtime)
@@ -27,8 +30,8 @@ RUN apt-get update \
        libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 COPY requirements.txt /tmp/requirements.txt
-RUN python -m pip install --upgrade pip \
-    && pip wheel --wheel-dir /wheels -r /tmp/requirements.txt
+RUN python -m pip install --upgrade pip --timeout 120 --retries 5 \
+    && pip wheel --wheel-dir /wheels -r /tmp/requirements.txt --timeout 120 --retries 5
 
 # --- Final stage
 FROM base AS final
