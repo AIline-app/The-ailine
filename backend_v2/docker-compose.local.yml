@@ -29,7 +29,9 @@ services:
       file: docker-compose.prod.yml
       service: web
     depends_on:
-      db:
+#      db:
+#        condition: service_healthy
+      telegram-bot:
         condition: service_healthy
       kafka:
         condition: service_healthy
@@ -56,6 +58,11 @@ services:
     extends:
       file: docker-compose.prod.yml
       service: celery-beat
+
+  telegram-bot:
+    extends:
+      file: docker-compose.prod.yml
+      service: telegram-bot
 
 volumes:
   kafka_data:

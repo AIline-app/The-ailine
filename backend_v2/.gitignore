@@ -210,3 +210,8 @@ ENV/
 
 # PostgreSQL
 postgres_data/**
+
+.env*
+.flaskenv*
+!.env.project
+!.env.vault
