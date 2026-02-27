@@ -13,22 +13,23 @@ import os
 import environ
 from pathlib import Path
 
+from dotenv_vault import load_dotenv
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = environ.Path(__file__) - 2
 
-env = environ.Env()
-environ.Env.read_env(env_file=BASE_DIR('.env'))
+load_dotenv()
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_KEY = env.str("SECRET_KEY")
+SECRET_KEY = os.environ["SECRET_KEY"]
 
-DEBUG = env.bool("DEBUG", False)
+DEBUG = bool(os.environ.get("DEBUG", False))
 
-APP_HOST = env.str('APP_HOST', 'http://localhost:8000/')
+APP_HOST = os.environ.get('APP_HOST', 'http://localhost:8000/')
 
-ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", str, '*')
+ALLOWED_HOSTS = os.environ["DJANGO_ALLOWED_HOSTS"].split(',')
 
 # Application definition
 
@@ -105,30 +106,30 @@ HEADLESS_ADAPTER = 'accounts.adapters.HeadlessAdapter'
 HEADLESS_ONLY = True
 HEADLESS_SERVE_SPECIFICATION = True
 
-SITE_ID = env.int('SITE_ID', 1)
+SITE_ID = int(os.environ.get('SITE_ID', 1))
 
 # Media files
-MEDIA_URL = env.str('MEDIA_URL', '/media/')
-MEDIA_ROOT = env.str('MEDIA_ROOT', os.path.join(str(BASE_DIR), 'media'))
+MEDIA_URL = os.environ.get('MEDIA_URL', '/media/')
+MEDIA_ROOT = os.environ.get('MEDIA_ROOT', os.path.join(str(BASE_DIR), 'media'))
 
 ACCOUNT_UNIQUE_USERNAME = False
 ACCOUNT_USER_MODEL_EMAIL_FIELD = None
 
 # Time and localization
-TIME_ZONE = env.str('TIME_ZONE', 'UTC')
+TIME_ZONE = os.environ.get('TIME_ZONE', 'UTC')
 USE_TZ = True
 
 # Celery configuration (uses django-environ with CELERY_ namespace)
 # Broker/Backend: default to Redis service in docker-compose; override via env in other envs
-CELERY_BROKER_URL = env.str('CELERY_BROKER_URL', 'redis://redis:6379/0')
-CELERY_RESULT_BACKEND = env.str('CELERY_RESULT_BACKEND', CELERY_BROKER_URL)
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', CELERY_BROKER_URL)
 CELERY_ENABLE_UTC = True
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 # Run tasks eagerly in DEBUG if explicitly requested (useful for local dev without broker)
-CELERY_TASK_ALWAYS_EAGER = env.bool('CELERY_TASK_ALWAYS_EAGER', False)
+CELERY_TASK_ALWAYS_EAGER = bool(os.environ.get('CELERY_TASK_ALWAYS_EAGER', False))
 
 DJANGO_ATTRIBUTION = {
     'SOURCE_OBJECT_ID_FIELD': 'UUIDField',
@@ -164,7 +165,7 @@ AUTHENTICATION_BACKENDS = [
 
 WSGI_APPLICATION = 'iLine.wsgi.application'
 
-CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', str, 'http://localhost:8000')
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:8000').split(',')
 
 if DEBUG:
     # CSRF and session cookie settings suitable for local development
@@ -173,8 +174,8 @@ if DEBUG:
     CSRF_COOKIE_SAMESITE = 'Lax'
     SESSION_COOKIE_SAMESITE = 'Lax'
 else:
-    CSRF_COOKIE_DOMAIN = env.str('CSRF_COOKIE_DOMAIN', default=None)
-    SESSION_COOKIE_DOMAIN = env.str('SESSION_COOKIE_DOMAIN', default=None)
+    CSRF_COOKIE_DOMAIN = os.environ.get('CSRF_COOKIE_DOMAIN')
+    SESSION_COOKIE_DOMAIN = os.environ.get('SESSION_COOKIE_DOMAIN')
 
 CSRF_USE_SESSIONS = False
 CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read the cookie
@@ -184,11 +185,11 @@ CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': env.str('POSTGRES_DB', 'postgres'),
-        'USER': env.str('POSTGRES_USER', 'postgres'),
-        'PASSWORD': env.str('POSTGRES_PASSWORD', 'postgres'),
-        'HOST': env.str('POSTGRES_HOST', 'localhost'),
-        'PORT': env.int('POSTGRES_PORT', 5432),
+        'NAME': os.environ.get('POSTGRES_DB', 'postgres'),
+        'USER': os.environ.get('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'postgres'),
+        'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
+        'PORT': int(os.environ.get('POSTGRES_PORT', 5432)),
     }
 }
 
@@ -267,12 +268,12 @@ LOGGING = {
     },
     'root': {
         'handlers': ['console'],
-        'level': env.str('DJANGO_LOG_LEVEL', 'DEBUG' if DEBUG else 'INFO'),
+        'level': os.environ.get('DJANGO_LOG_LEVEL', 'DEBUG' if DEBUG else 'INFO'),
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': env.str('DJANGO_LOG_LEVEL', 'DEBUG' if DEBUG else 'INFO'),
+            'level': os.environ.get('DJANGO_LOG_LEVEL', 'DEBUG' if DEBUG else 'INFO'),
             'propagate': False,
         },
     },
