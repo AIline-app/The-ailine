@@ -5,6 +5,8 @@ FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
+RUN pip install --upgrade pip setuptools wheel
+
 # Install runtime dependencies from requirements file
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
@@ -12,6 +14,6 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt
 # Create workdir and copy worker code
 WORKDIR /app
 COPY worker.py /app/worker.py
-COPY .env /app/.env
+COPY .env.vault /app/.env.vault
 
 CMD ["python", "worker.py"]

@@ -44,7 +44,8 @@ COPY . /app
 
 # Permissions
 RUN chown -R appuser:appuser /app
-USER appuser
+#USER appuser
+USER root
 
 EXPOSE 8000
 

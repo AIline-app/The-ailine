@@ -1,13 +1,13 @@
+import asyncio
 import json
 import logging
 import os
-import time
-from dotenv import load_dotenv
+from dotenv_vault import load_dotenv
 
-from kafka import KafkaConsumer
-import requests
+import aiohttp
+from aiokafka import AIOKafkaConsumer
 
-
+os.environ['DOTENV_KEY']='dotenv://:key_212071c22ee2f22d79a03f85b60a4f4f0081c6bd4925031824a350943272e683@dotenv.org/vault/.env.vault?environment=development'
 load_dotenv()
 
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
@@ -19,6 +19,7 @@ SMS_PASSWORD = os.getenv("SMS_PASSWORD")
 DEBUG = bool(os.getenv("DEBUG", 0))
 BOT_ID = os.getenv("BOT_ID")
 CHAT_ID = os.getenv("CHAT_ID")
+THREAD_ID = os.getenv("THREAD_ID")
 
 # Get log level from environment
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
@@ -38,7 +39,8 @@ logger.setLevel(getattr(logging, LOG_LEVEL))
 
 logger.info("SMS Worker started successfully")
 
-def send_telegram(message: str) -> bool:
+
+async def send_telegram(session: aiohttp.ClientSession, message: str) -> bool:
     logger.debug(message)
 
     if not BOT_ID or not CHAT_ID:
@@ -46,21 +48,25 @@ def send_telegram(message: str) -> bool:
 
     url = f"https://api.telegram.org/bot{BOT_ID}/sendMessage"
     try:
-        resp = requests.post(url, json={"chat_id": CHAT_ID, "text": message}, headers={"Content-Type": "application/json"}, timeout=10)
-        if not resp.ok:
-            logger.warning(f'Telegram send failed: {resp.status_code} {resp.text[:200]}')
-        return resp.ok
+        body = {"chat_id": CHAT_ID, "text": message}
+        if THREAD_ID:
+            body["message_thread_id"] = THREAD_ID
+        async with session.post(url, json=body, headers={"Content-Type": "application/json"}, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+            if resp.status != 200:
+                text = await resp.text()
+                logger.warning(f'Telegram send failed: {resp.status} {text[:200]}')
+            return resp.status == 200
     except Exception as e:
         logger.exception(f'Telegram send exception: {e}')
         return False
 
 
-def send_sms(phone: str, message: str) -> bool:
+async def send_sms(session: aiohttp.ClientSession, phone: str, message: str) -> bool:
     phone = phone.lstrip('+')
     if DEBUG:
         # In non‑production, do not send real SMS: log and forward to Telegram
         msg = f"DEBUG MODE: SMS to {phone}: message {message}"
-        return send_telegram(msg)
+        return await send_telegram(session, msg)
 
     # Production: send real SMS via provider
     url = (
@@ -72,45 +78,79 @@ def send_sms(phone: str, message: str) -> bool:
         f"&messagedata={message}"
     )
     try:
-        # The real provider might require GET
-        resp = requests.get(url, timeout=10)
-        logger.info("SMS provider response: %s %s", resp.status_code, resp.text[:200])
-        return resp.ok
+        async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+            text = await resp.text()
+            logger.info("SMS provider response: %s %s", resp.status, text[:200])
+            return 200 <= resp.status < 300
     except Exception as e:
         logger.exception("Failed to send SMS: %s", e)
         return False
 
 
-def main():
+async def consume_loop():
     backoff = 1
     while True:
+        consumer = AIOKafkaConsumer(
+            KAFKA_SMS_TOPIC,
+            bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
+            value_deserializer=lambda m: json.loads(m.decode('utf-8')),
+            enable_auto_commit=False,  # manual commit
+            auto_offset_reset='earliest',
+            group_id='sms-worker-group',
+        )
         try:
-            consumer = KafkaConsumer(
-                KAFKA_SMS_TOPIC,
-                bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-                value_deserializer=lambda m: json.loads(m.decode('utf-8')),
-                enable_auto_commit=True,
-                auto_offset_reset='earliest',
-                group_id='sms-worker-group',
-            )
+            await consumer.start()
             logger.info(f'Connected to Kafka at {KAFKA_BOOTSTRAP_SERVERS}, listening topic {KAFKA_SMS_TOPIC}')
-            for msg in consumer:
-                payload = msg.value or {}
-                phone = payload.get('phone')
-                message = payload.get('message')
-                if not phone or not message:
-                    logger.warning(f'Invalid message payload: {payload}')
-                    continue
-                ok = send_sms(phone, str(message))
-                if ok:
-                    logger.info(f'SMS sent to {phone}')
-                else:
-                    logger.error(f'SMS failed for {phone}')
-            # If loop ends, recreate
+            async with aiohttp.ClientSession() as session:
+                async for msg in consumer:
+                    payload = msg.value or {}
+                    phone = payload.get('phone')
+                    message = payload.get('message')
+                    if not phone or not message:
+                        logger.warning(f'Invalid message payload: {payload}')
+                        # Commit to skip invalid message
+                        try:
+                            await consumer.commit()
+                        except Exception:
+                            logger.exception('Commit failed for invalid message')
+                        continue
+
+                    # Retry sending up to 3 times (non-blocking)
+                    attempts = 0
+                    ok = False
+                    delay = 1.0
+                    while attempts < 3 and not ok:
+                        attempts += 1
+                        ok = await send_sms(session, str(phone), str(message))
+                        if not ok and attempts < 3:
+                            logger.warning(f'SMS send failed for {phone}, attempt {attempts}/3. Retrying in {delay:.1f}s')
+                            await asyncio.sleep(delay)
+                            delay = min(delay * 2, 10)
+
+                    if ok:
+                        logger.info(f'SMS sent to {phone}')
+                    else:
+                        logger.error(f'SMS failed for {phone} after {attempts} attempts; committing offset to skip')
+
+                    # Commit on success OR after 3 retries
+                    try:
+                        await consumer.commit()
+                    except Exception:
+                        logger.exception('Commit failed after processing message')
         except Exception:
-            logger.exception(f'Kafka consumer error. Reconnecting in {backoff}')
-            time.sleep(backoff)
+            logger.exception(f'Kafka consumer error. Reconnecting in {backoff}s')
+            await asyncio.sleep(backoff)
             backoff = min(backoff * 2, 60)
+        finally:
+            try:
+                await consumer.stop()
+            except Exception:
+                # Ignore errors on stop
+                pass
+
+
+def main():
+    asyncio.run(consume_loop())
 
 
 if __name__ == "__main__":

@@ -112,7 +112,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.__send_to_kafka(_(MANAGER_REGISTRATION_MESSAGE).format(app_link=APP_HOST))
 
     def __send_to_kafka(self, message: str) -> bool:
-        # TODO deleted user will have no phone number
+        # Deleted user will have no phone number
+        if not self.is_active:
+            return False
         try:
             Kafka().send(
                 topic=settings.KAFKA_SMS_TOPIC,

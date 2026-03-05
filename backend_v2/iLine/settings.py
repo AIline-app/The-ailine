@@ -19,7 +19,13 @@ from dotenv_vault import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = environ.Path(__file__) - 2
 
-load_dotenv()
+try:
+    load_dotenv()
+except Exception:
+    print('WARNING: FALLBACK TO .env')
+    os.environ['DOTENV_KEY'] = ''
+    del os.environ['DOTENV_KEY']
+    load_dotenv()
 
 # SECURITY WARNING: keep the secret key used in production secret!
 

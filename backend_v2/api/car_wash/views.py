@@ -6,7 +6,7 @@ from http import HTTPMethod
 import qrcode
 import qrcode.image.svg
 from django.db.models import Q, F, Count, Sum
-from django.http import HttpResponseNotAllowed
+from django.http import HttpResponseNotAllowed, FileResponse, Http404
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from qrcode.image.styledpil import StyledPilImage
@@ -17,6 +17,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from car_wash.models.car_wash import CarWash
 from api.car_wash.serializers import (CarWashWriteSerializer, CarSerializer, BoxSerializer, CarWashReadSerializer,
@@ -31,6 +32,7 @@ from api.manager.filters import OrdersFilterSet
 from marketing.models import Campaign
 from django.conf import settings
 from urllib.parse import urljoin
+import mimetypes
 
 
 class CarWashInRouteMixin:
@@ -126,6 +128,35 @@ class CarWashViewSet(viewsets.ModelViewSet):
             self.perform_update(serializer)
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
+
+        return HttpResponseNotAllowed
+
+    @action(detail=True, methods=[HTTPMethod.GET, HTTPMethod.PATCH], permission_classes=(ReadOnly | IsCarWashOwner,), parser_classes=(MultiPartParser, FormParser))
+    def logo(self, request, *args, **kwargs):
+        """Upload or retrieve car wash logo image.
+
+        GET: Return the image file if logo is set; 404 otherwise.
+        PATCH: Upload/replace the logo (owner only). Accepts multipart/form-data with field 'logo'.
+        """
+        if request.method == HTTPMethod.GET:
+
+            if not self.car_wash.logo:
+                raise Http404('Logo not set')
+            # Open the file safely via storage
+            file = self.car_wash.logo.open('rb')
+            content_type, _ = mimetypes.guess_type(self.car_wash.logo.name)
+            response = FileResponse(file, content_type=content_type or 'application/octet-stream')
+            # Suggest filename
+            response["Content-Disposition"] = f"inline; filename=\"{os.path.basename(self.car_wash.logo.name)}\""
+            return response
+
+        elif request.method == HTTPMethod.PATCH:
+
+            logo_file = request.FILES.get('logo') or request.data.get('logo')
+            if not logo_file:
+                return Response({'detail': 'No file provided. Use form field "logo".'}, status=status.HTTP_400_BAD_REQUEST)
+            self.car_wash.logo.save(name=f'{self.car_wash.id}.jpeg', content=logo_file, save=True)
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
         return HttpResponseNotAllowed
 

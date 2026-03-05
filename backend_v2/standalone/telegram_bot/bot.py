@@ -4,6 +4,8 @@ import logging
 import asyncio
 import uuid
 from typing import Final, Iterable, Tuple, Optional
+from dotenv_vault import load_dotenv
+
 
 # Configure logging early
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
@@ -301,4 +303,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    load_dotenv()
     main()

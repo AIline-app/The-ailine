@@ -4,11 +4,11 @@ services:
   db:
     image: postgres:15-alpine
     env_file:
-      - .env
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - .env.infrastructure
+#    environment:
+#      - POSTGRES_DB=${POSTGRES_DB}
+#      - POSTGRES_USER=${POSTGRES_USER}
+#      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -55,7 +55,7 @@ services:
       - KAFKA_MIN_INSYNC_REPLICAS=1
       - KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0
       # Persist cluster id to allow safe restarts without data loss
-      - KAFKA_CLUSTER_ID=kcN0b2tlbi1jbHVzdGVyLWlkLWJhc2U2NA
+      - CLUSTER_ID=kcN0b2tlbi1jbHVzdGVyLWlkLWJhc2U2NA
       # Constrain JVM heap to fit small server
       - KAFKA_HEAP_OPTS=-Xms256m -Xmx256m
     volumes:
@@ -65,7 +65,7 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
-      start_period: 20s
+      start_period: 10s
     restart: always
     deploy:
       resources:
@@ -112,8 +112,9 @@ services:
   web:
     build: .
     env_file:
-      - .env
+      - .env.infrastructure
     environment:
+      - DOTENV_KEY=${DOTENV_KEY}
       - WEB_CONCURRENCY=2
       - GUNICORN_MAX_REQUESTS=1000
       - GUNICORN_MAX_REQUESTS_JITTER=200
@@ -160,8 +161,9 @@ services:
       context: standalone/sms_worker
     command: python worker.py
     env_file:
-      - .env
+      - .env.infrastructure
     environment:
+      - DOTENV_KEY=${DOTENV_KEY_SMS}
       - LOG_LEVEL=INFO  # Reduced verbosity in production
     depends_on:
       kafka:
@@ -186,8 +188,9 @@ services:
       context: .
       dockerfile: standalone/telegram_bot/Dockerfile
     env_file:
-      - .env
+      - .env.infrastructure
     environment:
+      - DOTENV_KEY=${DOTENV_KEY}
       - LOG_LEVEL=INFO
     depends_on:
       db:
@@ -215,7 +218,9 @@ services:
   celery-worker:
     build: .
     env_file:
-      - .env
+      - .env.infrastructure
+    environment:
+      - DOTENV_KEY=${DOTENV_KEY}
     command: ["celery", "-A", "iLine", "worker", "-l", "info", "-c", "2", "--max-tasks-per-child", "500"]
     depends_on:
       web:
@@ -237,7 +242,9 @@ services:
   celery-beat:
     build: .
     env_file:
-      - .env
+      - .env.infrastructure
+    environment:
+      - DOTENV_KEY=${DOTENV_KEY}
     command: ["celery", "-A", "iLine", "beat", "-l", "info"]
     depends_on:
       web:

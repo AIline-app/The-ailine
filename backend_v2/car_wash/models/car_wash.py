@@ -46,6 +46,7 @@ class CarWash(models.Model):
     name = models.CharField(verbose_name=_('Name'), max_length=40, blank=False)
     address = models.CharField(verbose_name=_('Address'), max_length=300)
     location = models.CharField(verbose_name=_('Location'), null=True, default=None, max_length=300)
+    logo = models.ImageField(verbose_name=_('Logo'), upload_to='car_wash_logos/', null=True, blank=True, default=None)
     created_at = models.DateTimeField(verbose_name=_('Creation Data'), auto_now_add=True)
     is_active = models.BooleanField(verbose_name=_('Is active'), default=False)
     # TODO once verified (is_active=True), add to dashboard_stats with id

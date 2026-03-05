@@ -215,3 +215,4 @@ postgres_data/**
 .flaskenv*
 !.env.project
 !.env.vault
+!.env.infrastructure.example

@@ -1,5 +1,6 @@
 from http import HTTPMethod
 
+from django.utils.timezone import now
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 from rest_framework import mixins, status
@@ -69,7 +70,8 @@ class OrdersViewSet(CarWashInRouteMixin,
         # record previous status before cancel
         prev_status = instance.status
         instance.status = OrderStatus.CANCELED
-        instance.save()
+        instance.finished_at = now()
+        instance.save(update_fields=['status', 'finished_at'])
         # Remove from queue if it was in waiting status
         if instance.car_wash and prev_status in (OrderStatus.EN_ROUTE, OrderStatus.ON_SITE):
             instance.car_wash.remove_from_queue(instance)
