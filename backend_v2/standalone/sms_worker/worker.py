@@ -7,7 +7,6 @@ from dotenv_vault import load_dotenv
 import aiohttp
 from aiokafka import AIOKafkaConsumer
 
-os.environ['DOTENV_KEY']='dotenv://:key_212071c22ee2f22d79a03f85b60a4f4f0081c6bd4925031824a350943272e683@dotenv.org/vault/.env.vault?environment=development'
 load_dotenv()
 
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
