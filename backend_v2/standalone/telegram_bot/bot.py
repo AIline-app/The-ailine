@@ -81,7 +81,16 @@ def _is_authorized(update: Update) -> bool:
     return uid_ok or uname_ok
 
 
+def _is_private_chat(update: Update) -> bool:
+    chat = update.effective_chat
+    return bool(chat and getattr(chat, "type", None) == "private")
+
+
 async def _ensure_auth(update: Update) -> bool:
+    # Restrict bot interaction to private chats only
+    if not _is_private_chat(update):
+        # Silently ignore anything outside direct messages
+        return False
     if _is_authorized(update):
         return True
     if update.message:
@@ -290,13 +299,14 @@ def main() -> None:
 
     application = Application.builder().token(token).build()
 
-    # Handlers
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("unverified", unverified))
-    application.add_handler(CommandHandler("carwash", carwash_info))
-    application.add_handler(CommandHandler("verify", verify))
-    application.add_handler(CommandHandler("deny", deny))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, fallback))
+    # Handlers (restrict to private chats only)
+    private = filters.ChatType.PRIVATE
+    application.add_handler(CommandHandler("start", start, filters=private))
+    application.add_handler(CommandHandler("unverified", unverified, filters=private))
+    application.add_handler(CommandHandler("carwash", carwash_info, filters=private))
+    application.add_handler(CommandHandler("verify", verify, filters=private))
+    application.add_handler(CommandHandler("deny", deny, filters=private))
+    application.add_handler(MessageHandler((filters.TEXT & ~filters.COMMAND) & private, fallback))
 
     logger.info("Starting Telegram bot polling ...")
     application.run_polling(poll_interval=POLL_INTERVAL)
