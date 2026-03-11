@@ -18,6 +18,8 @@ import 'package:theIline/data/bloc/popup_store/popup_bloc.dart';
 import 'package:theIline/data/bloc/services_store/services_cubit.dart';
 import 'package:theIline/data/bloc/services_store/services_repository.dart';
 import 'package:theIline/data/bloc/user_store/user_cubit.dart';
+import 'package:theIline/data/bloc/washers_store/washers_cubit.dart';
+import 'package:theIline/data/bloc/washers_store/washers_repository.dart';
 import 'package:theIline/presentation/auth/screens/login_screen.dart';
 import 'package:theIline/presentation/client/screens/map_home_screen.dart';
 import 'package:theIline/routes.dart';
@@ -44,6 +46,7 @@ void main() async {
         RepositoryProvider(create: (_) => ServicesRepository(ApiProvider.instance.api.getServicesApi())),
         RepositoryProvider(create: (_) => OrdersRepository(ApiProvider.instance.api.getOrdersApi())),
         RepositoryProvider(create: (_) => EarningsRepository(ApiProvider.instance.api.getEarningsApi())),
+        RepositoryProvider(create: (_) => WashersRepository(ApiProvider.instance.api.getWashersApi())),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -69,6 +72,9 @@ void main() async {
           ),
           BlocProvider(
             create: (context) => BoxesCubit(context.read<BoxesRepository>()),
+          ),
+          BlocProvider(
+            create: (context) => WashersCubit(context.read<WashersRepository>()),
           ),
           BlocProvider(create: (context) => CarWashDetailCubit(context.read<CarWashRepository>())),
         ],

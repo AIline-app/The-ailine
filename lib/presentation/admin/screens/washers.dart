@@ -1,30 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:theIline/core/widgets/custom_button.dart';
 import 'package:theIline/routes.dart';
 
 import '../../../core/widgets/custom_back_button.dart';
+import '../../../data/bloc/washers_store/washers_cubit.dart';
+import '../../../data/bloc/washers_store/washers_state.dart';
 
-class WashersPage extends StatelessWidget {
+class WashersPage extends StatefulWidget {
   const WashersPage({super.key});
+
+  @override
+  State<WashersPage> createState() => _WashersPageState();
+}
+
+class _WashersPageState extends State<WashersPage> {
+  final carWashId = "d6f577e4-80f3-4fc5-ae9b-934e8f923ae5";
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<WashersCubit>().loadWashers(carWashId);
+  }
 
   @override
   Widget build(BuildContext context) {
     const bg = Color(0xFFEFEFEF);
-    const primary = Color(0xFF2D8CFF);
     const text = Color(0xFF284457);
-
-    final items = const [
-      ('Алексей', '+7 (999) 999-99-99'),
-      ('Дмитрий', '+7 (999) 999-99-99'),
-      ('Игорь', ''),
-      ('Сергей', ''),
-      ('Иван', '+7 (999) 999-99-99'),
-    ];
 
     return Scaffold(
       backgroundColor: bg,
       appBar: AppBar(
-        leading: CustomBackButton(),
+        leading: const CustomBackButton(),
         backgroundColor: bg,
         elevation: 0,
         shadowColor: Colors.transparent,
@@ -38,9 +45,7 @@ class WashersPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   const SizedBox(height: 22),
-
                   const Text(
                     'Мойщики',
                     style: TextStyle(
@@ -49,47 +54,81 @@ class WashersPage extends StatelessWidget {
                       color: text,
                     ),
                   ),
-
                   const SizedBox(height: 12),
-
                   // List
                   Expanded(
-                    child: ListView.separated(
-                      itemCount: items.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 16),
-                      itemBuilder: (context, i) {
-                        final name = items[i].$1;
-                        final phone = items[i].$2;
-
-                        return _WasherRow(
-                          name: name,
-                          phone: phone,
-                          onMenu: (action) {
-                            if (action == _RowAction.edit) {
-                              // TODO: open edit
-                            } else if (action == _RowAction.delete) {
-                              // TODO: confirm + delete
-                            }
-                          },
-                        );
+                    child: BlocBuilder<WashersCubit, WashersState>(
+                      builder: (context, state) {
+                        if (state is WashersLoading) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        if (state is WashersError) {
+                          return Center(child: Text('Ошибка: ${state.message}'));
+                        }
+                        if (state is WashersLoaded) {
+                          final items = state.washers;
+                          if (items.isEmpty) {
+                            return const Center(child: Text('Список мойщиков пуст'));
+                          }
+                          return ListView.separated(
+                            itemCount: items.length,
+                            separatorBuilder: (_, __) => const SizedBox(height: 16),
+                            itemBuilder: (context, i) {
+                              final washer = items[i];
+                              return _WasherRow(
+                                name: washer.username ?? 'Без имени',
+                                phone: washer.phoneNumber ?? '',
+                                onMenu: (action) {
+                                  if (action == _RowAction.edit) {
+                                    // TODO: open edit
+                                  } else if (action == _RowAction.delete) {
+                                    _confirmDelete(context, washer.id, washer.username ?? '');
+                                  }
+                                },
+                              );
+                            },
+                          );
+                        }
+                        return const SizedBox.shrink();
                       },
                     ),
                   ),
                 ],
               ),
             ),
-
             Positioned(
               left: 18,
               right: 18,
               bottom: 18,
-              child: CustomButton(text: 'Добавить',
+              child: CustomButton(
+                text: 'Добавить',
                 onPressed: () {
-                Navigator.pushNamed(context, AppRoutes.addWashers);
-              },),
+                  Navigator.pushNamed(context, AppRoutes.addWashers);
+                },
+              ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, String userId, String name) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Удаление'),
+        content: Text('Вы уверены, что хотите удалить мойщика $name?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Отмена')),
+          TextButton(
+            onPressed: () {
+              context.read<WashersCubit>().removeWasher(carWashId, userId);
+              Navigator.pop(ctx);
+            },
+            child: const Text('Удалить', style: TextStyle(color: Colors.red)),
+          ),
+        ],
       ),
     );
   }
@@ -114,8 +153,8 @@ class _WasherRow extends StatelessWidget {
 
     final topLeft = button.localToGlobal(Offset.zero, ancestor: overlay);
     final rect = RelativeRect.fromLTRB(
-      topLeft.dx - 165, // сдвиг влево (подгони под пиксель)
-      topLeft.dy + 22,  // чуть ниже кнопки
+      topLeft.dx - 165,
+      topLeft.dy + 22,
       topLeft.dx,
       0,
     );
@@ -135,7 +174,6 @@ class _WasherRow extends StatelessWidget {
             style: TextStyle(fontSize: 14),
           ),
         ),
-        //const PopupMenuDivider(height: 1),
         const PopupMenuItem<_RowAction>(
           value: _RowAction.delete,
           child: Text(
@@ -167,7 +205,6 @@ class _WasherRow extends StatelessWidget {
             ),
           ),
         ),
-
         Expanded(
           flex: 5,
           child: Align(
@@ -182,9 +219,7 @@ class _WasherRow extends StatelessWidget {
             ),
           ),
         ),
-
         const SizedBox(width: 10),
-
         Builder(
           builder: (ctx) => GestureDetector(
             onTap: () => _openMenu(ctx),
