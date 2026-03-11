@@ -19,7 +19,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.7.2
+  sdk: ^3.8.0
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -28,6 +28,9 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  openapi:
+    path: ../generated_api
+
   flutter:
     sdk: flutter
   flutter_screenutil: ^5.9.3
@@ -40,15 +43,23 @@ dependencies:
   equatable: ^2.0.7
   flutter_bloc: ^9.1.0
   logger: ^2.5.0
+  one_of: '>=1.5.0 <2.0.0'
+  one_of_serializer: '>=1.5.0 <2.0.0'
+  built_value: '>=8.4.0 <9.0.0'
+  built_collection: '>=5.1.1 <6.0.0'
+  dio_cookie_manager: ^3.1.1
+  cookie_jar: ^4.0.8
+  google_fonts: ^6.3.2
+  shared_preferences: ^2.5.4
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   iconsax_plus: ^1.0.0
   flutter_svg: ^2.1.0
-  google_fonts: ^6.2.1
   otp_text_field_v2: ^1.0.3
-
+  table_calendar: ^3.1.2
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

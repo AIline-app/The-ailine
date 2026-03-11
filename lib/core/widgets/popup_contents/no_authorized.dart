@@ -1,5 +1,8 @@
 
 import 'package:flutter/material.dart';
+import 'package:openapi/openapi.dart';
+import 'package:theIline/data/bloc/login_view_model/login_repository.dart';
+import 'package:theIline/data/bloc/login_view_model/login_repository_imp.dart';
 import 'package:theIline/presentation/auth/screens/login_screen.dart';
 import 'package:theIline/presentation/auth/screens/phone_signup_screen.dart';
 
@@ -30,7 +33,9 @@ class NoAuthorized extends StatelessWidget{
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => LoginPage(),
+                builder: (_) => LoginPage(
+                  repo: AuthRepositoryImpl(),
+                ),
               ),
             );
           },
@@ -51,6 +56,45 @@ class NoAuthorized extends StatelessWidget{
           },
           child: const Text(
             'Регистрация',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+              color: MainColors.mainBlue,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pushNamed(context, AppRoutes.home);
+          },
+          child: const Text(
+            'Клиент',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+              color: MainColors.mainBlue,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pushNamed(context, AppRoutes.adminHome);
+          },
+          child: const Text(
+            'Администратор',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+              color: MainColors.mainBlue,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pushNamed(context, AppRoutes.ownerHome);
+          },
+          child: const Text(
+            'Владелец',
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w600,

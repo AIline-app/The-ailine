@@ -1,24 +1,39 @@
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ApiClient {
-  final Dio dio;
+import 'package:openapi/openapi.dart';
 
-  ApiClient() : dio = Dio() {
-    dio.options = BaseOptions(
-      baseUrl: 'https://future-api-url.com',
-      connectTimeout: const Duration(seconds: 15),
-      receiveTimeout: const Duration(seconds: 15),
-    );
+class ApiProvider {
+  ApiProvider._();
 
-    dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) => handler.next(options),
-        onError: (error, handler) => handler.next(error),
-      ),
-    );
-  }
+  static final ApiProvider instance = ApiProvider._();
 
-  Future<List<Map<String, dynamic>>> getCarWashes() async {
-    return [];
+  late final Dio dio;
+  late final ApiKeyAuthInterceptor apiKeyAuth; // <-- доступен снаружи
+  late final Openapi api;
+
+  static const _kSessionTokenKey = 'session_token';
+
+  Future<void> init() async {
+    dio = Dio(BaseOptions(
+      baseUrl: 'http://90.156.230.67:8000',
+      contentType: 'application/json',
+    ));
+
+    // cookies можно оставить (не мешает)
+    final jar = CookieJar();
+    dio.interceptors.add(CookieManager(jar));
+
+    // наш interceptor (тот, где ты добавил sessionToken)
+    apiKeyAuth = ApiKeyAuthInterceptor();
+    dio.interceptors.add(apiKeyAuth);
+
+    // восстановить токен при старте
+    final prefs = await SharedPreferences.getInstance();
+    apiKeyAuth.sessionToken = prefs.getString(_kSessionTokenKey);
+
+    api = Openapi(dio: dio);
   }
 }

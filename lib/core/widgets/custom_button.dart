@@ -4,7 +4,7 @@ import 'package:theIline/core/theme/text_styles.dart';
 class CustomButton extends StatelessWidget {
   const CustomButton({super.key, required this.onPressed, required this.text});
 
-  final Function() onPressed;
+  final onPressed;
   final String text;
 
   @override

@@ -1,6 +1,8 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:theIline/core/widgets/custom_button.dart';
+import 'package:theIline/routes.dart';
 
 class AddWasherDialog extends StatelessWidget {
   const AddWasherDialog({super.key});
@@ -35,31 +37,9 @@ class AddWasherDialog extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 14),
-
-            SizedBox(
-              height: 56,
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // TODO: открыть страницу/форму добавления автомойщика
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2D8CFF),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Добавить',
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
+            CustomButton(onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.washers);
+              }, text: 'Добавить'),
           ],
         ),
       ),

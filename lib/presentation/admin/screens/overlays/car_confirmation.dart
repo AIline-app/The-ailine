@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:theIline/routes.dart';
 
 Future<bool?> showConfirmSetCarDialog(BuildContext context) {
   return showDialog<bool>(
@@ -57,7 +58,9 @@ class ConfirmSetCarDialog extends StatelessWidget {
                   child: SizedBox(
                     height: 44,
                     child: ElevatedButton(
-                      onPressed: () => Navigator.pop(context, true),
+                      onPressed: () => {
+                        Navigator.pushNamed(context, AppRoutes.addCar)
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF2D8CFF),
                         shape: RoundedRectangleBorder(

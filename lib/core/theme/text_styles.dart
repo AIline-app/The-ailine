@@ -4,7 +4,7 @@ import 'package:theIline/presentation/client/themes/main_colors.dart';
 abstract class AppTextStyles {
 
   static const TextStyle title = TextStyle(
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: FontWeight.w600,
   );
 
@@ -40,9 +40,14 @@ abstract class AppTextStyles {
                             color: Colors.white,
                     );
   static const TextStyle bold22 = TextStyle(
+    fontWeight: FontWeight.w600,
+    fontSize: 21,
+    color: Colors.white,
+  );
+  static const TextStyle bold22Black = TextStyle(
                             fontWeight: FontWeight.w600,
-                            fontSize: 22,
-                            color: Colors.white,
+                            fontSize: 21,
+                            color: Color.fromRGBO(31, 61, 89, 1),
                     );
   static const TextStyle bold18 = TextStyle(
     fontWeight: FontWeight.w600,

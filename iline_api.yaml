@@ -1,0 +1,2534 @@
+openapi: 3.0.3
+info:
+  title: I-Line API
+  version: 1.0.0
+  description: Online car wash queue application
+paths:
+  /api/v1/_auth/swagger/login:
+    post:
+      operationId: _auth_swagger_login_create
+      description: Authenticate using phone and password via allauth proxy. On success,
+        sets authentication cookies in the response for subsequent authorized requests
+        in Swagger UI.
+      summary: Log in for Swagger UI
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  type: string
+                password:
+                  type: string
+              required:
+              - phone
+              - password
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Login successful
+          description: ''
+        '400':
+          description: Bad request
+        '403':
+          description: Forbidden
+  /api/v1/car-wash/:
+    get:
+      operationId: car_wash_list
+      description: List public car washes for anonymous users and both public and
+        own car washes for authenticated users.
+      summary: List car washes
+      tags:
+      - Car wash
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CarWashPrivateRead'
+          description: ''
+    post:
+      operationId: car_wash_create
+      description: Create a new car wash with settings, documents and initial boxes
+        amount.
+      summary: Create a car wash
+      tags:
+      - Car wash
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CarWashWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CarWashWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CarWashWrite'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarWashPrivateRead'
+          description: ''
+        '400':
+          description: Validation error
+  /api/v1/car-wash/{car_wash_id}/:
+    get:
+      operationId: car_wash_retrieve
+      description: Retrieve a car wash by id. Returns detailed info for owners, public
+        info otherwise.
+      summary: Retrieve a car wash
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this Car Wash.
+        required: true
+      tags:
+      - Car wash
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarWashPrivateRead'
+          description: ''
+        '404':
+          description: Not found
+    put:
+      operationId: car_wash_update
+      description: Update existing car wash fields, nested settings/documents and
+        boxes amount.
+      summary: Update a car wash
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Car wash
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CarWashChange'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CarWashChange'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CarWashChange'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarWashPrivateRead'
+          description: ''
+        '400':
+          description: Validation error
+    patch:
+      operationId: car_wash_partial_update
+      summary: Partially update a car wash
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Car wash
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCarWashChange'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCarWashChange'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCarWashChange'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarWashPrivateRead'
+          description: ''
+    delete:
+      operationId: car_wash_destroy
+      summary: Delete a car wash
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Car wash
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: Deleted
+        '403':
+          description: Forbidden
+  /api/v1/car-wash/{car_wash_id}/box/:
+    get:
+      operationId: car_wash_box_list
+      summary: List boxes
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      tags:
+      - Boxes
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Box'
+          description: ''
+    post:
+      operationId: car_wash_box_create
+      summary: Create a box
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      tags:
+      - Boxes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Box'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Box'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Box'
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Box'
+          description: ''
+        '400':
+          description: Validation error
+  /api/v1/car-wash/{car_wash_id}/box/{box_id}/:
+    get:
+      operationId: car_wash_box_retrieve
+      summary: Retrieve a box
+      parameters:
+      - in: path
+        name: box_id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      tags:
+      - Boxes
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Box'
+          description: ''
+        '404':
+          description: Not found
+    put:
+      operationId: car_wash_box_update
+      summary: Update a box
+      parameters:
+      - in: path
+        name: box_id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      tags:
+      - Boxes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Box'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Box'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Box'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Box'
+          description: ''
+    patch:
+      operationId: car_wash_box_partial_update
+      summary: Partially update a box
+      parameters:
+      - in: path
+        name: box_id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      tags:
+      - Boxes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBox'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBox'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBox'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Box'
+          description: ''
+    delete:
+      operationId: car_wash_box_destroy
+      summary: Delete a box
+      parameters:
+      - in: path
+        name: box_id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      tags:
+      - Boxes
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: Deleted
+  /api/v1/car-wash/{car_wash_id}/car-type/:
+    get:
+      operationId: car_wash_car_type_list
+      summary: List car types
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      tags:
+      - Car types
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CarWashCarTypes'
+          description: ''
+    post:
+      operationId: car_wash_car_type_create
+      summary: Create a car type
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      tags:
+      - Car types
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CarWashCarTypes'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CarWashCarTypes'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CarWashCarTypes'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarWashCarTypes'
+          description: ''
+        '400':
+          description: Validation error
+  /api/v1/car-wash/{car_wash_id}/car-type/{car_type_id}/:
+    get:
+      operationId: car_wash_car_type_retrieve
+      summary: Retrieve a car type
+      parameters:
+      - in: path
+        name: car_type_id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      tags:
+      - Car types
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarWashCarTypes'
+          description: ''
+        '404':
+          description: Not found
+    put:
+      operationId: car_wash_car_type_update
+      summary: Update a car type
+      parameters:
+      - in: path
+        name: car_type_id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      tags:
+      - Car types
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CarWashCarTypes'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CarWashCarTypes'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CarWashCarTypes'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarWashCarTypes'
+          description: ''
+    patch:
+      operationId: car_wash_car_type_partial_update
+      summary: Partially update a car type
+      parameters:
+      - in: path
+        name: car_type_id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      tags:
+      - Car types
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCarWashCarTypes'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCarWashCarTypes'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCarWashCarTypes'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarWashCarTypes'
+          description: ''
+    delete:
+      operationId: car_wash_car_type_destroy
+      summary: Delete a car type
+      parameters:
+      - in: path
+        name: car_type_id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      tags:
+      - Car types
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: Deleted
+  /api/v1/car-wash/{car_wash_id}/document/:
+    get:
+      operationId: car_wash_document_retrieve
+      summary: Get car wash documents
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this Car Wash.
+        required: true
+      tags:
+      - Car wash
+      - Documents
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarWashDocumentsPrivate'
+          description: ''
+    patch:
+      operationId: car_wash_document_partial_update
+      summary: Get car wash documents
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Car wash
+      - Documents
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCarWashDocumentsPrivate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCarWashDocumentsPrivate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCarWashDocumentsPrivate'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarWashDocumentsPrivate'
+          description: ''
+  /api/v1/car-wash/{car_wash_id}/earnings/:
+    get:
+      operationId: car_wash_earnings_retrieve
+      description: Calculate total earnings and breakdown by car types for the specified
+        period.
+      summary: Calculate car wash earnings
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+        required: true
+      - in: query
+        name: date_from
+        schema:
+          type: string
+          format: date
+        required: true
+      - in: query
+        name: date_to
+        schema:
+          type: string
+          format: date
+      tags:
+      - Earnings
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarWashEarningsRead'
+          description: ''
+        '400':
+          description: Validation error
+        '403':
+          description: Forbidden
+  /api/v1/car-wash/{car_wash_id}/manager/:
+    get:
+      operationId: car_wash_manager_list
+      description: List managers assigned to the car wash in route.
+      summary: List managers
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      tags:
+      - Managers
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+          description: ''
+    post:
+      operationId: car_wash_manager_create
+      summary: Add a manager to car wash
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      tags:
+      - Managers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManagerWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ManagerWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ManagerWrite'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+        '400':
+          description: Validation error
+  /api/v1/car-wash/{car_wash_id}/manager/{user_id}/:
+    get:
+      operationId: car_wash_manager_retrieve
+      summary: Retrieve a manager
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      - in: path
+        name: user_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Managers
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+        '404':
+          description: Not found
+    put:
+      operationId: car_wash_manager_update
+      summary: Update a manager
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      - in: path
+        name: user_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Managers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManagerWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ManagerWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ManagerWrite'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: car_wash_manager_partial_update
+      summary: Partially update a manager
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      - in: path
+        name: user_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Managers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedManagerWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedManagerWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedManagerWrite'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    delete:
+      operationId: car_wash_manager_destroy
+      summary: Remove a manager from car wash
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      - in: path
+        name: user_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Managers
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: Removed
+  /api/v1/car-wash/{car_wash_id}/marketing_links/:
+    get:
+      operationId: car_wash_marketing_links_retrieve
+      description: Generates UTM links for all active campaigns and returns URLs with
+        pre-generated QR codes for a specific car wash.
+      summary: Get marketing links and QR codes
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this Car Wash.
+        required: true
+      tags:
+      - Car wash
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketingLinksResponse'
+          description: ''
+        '403':
+          description: Forbidden
+  /api/v1/car-wash/{car_wash_id}/order/:
+    get:
+      operationId: car_wash_order_list
+      description: List orders for the car wash in route. Non-managers only see their
+        own orders.
+      summary: List orders
+      parameters:
+      - name: car_number
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - Orders
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrdersRead'
+          description: ''
+    post:
+      operationId: car_wash_order_create
+      summary: Create an order
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      tags:
+      - Orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrdersCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrdersCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrdersCreate'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrdersRead'
+          description: ''
+        '400':
+          description: Validation error
+  /api/v1/car-wash/{car_wash_id}/order/{order_id}/:
+    get:
+      operationId: car_wash_order_retrieve
+      summary: Retrieve an order
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Orders
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrdersRead'
+          description: ''
+        '404':
+          description: Not found
+    delete:
+      operationId: car_wash_order_destroy
+      description: Soft-cancels the order by setting status to CANCELED.
+      summary: Cancel an order
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Orders
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: Canceled
+  /api/v1/car-wash/{car_wash_id}/order/{order_id}/finish/:
+    put:
+      operationId: car_wash_order_finish_update
+      summary: Finish order (manager)
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrdersFinish'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrdersFinish'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrdersFinish'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrdersRead'
+          description: ''
+        '400':
+          description: Validation error
+        '403':
+          description: Forbidden
+  /api/v1/car-wash/{car_wash_id}/order/{order_id}/queue/:
+    get:
+      operationId: car_wash_order_queue_retrieve
+      description: Returns updated order with computed queue-related data.
+      summary: Get queue info for order
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Orders
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrdersRead'
+          description: ''
+  /api/v1/car-wash/{car_wash_id}/order/{order_id}/services/:
+    put:
+      operationId: car_wash_order_services_update
+      summary: Update order services (manager)
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrdersUpdateServices'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrdersUpdateServices'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrdersUpdateServices'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrdersRead'
+          description: ''
+        '400':
+          description: Validation error
+        '403':
+          description: Forbidden
+  /api/v1/car-wash/{car_wash_id}/order/{order_id}/start/:
+    put:
+      operationId: car_wash_order_start_update
+      summary: Start order (manager)
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrdersStart'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrdersStart'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrdersStart'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrdersRead'
+          description: ''
+        '400':
+          description: Validation error
+        '403':
+          description: Forbidden
+  /api/v1/car-wash/{car_wash_id}/order/manual/:
+    post:
+      operationId: car_wash_order_manual_create
+      description: Managers can create orders for clients by providing client info.
+      summary: Create an order manually (manager)
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      tags:
+      - Orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrdersManualCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrdersManualCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrdersManualCreate'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrdersRead'
+          description: ''
+        '400':
+          description: Validation error
+        '403':
+          description: Forbidden
+  /api/v1/car-wash/{car_wash_id}/queue/:
+    get:
+      operationId: car_wash_queue_retrieve
+      description: Returns approximate wait time and cars amount in queue for a car
+        wash.
+      summary: Get car wash queue data
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this Car Wash.
+        required: true
+      tags:
+      - Car wash
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarWashQueue'
+          description: ''
+  /api/v1/car-wash/{car_wash_id}/service/:
+    get:
+      operationId: car_wash_service_list
+      description: List services available for the car wash in route.
+      summary: List services
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      tags:
+      - Services
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServicesRead'
+          description: ''
+    post:
+      operationId: car_wash_service_create
+      summary: Create a service
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      tags:
+      - Services
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServicesWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ServicesWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ServicesWrite'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServicesRead'
+          description: ''
+        '400':
+          description: Validation error
+  /api/v1/car-wash/{car_wash_id}/service/{service_id}/:
+    get:
+      operationId: car_wash_service_retrieve
+      summary: Retrieve a service
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      - in: path
+        name: service_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Services
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServicesRead'
+          description: ''
+        '404':
+          description: Not found
+    put:
+      operationId: car_wash_service_update
+      summary: Update a service
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      - in: path
+        name: service_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Services
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServicesWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ServicesWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ServicesWrite'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServicesRead'
+          description: ''
+    patch:
+      operationId: car_wash_service_partial_update
+      summary: Partially update a service
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      - in: path
+        name: service_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Services
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedServicesWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedServicesWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedServicesWrite'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServicesRead'
+          description: ''
+    delete:
+      operationId: car_wash_service_destroy
+      summary: Delete a service
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      - in: path
+        name: service_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Services
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: Deleted
+  /api/v1/car-wash/{car_wash_id}/setting/:
+    get:
+      operationId: car_wash_setting_retrieve
+      summary: Get car wash settings
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this Car Wash.
+        required: true
+      tags:
+      - Car wash
+      - Settings
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+    patch:
+      operationId: car_wash_setting_partial_update
+      summary: Get car wash settings
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Car wash
+      - Settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCarWashSettingsWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCarWashSettingsWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCarWashSettingsWrite'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/car-wash/{car_wash_id}/washer/:
+    get:
+      operationId: car_wash_washer_list
+      description: List washers assigned to the car wash in route.
+      summary: List washers
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      tags:
+      - Washers
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+          description: ''
+    post:
+      operationId: car_wash_washer_create
+      summary: Add a washer to car wash
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      tags:
+      - Washers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WasherWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WasherWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WasherWrite'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+        '400':
+          description: Validation error
+  /api/v1/car-wash/{car_wash_id}/washer/{user_id}/:
+    get:
+      operationId: car_wash_washer_retrieve
+      summary: Retrieve a washer
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      - in: path
+        name: user_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Washers
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+        '404':
+          description: Not found
+    put:
+      operationId: car_wash_washer_update
+      summary: Update a washer
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      - in: path
+        name: user_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Washers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WasherWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WasherWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WasherWrite'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: car_wash_washer_partial_update
+      summary: Partially update a washer
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      - in: path
+        name: user_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Washers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedWasherWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedWasherWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedWasherWrite'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    delete:
+      operationId: car_wash_washer_destroy
+      summary: Remove a washer from car wash
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      - in: path
+        name: user_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Washers
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: Removed
+  /api/v1/car-wash/{car_wash_id}/washer/earnings/:
+    get:
+      operationId: car_wash_washer_earnings_retrieve
+      description: Calculate earnings per washer for the specified period at a car
+        wash.
+      summary: Calculate washers earnings
+      parameters:
+      - in: path
+        name: car_wash_id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{13}-4[0-9a-f]{3}-[89ab][0-9a-f-]{16}$
+        required: true
+      - in: query
+        name: date_from
+        schema:
+          type: string
+          format: date
+        required: true
+      - in: query
+        name: date_to
+        schema:
+          type: string
+          format: date
+      tags:
+      - Earnings
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WasherEarningsRead'
+          description: ''
+        '400':
+          description: Validation error
+        '403':
+          description: Forbidden
+  /api/v1/user/{id}/:
+    delete:
+      operationId: user_destroy
+      summary: Delete currently authorized user
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this User.
+        required: true
+      tags:
+      - Accounts
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: Deleted
+        '400':
+          description: Car wash employee cannot be deleted
+        '403':
+          description: Forbidden
+  /api/v1/user/car/:
+    get:
+      operationId: user_car_list
+      summary: List my cars
+      tags:
+      - Cars
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Car'
+          description: ''
+    post:
+      operationId: user_car_create
+      summary: Register a new car
+      tags:
+      - Cars
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Car'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Car'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Car'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+          description: ''
+        '400':
+          description: Validation error
+  /api/v1/user/car/{number}/:
+    get:
+      operationId: user_car_retrieve
+      summary: Retrieve my car by number
+      parameters:
+      - in: path
+        name: number
+        schema:
+          type: string
+        required: true
+      tags:
+      - Cars
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+          description: ''
+        '404':
+          description: Not found
+    put:
+      operationId: user_car_update
+      summary: Update my car
+      parameters:
+      - in: path
+        name: number
+        schema:
+          type: string
+        required: true
+      tags:
+      - Cars
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Car'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Car'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Car'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+          description: ''
+    patch:
+      operationId: user_car_partial_update
+      summary: Partially update my car
+      parameters:
+      - in: path
+        name: number
+        schema:
+          type: string
+        required: true
+      tags:
+      - Cars
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCar'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCar'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCar'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+          description: ''
+    delete:
+      operationId: user_car_destroy
+      summary: Delete my car
+      parameters:
+      - in: path
+        name: number
+        schema:
+          type: string
+        required: true
+      tags:
+      - Cars
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: Deleted
+  /api/v1/user/me/:
+    get:
+      operationId: user_me_retrieve
+      description: Return the currently authenticated user's profile.
+      summary: Get current user profile
+      tags:
+      - Accounts
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+        '401':
+          description: Unauthorized
+components:
+  schemas:
+    Box:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+      required:
+      - id
+    CampaignBrief:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - name
+    Car:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        number:
+          type: string
+          maxLength: 15
+          minLength: 1
+      required:
+      - id
+      - number
+    CarWashCarTypes:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          title: Car type
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 255
+      required:
+      - description
+      - id
+      - name
+    CarWashChange:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 40
+        address:
+          type: string
+          maxLength: 300
+        location:
+          type: string
+          nullable: true
+          maxLength: 300
+      required:
+      - address
+      - name
+    CarWashDocumentsPrivate:
+      type: object
+      properties:
+        iin:
+          type: string
+          title: TOO/IIN
+          maxLength: 12
+      required:
+      - iin
+    CarWashEarningsByCarTypesRead:
+      type: object
+      properties:
+        car_type:
+          type: string
+          readOnly: true
+        orders_count:
+          type: integer
+          readOnly: true
+      required:
+      - car_type
+      - orders_count
+    CarWashEarningsRead:
+      type: object
+      properties:
+        revenue:
+          type: integer
+          readOnly: true
+        orders_count:
+          type: integer
+          readOnly: true
+        by_car_types:
+          type: array
+          items:
+            $ref: '#/components/schemas/CarWashEarningsByCarTypesRead'
+          readOnly: true
+      required:
+      - by_car_types
+      - orders_count
+      - revenue
+    CarWashPrivateRead:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        address:
+          type: string
+          readOnly: true
+        location:
+          type: string
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Creation Data
+        is_active:
+          type: boolean
+          readOnly: true
+        documents:
+          $ref: '#/components/schemas/CarWashDocumentsPrivate'
+        boxes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Box'
+        managers:
+          type: array
+          items:
+            type: string
+            format: uuid
+        washers:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+      - address
+      - boxes
+      - created_at
+      - documents
+      - id
+      - is_active
+      - location
+      - managers
+      - name
+      - washers
+    CarWashQueue:
+      type: object
+      properties:
+        wait_time:
+          type: string
+          readOnly: true
+        car_amount:
+          type: integer
+          readOnly: true
+      required:
+      - car_amount
+      - wait_time
+    CarWashSettingsPrivate:
+      type: object
+      properties:
+        car_types:
+          type: array
+          items:
+            $ref: '#/components/schemas/CarWashCarTypes'
+        opens_at:
+          type: string
+          format: time
+        closes_at:
+          type: string
+          format: time
+        percent_washers:
+          type: integer
+          maximum: 35
+          minimum: 20
+          title: Washer Percent
+      required:
+      - car_types
+    CarWashWrite:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 40
+        address:
+          type: string
+          maxLength: 300
+        location:
+          type: string
+          nullable: true
+          maxLength: 300
+        settings:
+          $ref: '#/components/schemas/CarWashSettingsPrivate'
+        documents:
+          $ref: '#/components/schemas/CarWashDocumentsPrivate'
+        boxes_amount:
+          type: integer
+      required:
+      - address
+      - boxes_amount
+      - documents
+      - name
+      - settings
+    ManagerWrite:
+      type: object
+      properties:
+        phone_number:
+          type: string
+        username:
+          type: string
+          maxLength: 100
+        password:
+          type: string
+      required:
+      - password
+      - phone_number
+      - username
+    MarketingLinkItem:
+      type: object
+      properties:
+        campaign:
+          allOf:
+          - $ref: '#/components/schemas/CampaignBrief'
+          readOnly: true
+        link:
+          type: string
+          format: uri
+          readOnly: true
+        qr_code:
+          type: string
+          format: uri
+          readOnly: true
+      required:
+      - campaign
+      - link
+      - qr_code
+    MarketingLinksResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/MarketingLinkItem'
+          readOnly: true
+      required:
+      - results
+    OrdersCreate:
+      type: object
+      properties:
+        car:
+          type: string
+          format: uuid
+          nullable: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusF6bEnum'
+          default: en_route
+        services:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+      - services
+    OrdersFinish:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+      required:
+      - id
+    OrdersManualCreate:
+      type: object
+      properties:
+        client_info:
+          $ref: '#/components/schemas/OrdersManualUser'
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusF6bEnum'
+          default: en_route
+        services:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+      - client_info
+      - services
+    OrdersManualUser:
+      type: object
+      properties:
+        phone_number:
+          type: string
+        username:
+          type: string
+          maxLength: 100
+        car_number:
+          type: string
+          maxLength: 15
+      required:
+      - car_number
+      - phone_number
+      - username
+    OrdersRead:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        user:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        car:
+          allOf:
+          - $ref: '#/components/schemas/Car'
+          readOnly: true
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServicesRead'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        finished_at:
+          type: string
+          format: date-time
+          nullable: true
+        total_price:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+          title: Final total price
+        duration:
+          type: string
+          title: Total duration
+        status:
+          $ref: '#/components/schemas/OrdersReadStatusEnum'
+        box:
+          type: string
+          format: uuid
+          nullable: true
+        washer:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - car
+      - duration
+      - id
+      - services
+      - user
+    OrdersReadStatusEnum:
+      enum:
+      - en_route
+      - on_site
+      - in_progress
+      - canceled
+      - completed
+      type: string
+      description: |-
+        * `en_route` - En Route
+        * `on_site` - On Site
+        * `in_progress` - In Progress
+        * `canceled` - Canceled
+        * `completed` - Completed
+    OrdersStart:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        box:
+          type: string
+          format: uuid
+          nullable: true
+        washer:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - id
+    OrdersUpdateServices:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        services:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+      - id
+      - services
+    PatchedBox:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+    PatchedCar:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        number:
+          type: string
+          maxLength: 15
+          minLength: 1
+    PatchedCarWashCarTypes:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          title: Car type
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 255
+    PatchedCarWashChange:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 40
+        address:
+          type: string
+          maxLength: 300
+        location:
+          type: string
+          nullable: true
+          maxLength: 300
+    PatchedCarWashDocumentsPrivate:
+      type: object
+      properties:
+        iin:
+          type: string
+          title: TOO/IIN
+          maxLength: 12
+    PatchedCarWashSettingsWrite:
+      type: object
+      properties:
+        opens_at:
+          type: string
+          format: time
+        closes_at:
+          type: string
+          format: time
+        percent_washers:
+          type: integer
+          maximum: 35
+          minimum: 20
+          title: Washer Percent
+    PatchedManagerWrite:
+      type: object
+      properties:
+        phone_number:
+          type: string
+        username:
+          type: string
+          maxLength: 100
+        password:
+          type: string
+    PatchedServicesWrite:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 512
+        description:
+          type: string
+          maxLength: 512
+        car_type:
+          type: string
+          format: uuid
+        price:
+          type: integer
+          minimum: 0
+        duration:
+          type: string
+        is_extra:
+          type: boolean
+    PatchedWasherWrite:
+      type: object
+      properties:
+        phone_number:
+          type: string
+        username:
+          type: string
+          maxLength: 100
+        password:
+          type: string
+    ServicesRead:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        car_type:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 512
+        description:
+          type: string
+          maxLength: 512
+        price:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        duration:
+          type: string
+        is_extra:
+          type: boolean
+      required:
+      - car_type
+      - description
+      - duration
+      - id
+      - name
+      - price
+    ServicesWrite:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 512
+        description:
+          type: string
+          maxLength: 512
+        car_type:
+          type: string
+          format: uuid
+        price:
+          type: integer
+          minimum: 0
+        duration:
+          type: string
+        is_extra:
+          type: boolean
+      required:
+      - car_type
+      - description
+      - duration
+      - name
+      - price
+    StatusF6bEnum:
+      enum:
+      - en_route
+      - on_site
+      type: string
+      description: |-
+        * `en_route` - en_route
+        * `on_site` - on_site
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        username:
+          type: string
+          nullable: true
+          title: Name
+          maxLength: 100
+        phone_number:
+          type: string
+          nullable: true
+          maxLength: 15
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date created
+      required:
+      - created_at
+      - id
+    WasherEarningsRead:
+      type: object
+      properties:
+        washer:
+          type: string
+        orders_count:
+          type: integer
+          readOnly: true
+        revenue:
+          type: integer
+          readOnly: true
+        earned:
+          type: integer
+          readOnly: true
+        percent:
+          type: integer
+          readOnly: true
+      required:
+      - earned
+      - orders_count
+      - percent
+      - revenue
+      - washer
+    WasherWrite:
+      type: object
+      properties:
+        phone_number:
+          type: string
+        username:
+          type: string
+          maxLength: 100
+        password:
+          type: string
+      required:
+      - password
+      - phone_number
+      - username
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
 
-class CustomCheckboxWidget extends StatefulWidget {
-  CustomCheckboxWidget({super.key, this.isChecked = false});
+class CustomCheckboxWidget extends StatelessWidget {
+  const CustomCheckboxWidget({
+    super.key,
+    this.value = false,
+    this.onChanged,
+  });
 
-  bool isChecked;
+  final bool value;
+  final ValueChanged<bool>? onChanged;
 
-  @override
-  _CustomCheckboxWidgetState createState() => _CustomCheckboxWidgetState();
-}
-
-class _CustomCheckboxWidgetState extends State<CustomCheckboxWidget> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        setState(() {
-          widget.isChecked = !widget.isChecked;
-        });
+        onChanged?.call(!value);
       },
       child: Container(
         padding: const EdgeInsets.all(2.0),
@@ -31,17 +29,18 @@ class _CustomCheckboxWidgetState extends State<CustomCheckboxWidget> {
           duration: const Duration(milliseconds: 200),
           width: 16,
           height: 16,
-          decoration:
-              widget.isChecked
-                  ? BoxDecoration(
+          decoration: value
+              ? BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondary,
+                  borderRadius: BorderRadius.circular(6.0),
+                  border: Border.all(
                     color: Theme.of(context).colorScheme.secondary,
-                    borderRadius: BorderRadius.circular(6.0),
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.secondary,
-                      width: 2,
-                    ),
-                  )
-                  : null,
+                    width: 2,
+                  ),
+                )
+              : const BoxDecoration(
+                  color: Colors.transparent,
+                ),
         ),
       ),
     );

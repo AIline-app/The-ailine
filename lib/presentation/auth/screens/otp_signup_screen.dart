@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:theIline/presentation/auth/screens/car_signup_screen.dart';
 import 'package:theIline/core/widgets/custom_back_button.dart';
 import 'package:theIline/core/widgets/custom_button.dart';
 import 'package:otp_text_field_v2/otp_field_v2.dart';
 import 'package:otp_text_field_v2/otp_text_field_v2.dart';
+import 'package:bloc/bloc.dart';
+import '../../../data/bloc/loader_model/loader_cubit.dart';
+import '../../../data/bloc/login_view_model/login_repository_imp.dart';
 
 class OtpSignupScreen extends StatefulWidget {
   const OtpSignupScreen({super.key});
@@ -14,6 +18,8 @@ class OtpSignupScreen extends StatefulWidget {
 
 class _OtpSignupScreenState extends State<OtpSignupScreen> {
   final OtpFieldControllerV2 otpController = OtpFieldControllerV2();
+  final AuthRepositoryImpl _repo = AuthRepositoryImpl();
+  String _currentPin = '';
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +29,7 @@ class _OtpSignupScreenState extends State<OtpSignupScreen> {
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
-          FocusScope.of(context).unfocus(); // Removes focus from TextFields
+          FocusScope.of(context).unfocus();
         },
         child: SafeArea(
           child: Padding(
@@ -42,7 +48,7 @@ class _OtpSignupScreenState extends State<OtpSignupScreen> {
                
                   children: [
                     Text(
-                      "Введите номер телефона",
+                      "Введите код",
                       style: Theme.of(context).textTheme.displayMedium,
                     ),
                     SizedBox(
@@ -70,10 +76,16 @@ class _OtpSignupScreenState extends State<OtpSignupScreen> {
                         fontWeight: FontWeight.w700,
                       ),
                       onChanged: (pin) {
-                        print("Changed: $pin");
+                        setState(() {
+                          _currentPin = pin;
+                        });
+                        //print("Changed: $pin");
                       },
                       onCompleted: (pin) {
-                        print("Completed: $pin");
+                        setState(() {
+                          _currentPin = pin;
+                        });
+                        //print("Completed: $pin");
                       },
                     ),
                     SizedBox(
@@ -97,13 +109,32 @@ class _OtpSignupScreenState extends State<OtpSignupScreen> {
 
                 CustomButton(
                   text: "Далее",
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CarSignupScreen(),
-                      ),
-                    );
+                  onPressed: () async {
+                    final pin = _currentPin;
+
+                    if (pin.length != 4) return;
+
+                    final loader = context.read<LoaderCubit>();
+                    loader.show();
+
+                    final result = await _repo.verifyPhone(code: pin);
+
+                    loader.hide();
+
+                    if (!mounted) return;
+
+                    if (result.success) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CarSignupScreen(),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(result.error ?? 'Ошибка')),
+                      );
+                    }
                   },
                 ),
               ],

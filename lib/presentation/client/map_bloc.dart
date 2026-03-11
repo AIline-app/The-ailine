@@ -6,14 +6,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:theIline/data/model_car_wash/model_car_wash.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-import '../../data/repository/car_wash_repository.dart';
 import 'map_event.dart';
 import 'map_state.dart';
 
 class CarWashBloc extends Bloc<CarWashEvent, CarWashState> {
-  final CarWashRepository repository;
 
-  CarWashBloc(this.repository) : super(CarWashState.initial()) {
+
+  CarWashBloc() : super(CarWashState.initial()) {
     on<LoadCarWashes>(_onLoad);
     on<ChangeVisibleArea>(_onAreaChanged);
     on<SelectCarWash>(_onSelect);
@@ -105,9 +104,7 @@ class CarWashBloc extends Bloc<CarWashEvent, CarWashState> {
 
   Future<List<CarWashModel>> _fetchCarWashes() async {
     try {
-      return await repository.getAllCarWashes().timeout(
-        const Duration(seconds: 15),
-      );
+      return [];
     } on TimeoutException {
       throw DataFetchingException('Таймаут загрузки данных');
     } on SocketException {

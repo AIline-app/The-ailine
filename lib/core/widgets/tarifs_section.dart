@@ -4,25 +4,32 @@ import 'package:theIline/core/widgets/custom_circle_checkbox.dart';
 class TarifsSection extends StatelessWidget {
   const TarifsSection({
     super.key,
-
     required this.title,
     required this.subtitle,
     required this.minutes,
     required this.price,
+    this.isSelected = false,
+    this.onTap,
   });
 
   final String title;
   final String subtitle;
   final String minutes;
   final String price;
+  final bool isSelected;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: CustomCircleCheckbox(),
+      onTap: onTap,
+      leading: CustomCircleCheckbox(
+        value: isSelected,
+        onChanged: (_) => onTap?.call(),
+      ),
       title: Text(
         title,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
           color: Color(0xff1F3D59),
@@ -30,14 +37,14 @@ class TarifsSection extends StatelessWidget {
       ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
       ),
       trailing: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Text(
             minutes,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: Color(0xff1F3D59),
@@ -45,7 +52,7 @@ class TarifsSection extends StatelessWidget {
           ),
           Text(
             price,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: Color(0xff228CEE),

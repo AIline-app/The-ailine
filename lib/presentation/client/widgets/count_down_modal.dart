@@ -125,33 +125,34 @@ class CountDownModal extends StatelessWidget {
           ),
     
           SizedBox(height: 6),
-    
-          Container(
-            height: 45,
-            decoration: BoxDecoration(
-              color: Colors.grey[400],
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: Colors.grey.shade300,
-                width: 5,
-              ),
-            ),
-            child: TabBar(
-              labelPadding: const EdgeInsets.symmetric(
-                horizontal: 0,
-              ),
-              indicator: BoxDecoration(
-                color: Colors.blue,
+
+          DefaultTabController(
+            length: 2,
+            child: Container(
+              height: 45,
+              decoration: BoxDecoration(
+                color: Colors.grey[400],
                 borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Colors.grey.shade300,
+                  width: 5,
+                ),
               ),
-              dividerColor: Colors.transparent,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.black,
-              indicatorSize: TabBarIndicatorSize.tab,
-              tabs: const [
-                Tab(text: 'В пути'),
-                Tab(text: 'Я на месте'),
-              ],
+              child: const TabBar(
+                labelPadding: EdgeInsets.symmetric(horizontal: 0),
+                indicator: BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                ),
+                dividerColor: Colors.transparent,
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.black,
+                indicatorSize: TabBarIndicatorSize.tab,
+                tabs: [
+                  Tab(text: 'В пути'),
+                  Tab(text: 'Я на месте'),
+                ],
+              ),
             ),
           ),
     

@@ -55,6 +55,7 @@ class _CarSignupScreenState extends State<CarSignupScreen> {
                       CustomTextField(labelText: "Как вас зовут?"),
                       SizedBox(height: 15),
                       CustomTextField(
+                        type: FieldType.phone,
                         labelText: "Придумайте пароль",
                         icon: InkWell(
                           onTap: () {
