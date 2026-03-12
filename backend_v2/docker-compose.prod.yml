@@ -165,9 +165,9 @@ services:
     environment:
       - DOTENV_KEY=${DOTENV_KEY_SMS}
       - LOG_LEVEL=INFO  # Reduced verbosity in production
-    depends_on:
-      kafka:
-        condition: service_healthy
+#    depends_on:
+#      kafka:
+#        condition: service_healthy
     restart: always
     deploy:
       resources:
