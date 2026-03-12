@@ -22,16 +22,19 @@ class TestUserOrders(APITestCase):
 
         # Car wash
         self.cw = CarWash.objects.create(owner=self.owner, name='CW', address='Addr', is_active=True)
-        self.cw.create_settings(settings_data={
-            'opens_at': '09:00:00',
-            'closes_at': '21:00:00',
-            'percent_washers': 30,
-            'car_types': [{'name': 'Sedan'}],
-        })
-        self.cw.create_documents(documents_data={'iin': '123456789012'})
-
-        # Boxes (not used directly here, but ensure related exists)
-        Box.objects.create(car_wash=self.cw, name='Box 1')
+        self.cw.initialize(
+            settings_data={
+                'opens_at': '09:00:00',
+                'closes_at': '21:00:00',
+                'percent_washers': 30,
+                'car_types': [{'name': 'Sedan'}],
+            },
+            documents_data={
+                'iin': '123456789012',
+                'legal_address': 'Some Street, Some City'
+            },
+            boxes_amount=2
+        )
 
         # Service set
         car_type = self.cw.settings.car_types.first()
@@ -83,10 +86,19 @@ class TestUserOrders(APITestCase):
         # Create another car wash with no orders for this user
         other_owner = create_active_user(username='OtherOwner', phone_number='+77070109999', password=DEFAULT_PASSWORD)
         other_cw = CarWash.objects.create(owner=other_owner, name='Else', address='X', is_active=True)
-        other_cw.create_settings(settings_data={
-            'opens_at': '09:00:00', 'closes_at': '21:00:00', 'percent_washers': 30, 'car_types': [{'name': 'Sedan'}]
-        })
-        other_cw.create_documents(documents_data={'iin': '999999999999'})
+        other_cw.initialize(
+            settings_data={
+                'opens_at': '09:00:00',
+                'closes_at': '21:00:00',
+                'percent_washers': 30,
+                'car_types': [{'name': 'Sedan'}],
+            },
+            documents_data={
+                'iin': '999999999999',
+                'legal_address': 'Some Street, Some City'
+            },
+            boxes_amount=2
+        )
         login_user(self.client, phone_number=self.client_user.phone_number, password=DEFAULT_PASSWORD)
         resp = self.client.get(self.list_url(other_cw.id))
         self.assertEqual(resp.status_code, status.HTTP_200_OK)

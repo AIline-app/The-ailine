@@ -7,10 +7,12 @@ from django.db.models import Sum
 from django.utils.translation import gettext_lazy as _
 from django.utils.timezone import now
 
-from car_wash.utils.constants import DEFAULT_WASHER_PERCENT, MIN_WASHER_PERCENT, MAX_WASHER_PERCENT
+from car_wash.utils.constants import (DEFAULT_WASHER_PERCENT, MIN_WASHER_PERCENT, MAX_WASHER_PERCENT,
+                                      LEGAL_ADDRESS_MAX_LENGTH)
 from iLine.settings import AUTH_USER_MODEL
 from car_wash.models.box import Box
 from orders.utils.enums import OrderStatus
+from rating.models import Rating
 
 
 class CarWash(models.Model):
@@ -63,13 +65,25 @@ class CarWash(models.Model):
     def __str__(self):
         return f'<CarWash ({self.name}, {self.id})>'
 
+    def initialize(self, settings_data, documents_data, boxes_amount):
+        self.create_settings(settings_data)
+        self.create_documents(documents_data)
+        self.create_boxes(boxes_amount)
+        self.create_rating()
+
     def create_settings(self, settings_data):
+        if hasattr(self, 'settings'):
+            return self.settings
+
         car_types = settings_data.pop('car_types')
         settings = CarWashSettings.objects.create(car_wash=self, **settings_data)
         settings.set_car_types(car_types)
         return settings
 
     def create_documents(self, documents_data):
+        if hasattr(self, 'documents'):
+            return self.documents
+
         return CarWashDocuments.objects.create(car_wash=self, **documents_data)
 
     def update_documents(self, documents_data):
@@ -77,7 +91,16 @@ class CarWash(models.Model):
 
     def create_boxes(self, amount: int):
 
-        Box.objects.bulk_create(Box(car_wash=self, name=f'Box #{box_num + 1}') for box_num in range(amount))
+        if self.boxes:
+            return self.boxes
+
+        return Box.objects.bulk_create(Box(car_wash=self, name=f'Box #{box_num + 1}') for box_num in range(amount))
+
+    def create_rating(self):
+        if hasattr(self, 'rating'):
+            return self.rating
+
+        return Rating.objects.create(car_wash=self)
 
     def __get_boxes_amount(self):
 
@@ -243,7 +266,7 @@ class CarWashDocuments(models.Model):
         primary_key=True,
     )
     iin = models.CharField(_('TOO/IIN'), max_length=12)
-    # TODO add fields for relevant documents (e.g. paths at storage)
+    legal_address = models.CharField(_('Legal Address'), max_length=LEGAL_ADDRESS_MAX_LENGTH)
 
     class Meta:
         verbose_name = _('Car Wash Documents')

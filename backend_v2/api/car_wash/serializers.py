@@ -1,13 +1,12 @@
 from django.db import transaction
-from django.db.models import Sum, Count
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
+from api.rating.serializers import CarWashRatingSerializer
 from car_wash.models import Car
 from car_wash.models.box import Box
 from car_wash.models.car_wash import CarWash, CarWashSettings, CarWashDocuments, CarType
 from car_wash.utils.constants import MAX_CAR_NUMBER_LENGTH, MIN_CAR_NUMBER_LENGTH
-from orders.utils.enums import OrderStatus
 
 
 ### BOX ###
@@ -91,11 +90,12 @@ class CarWashDocumentsPrivateSerializer(serializers.ModelSerializer):
 class CarWashPublicReadSerializer(serializers.ModelSerializer):
 
     settings = CarWashSettingsReadSerializer(many=False)
+    rating = CarWashRatingSerializer(many=False)
 
     class Meta:
 
         model = CarWash
-        fields = ('id', 'name', 'address', 'location', 'created_at', 'is_active', 'settings')
+        fields = ('id', 'name', 'address', 'location', 'created_at', 'is_active', 'settings', 'rating')
         read_only_fields = fields
 
 
@@ -166,9 +166,7 @@ class CarWashWriteSerializer(CarWashChangeSerializer):
         boxes_amount = validated_data.pop('boxes_amount')
 
         car_wash = super().create(validated_data)
-        car_wash.create_settings(settings_data)
-        car_wash.create_documents(documents_data)
-        car_wash.create_boxes(boxes_amount)
+        car_wash.initialize(settings_data=settings_data, documents_data=documents_data, boxes_amount=boxes_amount)
 
         return car_wash
 

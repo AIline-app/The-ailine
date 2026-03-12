@@ -75,8 +75,7 @@ class UserReviewWriteSerializer(serializers.ModelSerializer):
 
 
 class CarWashRatingSerializer(serializers.ModelSerializer):
-    car_wash = serializers.UUIDField(source='car_wash_id', read_only=True)
 
     class Meta:
         model = Rating
-        fields = ('car_wash', 'count', 'average')
+        fields = ('count', 'average')

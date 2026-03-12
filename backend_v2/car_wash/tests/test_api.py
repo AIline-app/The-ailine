@@ -28,13 +28,20 @@ class CarWashEndpointsTests(APITestCase):
 
     def _create_car_wash(self, *, owner, name='CW', address='City, Street 1', is_active=True):
         cw = CarWash.objects.create(owner=owner, name=name, address=address, is_active=is_active)
-        cw.create_settings(settings_data={
-            'opens_at': '09:00:00',
-            'closes_at': '21:00:00',
-            'percent_washers': 30,
-            'car_types': [{'name': 'Sedan'}],
-        })
-        cw.create_documents(documents_data={'iin': '111122223333'})
+
+        cw.initialize(
+            settings_data={
+                'opens_at': '09:00:00',
+                'closes_at': '21:00:00',
+                'percent_washers': 30,
+                'car_types': [{'name': 'Sedan'}],
+            },
+            documents_data={
+                'iin': '111122223333',
+                'legal_address': 'Some Street, Some City'
+            },
+            boxes_amount=2
+        )
         return cw
 
     def test_list_public_shows_only_active(self):
@@ -102,10 +109,19 @@ class BoxEndpointsTests(APITestCase):
         self.other = create_active_user(username='Other', phone_number='+77070000012', password=DEFAULT_PASSWORD)
         # Create car wash with relations
         self.cw = CarWash.objects.create(owner=self.owner, name='CW', address='Addr', is_active=True)
-        self.cw.create_settings(settings_data={
-            'opens_at': '09:00:00', 'closes_at': '21:00:00', 'percent_washers': 30, 'car_types': [{'name': 'Sedan'}]
-        })
-        self.cw.create_documents(documents_data={'iin': '123456789012'})
+        self.cw.initialize(
+            settings_data={
+                'opens_at': '09:00:00',
+                'closes_at': '21:00:00',
+                'percent_washers': 30,
+                'car_types': [{'name': 'Sedan'}],
+            },
+            documents_data={
+                'iin': '123456789012',
+                'legal_address': 'Some Street, Some City'
+            },
+            boxes_amount=2
+        )
 
     def test_owner_can_list_and_create_boxes(self):
         self.client.login(phone_number=self.owner.phone_number, password=DEFAULT_PASSWORD)

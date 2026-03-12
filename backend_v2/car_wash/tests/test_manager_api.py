@@ -20,11 +20,19 @@ class ManagerEndpointsTests(APITestCase):
         self.other = create_active_user(username='Other', phone_number='+77072220002', password=DEFAULT_PASSWORD)
         # Car wash with relations so manager/washer routes have a car_wash context
         self.cw = CarWash.objects.create(owner=self.owner, name='CW', address='Addr', is_active=True)
-        self.cw.create_settings(settings_data={
-            'opens_at': '09:00:00', 'closes_at': '21:00:00', 'percent_washers': 30,
-            'car_types': [{'name': 'Sedan'}]
-        })
-        self.cw.create_documents(documents_data={'iin': '123456789012'})
+        self.cw.initialize(
+            settings_data={
+                'opens_at': '09:00:00',
+                'closes_at': '21:00:00',
+                'percent_washers': 30,
+                'car_types': [{'name': 'Sedan'}],
+            },
+            documents_data={
+                'iin': '123456789012',
+                'legal_address': 'Some Street, Some City'
+            },
+            boxes_amount=2
+        )
         self.list_url = reverse('car-wash-managers-list', kwargs={'car_wash_id': self.cw.id})
 
     def _invite_payload(self, *, username: str, phone_number: str):
@@ -73,11 +81,19 @@ class WasherEndpointsTests(APITestCase):
         self.other = create_active_user(username='Other', phone_number='+77073330003', password=DEFAULT_PASSWORD)
 
         self.cw = CarWash.objects.create(owner=self.owner, name='CW', address='Addr', is_active=True)
-        self.cw.create_settings(settings_data={
-            'opens_at': '09:00:00', 'closes_at': '21:00:00', 'percent_washers': 30,
-            'car_types': [{'name': 'Sedan'}]
-        })
-        self.cw.create_documents(documents_data={'iin': '123456789012'})
+        self.cw.initialize(
+            settings_data={
+                'opens_at': '09:00:00',
+                'closes_at': '21:00:00',
+                'percent_washers': 30,
+                'car_types': [{'name': 'Sedan'}],
+            },
+            documents_data={
+                'iin': '123456789012',
+                'legal_address': 'Some Street, Some City'
+            },
+            boxes_amount=2
+        )
         # Make manager a manager of this car wash
         self.cw.managers.add(self.manager)
 

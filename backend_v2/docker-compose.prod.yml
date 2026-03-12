@@ -60,12 +60,12 @@ services:
       - KAFKA_HEAP_OPTS=-Xms256m -Xmx256m
     volumes:
       - kafka_data:/var/lib/kafka/data
-    healthcheck:
-      test: ["CMD", "/opt/kafka/bin/kafka-topics.sh", "--bootstrap-server", "localhost:9092", "--list"]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 10s
+#    healthcheck:
+#      test: ["CMD", "/opt/kafka/bin/kafka-topics.sh", "--bootstrap-server", "localhost:9092", "--list"]
+#      interval: 10s
+#      timeout: 10s
+#      retries: 5
+#      start_period: 10s
     restart: always
     deploy:
       resources:
@@ -127,8 +127,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      kafka:
-        condition: service_healthy
+#      kafka:
+#        condition: service_healthy
       redis:
         condition: service_healthy
     healthcheck:

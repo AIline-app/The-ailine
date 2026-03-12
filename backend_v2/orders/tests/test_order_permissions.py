@@ -18,8 +18,19 @@ class TestOrderPermissions(APITestCase):
         self.client_user = create_active_user(username='Client', phone_number='+77070400005', password=DEFAULT_PASSWORD)
 
         self.cw = CarWash.objects.create(owner=self.owner, name='CW', address='Addr', is_active=True)
-        self.cw.create_settings(settings_data={'opens_at': '09:00:00', 'closes_at': '21:00:00', 'percent_washers': 30, 'car_types': [{'name': 'Sedan'}]})
-        self.cw.create_documents(documents_data={'iin': '123456789012'})
+        self.cw.initialize(
+            settings_data={
+                'opens_at': '09:00:00',
+                'closes_at': '21:00:00',
+                'percent_washers': 30,
+                'car_types': [{'name': 'Sedan'}],
+            },
+            documents_data={
+                'iin': '123456789012',
+                'legal_address': 'Some Street, Some City'
+            },
+            boxes_amount=2
+        )
         self.cw.managers.add(self.manager)
         self.cw.washers.add(self.washer)
 

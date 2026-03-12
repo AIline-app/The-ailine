@@ -14,13 +14,19 @@ class ServicesEndpointsTests(APITestCase):
         self.other = create_active_user(username='Other', phone_number='+77071110002', password=DEFAULT_PASSWORD)
         # Create a car wash with settings and documents so that car_types exist
         self.cw = CarWash.objects.create(owner=self.owner, name='CW', address='Addr', is_active=True)
-        self.cw.create_settings(settings_data={
-            'opens_at': '09:00:00',
-            'closes_at': '21:00:00',
-            'percent_washers': 30,
-            'car_types': [{'name': 'Sedan'}, {'name': 'SUV'}],
-        })
-        self.cw.create_documents(documents_data={'iin': '123456789012'})
+        self.cw.initialize(
+            settings_data={
+                'opens_at': '09:00:00',
+                'closes_at': '21:00:00',
+                'percent_washers': 30,
+                'car_types': [{'name': 'Sedan'}, {'name': 'SUV'}],
+            },
+            documents_data={
+                'iin': '123456789012',
+                'legal_address': 'Some Street, Some City'
+            },
+            boxes_amount=2
+        )
         # Convenience
         self.list_url = reverse('car-wash-services-list', kwargs={'car_wash_id': self.cw.id})
 
@@ -75,13 +81,19 @@ class ServicesEndpointsTests(APITestCase):
         # Set up another car wash with a different car type
         other_cw_owner = create_active_user(username='Third', phone_number='+77071110003', password=DEFAULT_PASSWORD)
         other_cw = CarWash.objects.create(owner=other_cw_owner, name='CW2', address='Addr2', is_active=True)
-        other_cw.create_settings(settings_data={
-            'opens_at': '08:00:00',
-            'closes_at': '22:00:00',
-            'percent_washers': 25,
-            'car_types': [{'name': 'Truck'}],
-        })
-        other_cw.create_documents(documents_data={'iin': '999999999999'})
+        other_cw.initialize(
+            settings_data={
+                'opens_at': '09:00:00',
+                'closes_at': '21:00:00',
+                'percent_washers': 30,
+                'car_types': [{'name': 'Sedan'}],
+            },
+            documents_data={
+                'iin': '999999999999',
+                'legal_address': 'Some Street, Some City'
+            },
+            boxes_amount=2
+        )
 
         foreign_car_type = other_cw.settings.car_types.first()
 

@@ -19,8 +19,19 @@ class TestOrderStartValidations(APITestCase):
         self.client_user = create_active_user(username='Client', phone_number='+77070500004', password=DEFAULT_PASSWORD)
 
         self.cw = CarWash.objects.create(owner=self.owner, name='CW', address='Addr', is_active=True)
-        self.cw.create_settings(settings_data={'opens_at': '09:00:00', 'closes_at': '21:00:00', 'percent_washers': 30, 'car_types': [{'name': 'Sedan'}]})
-        self.cw.create_documents(documents_data={'iin': '123456789012'})
+        self.cw.initialize(
+            settings_data={
+                'opens_at': '09:00:00',
+                'closes_at': '21:00:00',
+                'percent_washers': 30,
+                'car_types': [{'name': 'Sedan'}],
+            },
+            documents_data={
+                'iin': '123456789012',
+                'legal_address': 'Some Street, Some City'
+            },
+            boxes_amount=2
+        )
         self.cw.managers.add(self.manager)
         self.cw.washers.add(self.washer)
 
@@ -33,8 +44,19 @@ class TestOrderStartValidations(APITestCase):
         # Alien car wash and entities
         alien_owner = create_active_user(username='AlienOwner', phone_number='+77070509999', password=DEFAULT_PASSWORD)
         self.alien_cw = CarWash.objects.create(owner=alien_owner, name='Alien', address='X', is_active=True)
-        self.alien_cw.create_settings(settings_data={'opens_at': '08:00:00', 'closes_at': '22:00:00', 'percent_washers': 30, 'car_types': [{'name': 'Sedan'}]})
-        self.alien_cw.create_documents(documents_data={'iin': '999999999999'})
+        self.alien_cw.initialize(
+            settings_data={
+                'opens_at': '09:00:00',
+                'closes_at': '21:00:00',
+                'percent_washers': 30,
+                'car_types': [{'name': 'Sedan'}],
+            },
+            documents_data={
+                'iin': '999999999999',
+                'legal_address': 'Some Street, Some City'
+            },
+            boxes_amount=2
+        )
         self.alien_box = Box.objects.create(car_wash=self.alien_cw, name='Alien Box')
 
         self.list_url = lambda cw_id: reverse('car-wash-user-orders-list', kwargs={'car_wash_id': cw_id})

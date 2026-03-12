@@ -1,10 +1,8 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import mixins, status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
+from rest_framework import mixins
+from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import GenericViewSet
 
-from api.car_wash.permissions import ReadOnly
 from api.car_wash.views import CarWashInRouteMixin
 from api.orders.permissions import IsOrderOwner
 from api.rating.serializers import (
@@ -13,7 +11,7 @@ from api.rating.serializers import (
     CarWashRatingSerializer,
 )
 from orders.models import Orders
-from rating.models import Rating, UserReview
+from rating.models import UserReview
 
 
 class OrderReviewViewSet(CarWashInRouteMixin,
@@ -46,18 +44,22 @@ class OrderReviewViewSet(CarWashInRouteMixin,
     #     return Response(UserReviewReadSerializer(instance, context=self.get_serializer_context()).data, status=status.HTTP_201_CREATED)
     #
 
-class CarWashRatingViewSet(CarWashInRouteMixin, GenericViewSet):
+class CarWashRatingViewSet(CarWashInRouteMixin, mixins.ListModelMixin, GenericViewSet):
     """Get current rating (count, average) of the car wash."""
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
+    serializer_class = CarWashRatingSerializer
+    
+    def get_queryset(self):
+        return self.car_wash.rating
 
-    def list(self, request, *args, **kwargs):
-        rating, _ = Rating.objects.get_or_create(car_wash=self.car_wash)
-        return Response(CarWashRatingSerializer(rating).data, status=status.HTTP_200_OK)
+    # def list(self, request, *args, **kwargs):
+    #     rating, _ = Rating.objects.get_or_create(car_wash=self.car_wash)
+    #     return Response(CarWashRatingSerializer(rating).data, status=status.HTTP_200_OK)
 
 
 class CarWashReviewsViewSet(CarWashInRouteMixin, mixins.ListModelMixin, GenericViewSet):
     """List user reviews for the car wash."""
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
     serializer_class = UserReviewReadSerializer
 
     def get_queryset(self):
