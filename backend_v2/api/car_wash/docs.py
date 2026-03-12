@@ -1,4 +1,5 @@
-from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResponse
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResponse, inline_serializer
+from rest_framework import serializers as drf_serializers
 
 from iLine.docs_params import date_from_param, date_to_param
 from api.car_wash.serializers import (
@@ -69,6 +70,24 @@ CarWashViewSetDocs = extend_schema_view(
         summary='Get car wash settings',
         responses={200: CarWashSettingsReadSerializer},
         tags=['Car wash', 'Settings'],
+    ),
+    logo=extend_schema(
+        summary='Get or update car wash logo',
+        description='GET returns the current logo image file (if set). PATCH uploads/replaces the logo file. Use multipart/form-data with field "logo".',
+        request=inline_serializer(
+            name='CarWashLogoUpload',
+            fields={
+                'logo': drf_serializers.FileField(required=True, help_text='Image file to upload as logo')
+            }
+        ),
+        responses={
+            200: OpenApiResponse(description='Logo image file'),
+            204: OpenApiResponse(description='Logo updated'),
+            400: OpenApiResponse(description='Validation error'),
+            403: OpenApiResponse(description='Forbidden'),
+            404: OpenApiResponse(description='Logo not set'),
+        },
+        tags=['Car wash'],
     ),
     marketing_links=extend_schema(
         summary='Get marketing links and QR codes',

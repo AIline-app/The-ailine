@@ -10,10 +10,16 @@ from api.rating.serializers import (
     UserReviewReadSerializer,
     CarWashRatingSerializer,
 )
+from api.rating.docs import (
+    OrderReviewViewSetDocs,
+    CarWashRatingViewSetDocs,
+    CarWashReviewsViewSetDocs,
+)
 from orders.models import Orders
 from rating.models import UserReview
 
 
+@OrderReviewViewSetDocs
 class OrderReviewViewSet(CarWashInRouteMixin,
                          mixins.CreateModelMixin,
                          mixins.RetrieveModelMixin,
@@ -44,6 +50,7 @@ class OrderReviewViewSet(CarWashInRouteMixin,
     #     return Response(UserReviewReadSerializer(instance, context=self.get_serializer_context()).data, status=status.HTTP_201_CREATED)
     #
 
+@CarWashRatingViewSetDocs
 class CarWashRatingViewSet(CarWashInRouteMixin, mixins.ListModelMixin, GenericViewSet):
     """Get current rating (count, average) of the car wash."""
     permission_classes = (AllowAny,)
@@ -57,6 +64,7 @@ class CarWashRatingViewSet(CarWashInRouteMixin, mixins.ListModelMixin, GenericVi
     #     return Response(CarWashRatingSerializer(rating).data, status=status.HTTP_200_OK)
 
 
+@CarWashReviewsViewSetDocs
 class CarWashReviewsViewSet(CarWashInRouteMixin, mixins.ListModelMixin, GenericViewSet):
     """List user reviews for the car wash."""
     permission_classes = (AllowAny,)
