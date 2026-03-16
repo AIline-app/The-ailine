@@ -22,8 +22,8 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from car_wash.models.car_wash import CarWash
 from api.car_wash.serializers import (CarWashWriteSerializer, CarSerializer, BoxSerializer, CarWashReadSerializer,
                                       CarWashEarningsReadSerializer, CarWashChangeSerializer,
-                                      CarWashDocumentsPrivateSerializer, CarWashSettingsWriteSerializer,
-                                      CarWashCarTypesSerializer)
+                                      CarWashSettingsWriteSerializer, CarWashCarTypesSerializer,
+                                      CarWashDocumentsWriteSerializer)
 from api.car_wash.docs import (CarWashViewSetDocs, BoxViewSetDocs, CarViewSetDocs, CarWashEarningsViewSetDocs,
                                CarTypeViewSetDocs)
 from api.car_wash.permissions import IsDirector, ReadOnly, IsCarWashOwner
@@ -79,7 +79,7 @@ class CarWashViewSet(viewsets.ModelViewSet):
             'update': CarWashChangeSerializer,
             'list': CarWashReadSerializer,
             'retrieve': CarWashReadSerializer,
-            'document': CarWashDocumentsPrivateSerializer,
+            'document': CarWashDocumentsWriteSerializer,
             'setting': CarWashSettingsWriteSerializer,
         }.get(self.action, self.serializer_class)
 

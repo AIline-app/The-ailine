@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.timezone import now
 
 from car_wash.utils.constants import (DEFAULT_WASHER_PERCENT, MIN_WASHER_PERCENT, MAX_WASHER_PERCENT,
-                                      LEGAL_ADDRESS_MAX_LENGTH)
+                                      LEGAL_ADDRESS_MAX_LENGTH, LEGAL_NAME_MAX_LENGTH, IIN_LENGTH)
 from iLine.settings import AUTH_USER_MODEL
 from car_wash.models.box import Box
 from orders.utils.enums import OrderStatus
@@ -265,8 +265,9 @@ class CarWashDocuments(models.Model):
         on_delete=models.CASCADE,
         primary_key=True,
     )
-    iin = models.CharField(_('TOO/IIN'), max_length=12)
-    legal_address = models.CharField(_('Legal Address'), max_length=LEGAL_ADDRESS_MAX_LENGTH)
+    iin = models.CharField(_('IIN/BIN'), max_length=IIN_LENGTH, null=True, blank=True, default=None)
+    legal_name = models.CharField(_('Legal name'), max_length=LEGAL_NAME_MAX_LENGTH, null=True, blank=True, default=None)
+    legal_address = models.CharField(_('Legal Address'), max_length=LEGAL_ADDRESS_MAX_LENGTH, null=True, blank=True, default=None)
 
     class Meta:
         verbose_name = _('Car Wash Documents')

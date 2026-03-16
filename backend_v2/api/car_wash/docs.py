@@ -7,11 +7,11 @@ from api.car_wash.serializers import (
     CarWashChangeSerializer,
     CarSerializer,
     BoxSerializer,
-    CarWashPrivateReadSerializer,
+    CarWashReadSerializer,
     CarWashEarningsReadSerializer,
     MarketingLinksResponseSerializer,
     CarWashQueueSerializer,
-    CarWashDocumentsPrivateSerializer,
+    CarWashDocumentsReadSerializer,
     CarWashSettingsReadSerializer,
     CarWashCarTypesSerializer,
 )
@@ -21,33 +21,33 @@ CarWashViewSetDocs = extend_schema_view(
     list=extend_schema(
         summary='List car washes',
         description='List public car washes for anonymous users and both public and own car washes for authenticated users.',
-        responses={200: CarWashPrivateReadSerializer},
+        responses={200: CarWashReadSerializer},
         tags=['Car wash'],
     ),
     retrieve=extend_schema(
         summary='Retrieve a car wash',
         description='Retrieve a car wash by id. Returns detailed info for owners, public info otherwise.',
-        responses={200: CarWashPrivateReadSerializer, 404: OpenApiResponse(description='Not found')},
+        responses={200: CarWashReadSerializer, 404: OpenApiResponse(description='Not found')},
         tags=['Car wash'],
     ),
     create=extend_schema(
         summary='Create a car wash',
         description='Create a new car wash with settings, documents and initial boxes amount.',
         request=CarWashWriteSerializer,
-        responses={201: CarWashPrivateReadSerializer, 400: OpenApiResponse(description='Validation error')},
+        responses={201: CarWashReadSerializer, 400: OpenApiResponse(description='Validation error')},
         tags=['Car wash'],
     ),
     update=extend_schema(
         summary='Update a car wash',
         description='Update existing car wash fields, nested settings/documents and boxes amount.',
         request=CarWashChangeSerializer,
-        responses={200: CarWashPrivateReadSerializer, 400: OpenApiResponse(description='Validation error')},
+        responses={200: CarWashReadSerializer, 400: OpenApiResponse(description='Validation error')},
         tags=['Car wash'],
     ),
     partial_update=extend_schema(
         summary='Partially update a car wash',
         request=CarWashChangeSerializer,
-        responses={200: CarWashPrivateReadSerializer},
+        responses={200: CarWashReadSerializer},
         tags=['Car wash'],
     ),
     destroy=extend_schema(
@@ -63,7 +63,7 @@ CarWashViewSetDocs = extend_schema_view(
     ),
     document=extend_schema(
         summary='Get car wash documents',
-        responses={200: CarWashDocumentsPrivateSerializer},
+        responses={200: CarWashDocumentsReadSerializer},
         tags=['Car wash', 'Documents'],
     ),
     setting=extend_schema(
