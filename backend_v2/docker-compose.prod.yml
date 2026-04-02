@@ -121,8 +121,8 @@ services:
       - GUNICORN_MAX_REQUESTS_JITTER=200
       - GUNICORN_LOG_LEVEL=info
     command: ["gunicorn", "iLine.wsgi:application", "-c", "/app/gunicorn.conf.py"]
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     volumes:
       - media:/app/media
       - logs:/app/logs
@@ -269,6 +269,34 @@ services:
           memory: 64M
     volumes:
       - logs:/app/logs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:1.25-alpine
+    depends_on:
+      web:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - media:/app/media:ro
+      - logs:/var/log/nginx
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider --no-check-certificate https://localhost/healthz/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: always
     logging:
       driver: "json-file"
       options:
