@@ -113,8 +113,9 @@ services:
     build: .
     env_file:
       - .env.infrastructure
+      - .env.production
     environment:
-      - DOTENV_KEY=${DOTENV_KEY}
+      - DJANGO_LOG_DIR=/app/logs/web
       - WEB_CONCURRENCY=2
       - GUNICORN_MAX_REQUESTS=1000
       - GUNICORN_MAX_REQUESTS_JITTER=200
@@ -124,6 +125,7 @@ services:
       - "8000:8000"
     volumes:
       - media:/app/media
+      - logs:/app/logs
     depends_on:
       db:
         condition: service_healthy
@@ -162,9 +164,10 @@ services:
     command: python worker.py
     env_file:
       - .env.infrastructure
+      - .env.production
     environment:
-      - DOTENV_KEY=${DOTENV_KEY_SMS}
       - LOG_LEVEL=INFO  # Reduced verbosity in production
+      - DJANGO_LOG_DIR=/app/logs/sms-worker
 #    depends_on:
 #      kafka:
 #        condition: service_healthy
@@ -174,6 +177,8 @@ services:
         limits:
           cpus: "0.05"
           memory: 64M
+    volumes:
+      - logs:/app/logs
     logging:
       driver: "json-file"
       options:
@@ -189,9 +194,10 @@ services:
       dockerfile: standalone/telegram_bot/Dockerfile
     env_file:
       - .env.infrastructure
+      - .env.production
     environment:
-      - DOTENV_KEY=${DOTENV_KEY}
       - LOG_LEVEL=INFO
+      - DJANGO_LOG_DIR=/app/logs/telegram-bot
     depends_on:
       db:
         condition: service_healthy
@@ -207,6 +213,8 @@ services:
         limits:
           cpus: "0.05"
           memory: 96M
+    volumes:
+      - logs:/app/logs
     logging:
       driver: "json-file"
       options:
@@ -219,8 +227,9 @@ services:
     build: .
     env_file:
       - .env.infrastructure
+      - .env.production
     environment:
-      - DOTENV_KEY=${DOTENV_KEY}
+      - DJANGO_LOG_DIR=/app/logs/celery-worker
     command: ["celery", "-A", "iLine", "worker", "-l", "info", "-c", "2", "--max-tasks-per-child", "500"]
     depends_on:
       web:
@@ -231,6 +240,8 @@ services:
         limits:
           cpus: "0.20"
           memory: 256M
+    volumes:
+      - logs:/app/logs
     logging:
       driver: "json-file"
       options:
@@ -243,8 +254,9 @@ services:
     build: .
     env_file:
       - .env.infrastructure
+      - .env.production
     environment:
-      - DOTENV_KEY=${DOTENV_KEY}
+      - DJANGO_LOG_DIR=/app/logs/celery-beat
     command: ["celery", "-A", "iLine", "beat", "-l", "info"]
     depends_on:
       web:
@@ -255,6 +267,8 @@ services:
         limits:
           cpus: "0.02"
           memory: 64M
+    volumes:
+      - logs:/app/logs
     logging:
       driver: "json-file"
       options:
@@ -268,6 +282,7 @@ volumes:
   kafka_data:
   redis_data:
   media:
+  logs:
 
 networks:
   app-network:

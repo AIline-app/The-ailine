@@ -2,7 +2,7 @@ import asyncio
 import json
 import logging
 import os
-from dotenv_vault import load_dotenv
+from dotenv import load_dotenv
 
 import aiohttp
 from aiokafka import AIOKafkaConsumer

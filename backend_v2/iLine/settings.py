@@ -12,26 +12,20 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 import environ
 from pathlib import Path
-
-from dotenv_vault import load_dotenv
+from dotenv import load_dotenv
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = environ.Path(__file__) - 2
 
-try:
-    load_dotenv()
-except Exception:
-    print('WARNING: FALLBACK TO .env')
-    os.environ['DOTENV_KEY'] = ''
-    del os.environ['DOTENV_KEY']
-    load_dotenv()
+# Load environment variables from .env files if present
+load_dotenv()
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
 SECRET_KEY = os.environ["SECRET_KEY"]
 
-DEBUG = bool(os.environ.get("DEBUG", False))
+DEBUG = os.environ.get("DEBUG", "0").lower() in ("1", "true", "yes", "on")
 
 APP_HOST = os.environ.get('APP_HOST', 'http://localhost:8000/')
 
@@ -184,7 +178,7 @@ else:
     SESSION_COOKIE_DOMAIN = os.environ.get('SESSION_COOKIE_DOMAIN')
 
 CSRF_USE_SESSIONS = False
-CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read the cookie
+CSRF_COOKIE_HTTPONLY = os.environ.get('CSRF_COOKIE_HTTPONLY', 'False').lower() in ('1','true','yes','on')  # Allow JavaScript to read the cookie by default; override via env for stricter security
 CSRF_COOKIE_NAME = 'csrftoken'  # Explicitly set the cookie name
 CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
 
@@ -240,45 +234,89 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
-
-USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # Keep minimal: in DEBUG, Django will serve app static automatically; no collectstatic in production.
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.environ.get('STATIC_ROOT', os.path.join(str(BASE_DIR), 'staticfiles'))
 
 # Security & proxy settings for production
-# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-# SESSION_COOKIE_SECURE = not DEBUG
-# CSRF_COOKIE_SECURE = not DEBUG
-# SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', '0' if DEBUG else '31536000'))
-# SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
-# SECURE_HSTS_PRELOAD = not DEBUG
-# SECURE_CONTENT_TYPE_NOSNIFF = True
-# SECURE_BROWSER_XSS_FILTER = True
-# X_FRAME_OPTIONS = 'DENY'
-# USE_X_FORWARDED_HOST = True
+if not DEBUG:
+    # Assume app is behind a reverse proxy/ingress that terminates TLS
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    USE_X_FORWARDED_HOST = True
 
-# Logging to stdout/stderr for containerized deployments
+    # Cookies over HTTPS only
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+    # HSTS (can be tuned via env SECURE_HSTS_SECONDS)
+    SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', '31536000'))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+    # Other security headers
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
+    # SECURE_BROWSER_XSS_FILTER was removed in newer Django; modern browsers handle XSS protection
+else:
+    # Development conveniences
+    SECURE_PROXY_SSL_HEADER = None
+    USE_X_FORWARDED_HOST = False
+
+# Logging: console plus daily-rotated files kept for the last 7 days
+# In production, file logging is enabled ONLY if DJANGO_LOG_DIR is provided.
+# In DEBUG, default to BASE_DIR/logs for developer convenience.
+LOG_DIR = os.environ.get('DJANGO_LOG_DIR') or (os.path.join(str(BASE_DIR), 'logs') if DEBUG else None)
+if LOG_DIR:
+    try:
+        os.makedirs(LOG_DIR, exist_ok=True)
+    except Exception:
+        # If directory can't be created (e.g., read-only FS), fall back to console-only
+        LOG_DIR = None
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s %(levelname)s [%(name)s] %(message)s',
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s',
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'formatter': 'simple',
         },
+        **({
+            'app_file': {
+                'class': 'logging.handlers.TimedRotatingFileHandler',
+                'filename': os.path.join(LOG_DIR, 'app.log'),
+                'when': 'midnight',
+                'backupCount': 7,
+                'encoding': 'utf-8',
+                'utc': True,
+            },
+            'django_file': {
+                'class': 'logging.handlers.TimedRotatingFileHandler',
+                'filename': os.path.join(LOG_DIR, 'django.log'),
+                'when': 'midnight',
+                'backupCount': 7,
+                'encoding': 'utf-8',
+                'utc': True,
+            },
+        } if LOG_DIR else {})
     },
     'root': {
-        'handlers': ['console'],
+        'handlers': ['console'] + (['app_file'] if LOG_DIR else []),
         'level': os.environ.get('DJANGO_LOG_LEVEL', 'DEBUG' if DEBUG else 'INFO'),
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
+            'handlers': ['console'] + (['django_file'] if LOG_DIR else []),
             'level': os.environ.get('DJANGO_LOG_LEVEL', 'DEBUG' if DEBUG else 'INFO'),
             'propagate': False,
         },
