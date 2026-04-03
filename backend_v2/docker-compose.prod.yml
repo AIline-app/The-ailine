@@ -2,6 +2,7 @@ version: "3.9"
 
 services:
   db:
+    container_name: postgres
     image: postgres:15-alpine
     env_file:
       - .env.infrastructure
@@ -36,6 +37,7 @@ services:
       - app-network
 
   kafka:
+    container_name: kafka
     image: apache/kafka:4.1.1
 #    ports:
 #      - "9092:9092"
@@ -85,6 +87,7 @@ services:
       - app-network
 
   redis:
+    container_name: redis
     image: redis:7-alpine
     command: ["redis-server", "--appendonly", "yes", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
     volumes:
@@ -110,10 +113,11 @@ services:
       - app-network
 
   web:
+    container_name: django
     build: .
     env_file:
       - .env.infrastructure
-      - .env.production
+      - .env
     environment:
       - DJANGO_LOG_DIR=/app/logs/web
       - WEB_CONCURRENCY=2
@@ -164,7 +168,7 @@ services:
     command: python worker.py
     env_file:
       - .env.infrastructure
-      - .env.production
+      - standalone/sms_worker/.env
     environment:
       - LOG_LEVEL=INFO  # Reduced verbosity in production
       - DJANGO_LOG_DIR=/app/logs/sms-worker
@@ -194,7 +198,7 @@ services:
       dockerfile: standalone/telegram_bot/Dockerfile
     env_file:
       - .env.infrastructure
-      - .env.production
+      - .env
     environment:
       - LOG_LEVEL=INFO
       - DJANGO_LOG_DIR=/app/logs/telegram-bot
@@ -224,10 +228,11 @@ services:
       - app-network
 
   celery-worker:
+    container_name: celery-worker
     build: .
     env_file:
       - .env.infrastructure
-      - .env.production
+      - .env
     environment:
       - DJANGO_LOG_DIR=/app/logs/celery-worker
     command: ["celery", "-A", "iLine", "worker", "-l", "info", "-c", "2", "--max-tasks-per-child", "500"]
@@ -251,10 +256,11 @@ services:
       - app-network
 
   celery-beat:
+    container_name: celery-beat
     build: .
     env_file:
       - .env.infrastructure
-      - .env.production
+      - .env
     environment:
       - DJANGO_LOG_DIR=/app/logs/celery-beat
     command: ["celery", "-A", "iLine", "beat", "-l", "info"]
@@ -278,6 +284,7 @@ services:
       - app-network
 
   nginx:
+    container_name: nginx
     image: nginx:1.25-alpine
     depends_on:
       web:
