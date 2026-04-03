@@ -14,6 +14,6 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt
 # Create workdir and copy worker code
 WORKDIR /app
 COPY worker.py /app/worker.py
-COPY .env.vault /app/.env.vault
+COPY .env /app/.env
 
 CMD ["python", "worker.py"]
