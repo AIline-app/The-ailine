@@ -166,14 +166,14 @@ AUTHENTICATION_BACKENDS = [
 WSGI_APPLICATION = 'iLine.wsgi.application'
 
 CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:8000').split(',')
+CSRF_USE_SESSIONS = True
+CSRF_COOKIE_SAMESITE = 'Strict'
+SESSION_COOKIE_SAMESITE = 'Strict'
 
-if DEBUG:
+if not DEBUG:
     # CSRF and session cookie settings suitable for local development
     # CSRF_COOKIE_SECURE = False
     # SESSION_COOKIE_SECURE = False
-    CSRF_COOKIE_SAMESITE = 'Lax'
-    SESSION_COOKIE_SAMESITE = 'Lax'
-else:
     CSRF_COOKIE_DOMAIN = os.environ.get('CSRF_COOKIE_DOMAIN')
     SESSION_COOKIE_DOMAIN = os.environ.get('SESSION_COOKIE_DOMAIN')
 
