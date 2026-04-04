@@ -177,7 +177,6 @@ if not DEBUG:
     CSRF_COOKIE_DOMAIN = os.environ.get('CSRF_COOKIE_DOMAIN')
     SESSION_COOKIE_DOMAIN = os.environ.get('SESSION_COOKIE_DOMAIN')
 
-CSRF_USE_SESSIONS = False
 CSRF_COOKIE_HTTPONLY = os.environ.get('CSRF_COOKIE_HTTPONLY', 'False').lower() in ('1','true','yes','on')  # Allow JavaScript to read the cookie by default; override via env for stricter security
 CSRF_COOKIE_NAME = 'csrftoken'  # Explicitly set the cookie name
 CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
