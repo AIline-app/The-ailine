@@ -67,15 +67,15 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     # 'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # 'iLine.middleware.SessionTokenMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'iLine.middleware.SessionTokenMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "allauth.account.middleware.AccountMiddleware",
     "django_attribution.middlewares.TrackingParameterMiddleware",
     "django_attribution.middlewares.AttributionMiddleware",
-    "allauth.account.middleware.AccountMiddleware",
 ]
 
 # SOCIALACCOUNT_PROVIDERS = {
@@ -195,6 +195,7 @@ DATABASES = {
 REST_FRAMEWORK = {
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'allauth.headless.contrib.rest_framework.authentication.XSessionTokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
