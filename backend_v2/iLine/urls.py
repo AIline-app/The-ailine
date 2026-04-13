@@ -19,16 +19,29 @@ from django.urls import path, include
 from django.http import JsonResponse
 from django.conf import settings
 from django.conf.urls.static import static
+from django.middleware.csrf import get_token
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.cache import never_cache
 
 
 def healthz(request):
     return JsonResponse({"status": "ok"})
+
+@never_cache
+@require_http_methods(["GET"])
+@ensure_csrf_cookie
+def csrf_token_view(request):
+    """Return CSRF token from the session and ensure CSRF cookie is set."""
+    return JsonResponse({"csrfToken": get_token(request)})
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('_allauth/', include('allauth.urls')),
     path("_allauth/", include("allauth.headless.urls")),
     path('api/v1/', include('api.urls')),
+    path('api/v1/csrf/', csrf_token_view, name='csrf-token'),
     path('healthz/', healthz, name='healthz'),
     path('admin_tools_stats/', include('admin_tools_stats.urls')),
 ]
